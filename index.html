@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestión de Shows</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            
+            --admin-color: #10b981;
+            --valentin-color: #f59e0b;
+            --lisandro-color: #3b82f6;
+            --otro-color: #8b5cf6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-badge {
+            background: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Container */
+        .container {
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .card.admin { border-left-color: var(--admin-color); }
+        .card.valentin { border-left-color: var(--valentin-color); }
+        .card.lisandro { border-left-color: var(--lisandro-color); }
+        .card.otro { border-left-color: var(--otro-color); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .card-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--primary);
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            flex: 1;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Calendar */
+        .calendar {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav button {
+            background: var(--bg);
+            border: none;
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            position: relative;
+        }
+
+        .calendar-day.header {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .calendar-day.other-month {
+            color: var(--text-muted);
+            opacity: 0.3;
+        }
+
+        .calendar-day.has-show {
+            background: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            margin: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Filter */
+        .filter-chips {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            color: var(--text);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip.active {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 1rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--card);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1 style="font-size: 1.25rem;">🎵 Shows</h1>
+            <div class="user-badge" id="userBadge">Admin</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Vista: Lista -->
+        <div class="view active" id="viewList">
+            <div class="filter-chips" id="filterChips">
+                <div class="chip active" data-filter="all">Todos</div>
+                <div class="chip" data-filter="admin">Admin</div>
+                <div class="chip" data-filter="valentin">Valentín</div>
+                <div class="chip" data-filter="lisandro">Lisandro</div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--admin-color);"></div>
+                    <span>Admin</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--valentin-color);"></div>
+                    <span>Valentín</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--lisandro-color);"></div>
+                    <span>Lisandro</span>
+                </div>
+            </div>
+
+            <div id="showsList"></div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📅</div>
+                <p>No hay shows registrados</p>
+            </div>
+        </div>
+
+        <!-- Vista: Calendario -->
+        <div class="view" id="viewCalendar">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <h2 class="calendar-title" id="calendarTitle"></h2>
+                    <div class="calendar-nav">
+                        <button onclick="app.prevMonth()">◀</button>
+                        <button onclick="app.nextMonth()">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Shows del día</h3>
+            <div id="dayShows"></div>
+        </div>
+
+        <!-- Vista: Reportes -->
+        <div class="view" id="viewReports">
+            <div class="stats" id="statsContainer"></div>
+
+            <h3 style="margin-bottom: 1rem;">Historial de Cambios</h3>
+            <div id="changeLog"></div>
+        </div>
+
+        <!-- Vista: Configuración -->
+        <div class="view" id="viewConfig">
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
+                <div class="form-group">
+                    <label class="form-label">Enlace Admin</label>
+                    <input type="text" class="form-input" id="linkAdmin" readonly>
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('admin')">Copiar</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Enlace Valentín</label>
+                    <input type="text" class="form-input" id="linkValentin" readonly>
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('valentin')">Copiar</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Enlace Lisandro</label>
+                    <input type="text" class="form-input" id="linkLisandro" readonly>
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('lisandro')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Permisos de Vendedores</h3>
+                <div class="toggle">
+                    <span>Ver total del show</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showTotal')" id="toggleShowTotal">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver gastos</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showExpenses')" id="toggleShowExpenses">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver comisión</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showCommission')" id="toggleShowCommission">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="app.openNewShowModal()" id="fabButton">+</button>
+
+    <!-- Bottom Navigation -->
+    <div class="nav">
+        <button class="nav-btn active" onclick="app.switchView('list', this)">
+            <span class="nav-icon">📋</span>
+            <span>Lista</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('calendar', this)">
+            <span class="nav-icon">📅</span>
+            <span>Calendario</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('reports', this)">
+            <span class="nav-icon">📊</span>
+            <span>Reportes</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('config', this)" id="navConfig">
+            <span class="nav-icon">⚙️</span>
+            <span>Config</span>
+        </button>
+    </div>
+
+    <!-- Modal: Nuevo/Editar Show -->
+    <div class="modal" id="modalShow">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Nuevo Show</h2>
+                <button class="modal-close" onclick="app.closeModal()">&times;</button>
+            </div>
+            
+            <form onsubmit="app.saveShow(event)">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Evento</label>
+                    <input type="text" class="form-input" id="inputEventType" required placeholder="Cumpleaños, Boda, Corporativo...">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" class="form-input" id="inputDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Horario</label>
+                        <input type="time" class="form-input" id="inputTime" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-input" id="inputAddress" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-input" id="inputPhone" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Valor Total ($)</label>
+                    <input type="number" class="form-input" id="inputTotal" required min="0" step="1000">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Gastos ($) - viajes, equipos, etc.</label>
+                    <input type="number" class="form-input" id="inputExpenses" value="0" min="0" step="1000">
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Se resta del total antes de calcular la comisión</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Seña/Vendedor</label>
+                    <select class="form-select" id="inputSeller" required>
+                        <option value="admin">Admin</option>
+                        <option value="valentin">Valentín</option>
+                        <option value="lisandro">Lisandro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Comisión</label>
+                    <select class="form-select" id="inputCommissionType" onchange="app.toggleCommissionInput()">
+                        <option value="percentage">Porcentaje (%)</option>
+                        <option value="fixed">Monto Fijo ($)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" id="labelCommission">Comisión (%)</label>
+                    <input type="number" class="form-input" id="inputCommission" value="30" min="0" step="1">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notas</label>
+                    <textarea class="form-textarea" id="inputNotes" placeholder="Detalles adicionales..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const app = {
+            currentUser: 'admin',
+            currentView: 'list',
+            currentMonth: new Date(),
+            selectedDay: new Date(),
+            editingId: null,
+            currentFilter: 'all',
+
+            config: {
+                showTotal: true,
+                showExpenses: true,
+                showCommission: true
+            },
+
+            shows: [],
+            changeLog: [],
+
+            init() {
+                // Detectar usuario desde URL
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    this.currentUser = hash.toLowerCase();
+                }
+
+                // Cargar datos
+                this.loadData();
+                this.loadConfig();
+
+                // Generar enlaces
+                this.generateLinks();
+
+                // Actualizar UI según usuario
+                this.updateUserUI();
+
+                // Renderizar vistas
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+
+                // Event listeners para filtros
+                document.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', (e) => {
+                        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentFilter = e.target.dataset.filter;
+                        this.renderList();
+                    });
+                });
+
+                // Auto-guardar en cada cambio
+                window.addEventListener('beforeunload', () => {
+                    this.saveData();
+                });
+            },
+
+            loadData() {
+                const saved = localStorage.getItem('showsData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.shows = data.shows || [];
+                    this.changeLog = data.changeLog || [];
+                }
+            },
+
+            saveData() {
+                localStorage.setItem('showsData', JSON.stringify({
+                    shows: this.shows,
+                    changeLog: this.changeLog
+                }));
+            },
+
+            loadConfig() {
+                const saved = localStorage.getItem('showsConfig');
+                if (saved) {
+                    this.config = JSON.parse(saved);
+                }
+                this.updateConfigToggles();
+            },
+
+            saveConfig() {
+                localStorage.setItem('showsConfig', JSON.stringify(this.config));
+            },
+
+            updateUserUI() {
+                const badge = document.getElementById('userBadge');
+                const navConfig = document.getElementById('navConfig');
+                const fab = document.getElementById('fabButton');
+
+                const userNames = {
+                    admin: 'Admin',
+                    valentin: 'Valentín',
+                    lisandro: 'Lisandro'
+                };
+
+                badge.textContent = userNames[this.currentUser] || 'Usuario';
+
+                // Solo admin puede ver config y crear shows
+                if (this.currentUser !== 'admin') {
+                    navConfig.style.display = 'none';
+                    fab.style.display = 'none';
+                } else {
+                    navConfig.style.display = 'flex';
+                    fab.style.display = 'flex';
+                }
+            },
+
+            generateLinks() {
+                const baseUrl = window.location.origin + window.location.pathname;
+                document.getElementById('linkAdmin').value = baseUrl + '#admin';
+                document.getElementById('linkValentin').value = baseUrl + '#valentin';
+                document.getElementById('linkLisandro').value = baseUrl + '#lisandro';
+            },
+
+            copyLink(user) {
+                const input = document.getElementById(`link${user.charAt(0).toUpperCase() + user.slice(1)}`);
+                input.select();
+                document.execCommand('copy');
+                alert('¡Enlace copiado!');
+            },
+
+            switchView(view, button) {
+                this.currentView = view;
+                
+                // Update views
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+
+                // Update nav
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Refresh current view
+                if (view === 'calendar') this.renderCalendar();
+                if (view === 'reports') this.renderReports();
+            },
+
+            openNewShowModal() {
+                if (this.currentUser !== 'admin') return;
+                
+                this.editingId = null;
+                document.getElementById('modalTitle').textContent = 'Nuevo Show';
+                document.getElementById('modalShow').classList.add('active');
+                
+                // Reset form
+                document.getElementById('inputEventType').value = '';
+                document.getElementById('inputDate').value = '';
+                document.getElementById('inputTime').value = '';
+                document.getElementById('inputAddress').value = '';
+                document.getElementById('inputPhone').value = '';
+                document.getElementById('inputTotal').value = '';
+                document.getElementById('inputExpenses').value = '0';
+                document.getElementById('inputSeller').value = 'admin';
+                document.getElementById('inputCommissionType').value = 'percentage';
+                document.getElementById('inputCommission').value = '30';
+                document.getElementById('inputNotes').value = '';
+                this.toggleCommissionInput();
+            },
+
+            openEditModal(id) {
+                if (this.currentUser !== 'admin') return;
+
+                this.editingId = id;
+                const show = this.shows.find(s => s.id === id);
+                
+                document.getElementById('modalTitle').textContent = 'Editar Show';
+                document.getElementById('modalShow').classList.add('active');
+                
+                document.getElementById('inputEventType').value = show.eventType;
+                document.getElementById('inputDate').value = show.date;
+                document.getElementById('inputTime').value = show.time;
+                document.getElementById('inputAddress').value = show.address;
+                document.getElementById('inputPhone').value = show.phone;
+                document.getElementById('inputTotal').value = show.total;
+                document.getElementById('inputExpenses').value = show.expenses || 0;
+                document.getElementById('inputSeller').value = show.seller;
+                document.getElementById('inputCommissionType').value = show.commissionType;
+                document.getElementById('inputCommission').value = show.commission;
+                document.getElementById('inputNotes').value = show.notes || '';
+                this.toggleCommissionInput();
+            },
+
+            closeModal() {
+                document.getElementById('modalShow').classList.remove('active');
+            },
+
+            toggleCommissionInput() {
+                const type = document.getElementById('inputCommissionType').value;
+                const label = document.getElementById('labelCommission');
+                const input = document.getElementById('inputCommission');
+
+                if (type === 'percentage') {
+                    label.textContent = 'Comisión (%)';
+                    input.max = '100';
+                    input.step = '1';
+                } else {
+                    label.textContent = 'Comisión ($)';
+                    input.max = '';
+                    input.step = '1000';
+                }
+            },
+
+            saveShow(event) {
+                event.preventDefault();
+                if (this.currentUser !== 'admin') return;
+
+                const showData = {
+                    id: this.editingId || Date.now(),
+                    eventType: document.getElementById('inputEventType').value,
+                    date: document.getElementById('inputDate').value,
+                    time: document.getElementById('inputTime').value,
+                    address: document.getElementById('inputAddress').value,
+                    phone: document.getElementById('inputPhone').value,
+                    total: parseFloat(document.getElementById('inputTotal').value),
+                    expenses: parseFloat(document.getElementById('inputExpenses').value) || 0,
+                    seller: document.getElementById('inputSeller').value,
+                    commissionType: document.getElementById('inputCommissionType').value,
+                    commission: parseFloat(document.getElementById('inputCommission').value),
+                    notes: document.getElementById('inputNotes').value,
+                    createdBy: this.currentUser,
+                    createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Calcular comisión
+                const netAmount = showData.total - showData.expenses;
+                showData.calculatedCommission = showData.commissionType === 'percentage' 
+                    ? (netAmount * showData.commission / 100)
+                    : showData.commission;
+
+                if (this.editingId) {
+                    const index = this.shows.findIndex(s => s.id === this.editingId);
+                    this.shows[index] = showData;
+                    this.addToLog('edit', showData);
+                } else {
+                    this.shows.push(showData);
+                    this.addToLog('create', showData);
+                }
+
+                this.saveData();
+                this.closeModal();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+            },
+
+            deleteShow(id) {
+                if (this.currentUser !== 'admin') return;
+                if (!confirm('¿Eliminar este show?')) return;
+
+                const show = this.shows.find(s => s.id === id);
+                this.shows = this.shows.filter(s => s.id !== id);
+                this.addToLog('delete', show);
+                
+                this.saveData();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+            },
+
+            addToLog(action, show) {
+                this.changeLog.push({
+                    id: Date.now(),
+                    action,
+                    show: { ...show },
+                    user: this.currentUser,
+                    timestamp: new Date().toISOString()
+                });
+            },
+
+            renderList() {
+                const container = document.getElementById('showsList');
+                const empty = document.getElementById('emptyState');
+
+                let shows = this.getFilteredShows();
+
+                // Ordenar por fecha
+                shows.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+
+                if (shows.length === 0) {
+                    container.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                empty.style.display = 'none';
+
+                container.innerHTML = shows.map(show => {
+                    const canEdit = this.currentUser === 'admin';
+                    const showDetails = this.shouldShowDetails(show);
+
+                    const netAmount = show.total - show.expenses;
+                    const commission = show.calculatedCommission || 0;
+
+                    return `
+                        <div class="card ${show.seller}">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">${show.eventType}</div>
+                                    <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
+                                        ${this.formatDate(show.date)} • ${show.time}
+                                    </div>
+                                </div>
+                                <div class="card-badge">${this.getSellerName(show.seller)}</div>
+                            </div>
+                            
+                            <div class="card-info">
+                                <div class="card-row">📍 ${show.address}</div>
+                                <div class="card-row">📞 ${show.phone}</div>
+                                
+                                ${showDetails.showTotal ? `
+                                    <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
+                                ` : ''}
+                                
+                                ${showDetails.showExpenses && show.expenses > 0 ? `
+                                    <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
+                                    <div class="card-row">📊 Neto: $${this.formatMoney(netAmount)}</div>
+                                ` : ''}
+                                
+                                ${showDetails.showCommission ? `
+                                    <div class="card-row" style="color: var(--success); font-weight: 600;">
+                                        💵 Comisión: $${this.formatMoney(commission)}
+                                        ${show.commissionType === 'percentage' ? `(${show.commission}%)` : '(fija)'}
+                                    </div>
+                                ` : ''}
+                                
+                                ${show.notes ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
+                            </div>
+                            
+                            ${canEdit ? `
+                                <div class="card-actions">
+                                    <button class="btn-small btn-primary" onclick="app.openEditModal(${show.id})">Editar</button>
+                                    <button class="btn-small btn-danger" onclick="app.deleteShow(${show.id})">Eliminar</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            renderCalendar() {
+                const grid = document.getElementById('calendarGrid');
+                const title = document.getElementById('calendarTitle');
+
+                const year = this.currentMonth.getFullYear();
+                const month = this.currentMonth.getMonth();
+
+                title.textContent = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+                
+                let html = days.map(d => `<div class="calendar-day header">${d}</div>`).join('');
+
+                // Previous month days
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
+                }
+
+                // Current month days
+                const today = new Date();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const hasShow = this.shows.some(s => s.date === date);
+                    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+                    
+                    let classes = 'calendar-day';
+                    if (hasShow) classes += ' has-show';
+                    if (isToday) classes += ' today';
+
+                    html += `<div class="${classes}" onclick="app.selectDay('${date}')">${day}</div>`;
+                }
+
+                grid.innerHTML = html;
+
+                // Render selected day shows
+                this.renderDayShows();
+            },
+
+            renderDayShows() {
+                const container = document.getElementById('dayShows');
+                const dateStr = this.selectedDay.toISOString().split('T')[0];
+                const dayShows = this.shows.filter(s => s.date === dateStr);
+
+                if (dayShows.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
+                    return;
+                }
+
+                container.innerHTML = dayShows.map(show => {
+                    const showDetails = this.shouldShowDetails(show);
+                    const commission = show.calculatedCommission || 0;
+
+                    return `
+                        <div class="card ${show.seller}">
+                            <div class="card-header">
+                                <div class="card-title">${show.eventType}</div>
+                                <div class="card-badge">${show.time}</div>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-row">📍 ${show.address}</div>
+                                ${showDetails.showCommission ? `
+                                    <div class="card-row" style="color: var(--success); font-weight: 600;">
+                                        💵 $${this.formatMoney(commission)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            renderReports() {
+                const statsContainer = document.getElementById('statsContainer');
+                const logContainer = document.getElementById('changeLog');
+
+                // Calcular estadísticas del mes actual
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+
+                const monthShows = this.shows.filter(s => {
+                    const showDate = new Date(s.date);
+                    return showDate.getMonth() === currentMonth && showDate.getFullYear() === currentYear;
+                });
+
+                let totalIncome = 0;
+                let adminIncome = 0;
+                const sellerCommissions = {};
+
+                monthShows.forEach(show => {
+                    const netAmount = show.total - show.expenses;
+                    const commission = show.calculatedCommission || 0;
+
+                    totalIncome += show.total;
+
+                    if (show.seller === 'admin') {
+                        adminIncome += netAmount;
+                    } else {
+                        adminIncome += (netAmount - commission);
+                        sellerCommissions[show.seller] = (sellerCommissions[show.seller] || 0) + commission;
+                    }
+                });
+
+                // Renderizar stats
+                let statsHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">$${this.formatMoney(totalIncome)}</div>
+                        <div class="stat-label">Ingresos Totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">$${this.formatMoney(adminIncome)}</div>
+                        <div class="stat-label">Para Admin</div>
+                    </div>
+                `;
+
+                Object.keys(sellerCommissions).forEach(seller => {
+                    statsHTML += `
+                        <div class="stat-card">
+                            <div class="stat-value">$${this.formatMoney(sellerCommissions[seller])}</div>
+                            <div class="stat-label">${this.getSellerName(seller)}</div>
+                        </div>
+                    `;
+                });
+
+                statsContainer.innerHTML = statsHTML;
+
+                // Renderizar log (últimos 20)
+                const recentLogs = [...this.changeLog].reverse().slice(0, 20);
+                
+                if (recentLogs.length === 0) {
+                    logContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>No hay cambios registrados</p></div>';
+                    return;
+                }
+
+                logContainer.innerHTML = recentLogs.map(log => {
+                    const actionEmoji = {
+                        create: '➕',
+                        edit: '✏️',
+                        delete: '🗑️'
+                    };
+
+                    const actionText = {
+                        create: 'Creado',
+                        edit: 'Editado',
+                        delete: 'Eliminado'
+                    };
+
+                    return `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <div>
+                                    <span style="font-size: 1.25rem;">${actionEmoji[log.action]}</span>
+                                    <strong style="margin-left: 0.5rem;">${actionText[log.action]}</strong>
+                                </div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                                    ${this.formatDateTime(log.timestamp)}
+                                </span>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">
+                                ${log.show.eventType} - ${this.formatDate(log.show.date)}
+                                <br>
+                                Por: ${this.getSellerName(log.user)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            selectDay(dateStr) {
+                this.selectedDay = new Date(dateStr + 'T12:00:00');
+                this.renderDayShows();
+            },
+
+            prevMonth() {
+                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+                this.renderCalendar();
+            },
+
+            nextMonth() {
+                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+                this.renderCalendar();
+            },
+
+            getFilteredShows() {
+                if (this.currentUser !== 'admin') {
+                    // Vendedores solo ven sus shows
+                    return this.shows.filter(s => s.seller === this.currentUser);
+                }
+
+                if (this.currentFilter === 'all') {
+                    return this.shows;
+                }
+
+                return this.shows.filter(s => s.seller === this.currentFilter);
+            },
+
+            shouldShowDetails(show) {
+                if (this.currentUser === 'admin') {
+                    return {
+                        showTotal: true,
+                        showExpenses: true,
+                        showCommission: true
+                    };
+                }
+
+                // Vendedor solo ve su info según config
+                if (show.seller === this.currentUser) {
+                    return {
+                        showTotal: this.config.showTotal,
+                        showExpenses: this.config.showExpenses,
+                        showCommission: this.config.showCommission
+                    };
+                }
+
+                // Shows de otros vendedores: solo info básica
+                return {
+                    showTotal: false,
+                    showExpenses: false,
+                    showCommission: false
+                };
+            },
+
+            toggleConfig(key) {
+                this.config[key] = !this.config[key];
+                this.saveConfig();
+                this.updateConfigToggles();
+                this.renderList();
+            },
+
+            updateConfigToggles() {
+                document.getElementById('toggleShowTotal').classList.toggle('active', this.config.showTotal);
+                document.getElementById('toggleShowExpenses').classList.toggle('active', this.config.showExpenses);
+                document.getElementById('toggleShowCommission').classList.toggle('active', this.config.showCommission);
+            },
+
+            clearAllData() {
+                if (this.currentUser !== 'admin') return;
+                if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
+                if (!confirm('¿Estás completamente seguro?')) return;
+
+                localStorage.removeItem('showsData');
+                localStorage.removeItem('showsConfig');
+                location.reload();
+            },
+
+            getSellerName(seller) {
+                const names = {
+                    admin: 'Admin',
+                    valentin: 'Valentín',
+                    lisandro: 'Lisandro'
+                };
+                return names[seller] || seller;
+            },
+
+            formatMoney(amount) {
+                return new Intl.NumberFormat('es-AR').format(amount);
+            },
+
+            formatDate(dateStr) {
+                return new Date(dateStr + 'T12:00:00').toLocaleDateString('es', { 
+                    day: 'numeric', 
+                    month: 'short',
+                    year: 'numeric'
+                });
+            },
+
+            formatDateTime(isoStr) {
+                return new Date(isoStr).toLocaleString('es', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestión de Shows</title>
+    <title>Shows Lysaurio</title>
     <style>
         * {
             margin: 0;
@@ -23,10 +23,9 @@
             --text-muted: #94a3b8;
             --border: #334155;
             
-            --lisaurio-color: #10b981;
+            --lysaurio-color: #10b981;
             --valentin-color: #f59e0b;
-            --lisandro-color: #3b82f6;
-            --otro-color: #8b5cf6;
+            --default-color: #8b5cf6;
         }
 
         body {
@@ -53,6 +52,13 @@
             align-items: center;
         }
 
+        .header-title {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .user-badge {
             background: var(--primary);
             padding: 0.5rem 1rem;
@@ -61,12 +67,18 @@
             font-weight: 600;
         }
 
-        .shows-count {
-            background: var(--success);
-            padding: 0.25rem 0.75rem;
+        .show-counter {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
             border-radius: 20px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.125rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
 
         /* Navigation */
@@ -137,9 +149,9 @@
             position: relative;
         }
 
-        .card.lisaurio { border-left-color: var(--lisaurio-color); }
+        .card.lysaurio { border-left-color: var(--lysaurio-color); }
         .card.valentin { border-left-color: var(--valentin-color); }
-        .card.lisandro { border-left-color: var(--lisandro-color); }
+        .card.other { border-left-color: var(--default-color); }
 
         .card-header {
             display: flex;
@@ -173,6 +185,17 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .card-highlight {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--danger);
         }
 
         .card-actions {
@@ -247,11 +270,6 @@
             color: var(--text);
             font-size: 1rem;
             font-family: inherit;
-            min-height: 48px;
-        }
-
-        input[type="date"], input[type="time"] {
-            min-height: 48px;
         }
 
         .form-input:focus, .form-select:focus, .form-textarea:focus {
@@ -261,13 +279,34 @@
 
         .form-textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
+        }
+
+        .saldo-display {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .saldo-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .saldo-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--danger);
         }
 
         /* Calendar */
@@ -309,6 +348,8 @@
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 0.25rem;
+            margin: 0 auto;
+            max-width: 100%;
         }
 
         .calendar-day {
@@ -319,7 +360,6 @@
             border-radius: 8px;
             font-size: 0.875rem;
             position: relative;
-            text-align: center;
         }
 
         .calendar-day.header {
@@ -547,37 +587,48 @@
             border-radius: 4px;
         }
 
-        /* Seller List */
-        .seller-card {
+        /* Musician Payments */
+        .musician-payment {
+            background: var(--bg);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
+        }
+
+        .remove-musician {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .add-seller-section {
             background: var(--bg);
+            padding: 1rem;
             border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-
-        .seller-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .seller-color {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-        }
-
-        .seller-actions {
-            display: flex;
-            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         @media (max-width: 640px) {
             .form-row {
                 grid-template-columns: 1fr;
+            }
+
+            .show-counter {
+                position: static;
+                transform: none;
+                margin-top: 0.5rem;
+                display: inline-block;
+            }
+
+            .header-content {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -586,9 +637,11 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <h1 style="font-size: 1.25rem;">🎵 Shows Lisaurio</h1>
-            <div id="pendingShows" class="shows-count">Pendientes: 0</div>
-            <div class="user-badge" id="userBadge">Lisaurio</div>
+            <h1 class="header-title">🎵 Shows Lysaurio</h1>
+            <div class="user-badge" id="userBadge">Lysaurio</div>
+        </div>
+        <div class="show-counter" id="showCounter" style="display: none;">
+            <span id="showCountNumber">0</span> Shows
         </div>
     </div>
 
@@ -598,7 +651,7 @@
         <div class="view active" id="viewList">
             <div class="filter-chips" id="filterChips"></div>
 
-            <div class="legend" id="legend"></div>
+            <div class="legend" id="legendContainer"></div>
 
             <div id="showsList"></div>
 
@@ -636,13 +689,26 @@
         <!-- Vista: Configuración -->
         <div class="view" id="viewConfig">
             <div class="card">
-                <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
-                <div class="form-group">
-                    <label class="form-label">Enlace Lisaurio</label>
-                    <input type="text" class="form-input" id="linkLisaurio" readonly>
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('lisaurio')">Copiar</button>
+                <h3 style="margin-bottom: 1rem;">➕ Agregar Vendedor</h3>
+                <div class="add-seller-section">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Vendedor</label>
+                        <input type="text" class="form-input" id="newSellerName" placeholder="Ej: Carlos">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Porcentaje de Comisión (%)</label>
+                        <input type="number" class="form-input" id="newSellerPercent" value="30" min="0" max="100">
+                    </div>
+                    <button class="btn btn-success" onclick="app.addSeller()">Agregar Vendedor</button>
                 </div>
-                <div id="sellerLinks"></div>
+
+                <h3 style="margin-bottom: 1rem;">Vendedores Actuales</h3>
+                <div id="sellersList"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
+                <div id="linksContainer"></div>
             </div>
 
             <div class="card">
@@ -659,24 +725,6 @@
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
-                <div class="toggle">
-                    <span>Ver comisión</span>
-                    <div class="toggle-switch active" onclick="app.toggleConfig('showCommission')" id="toggleShowCommission">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">Vendedores</h3>
-                <div id="sellersList"></div>
-                <button class="btn btn-primary" onclick="app.openAddSellerModal()">Agregar Vendedor</button>
-            </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">Pago fijo a músico (para shows de Lisaurio)</h3>
-                <input type="number" class="form-input" id="musicianFixed" step="1000" min="0">
-                <button class="btn btn-success" style="margin-top: 0.5rem;" onclick="app.saveMusicianFixed()">Guardar</button>
             </div>
 
             <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
@@ -688,19 +736,19 @@
 
     <!-- Bottom Navigation -->
     <div class="nav">
-        <button class="nav-btn active" onclick="app.switchView('list', this)">
+        <button class="nav-btn active" onclick="app.switchView('list')">
             <span class="nav-icon">📋</span>
             <span>Lista</span>
         </button>
-        <button class="nav-btn" onclick="app.switchView('calendar', this)">
+        <button class="nav-btn" onclick="app.switchView('calendar')">
             <span class="nav-icon">📅</span>
             <span>Calendario</span>
         </button>
-        <button class="nav-btn" onclick="app.switchView('reports', this)">
+        <button class="nav-btn" onclick="app.switchView('reports')">
             <span class="nav-icon">📊</span>
             <span>Reportes</span>
         </button>
-        <button class="nav-btn" onclick="app.switchView('config', this)" id="navConfig">
+        <button class="nav-btn" onclick="app.switchView('config')" id="navConfig">
             <span class="nav-icon">⚙️</span>
             <span>Config</span>
         </button>
@@ -716,36 +764,18 @@
             
             <form onsubmit="app.saveShow(event)">
                 <div class="form-group">
-                    <label class="form-label">Nombre del Contacto</label>
-                    <input type="text" class="form-input" id="inputName" required placeholder="Nombre de la persona que contactó">
+                    <label class="form-label">Tipo de Evento</label>
+                    <input type="text" class="form-input" id="inputEventType" required placeholder="Cumpleaños, Boda, Corporativo...">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tipo de Evento</label>
-                    <select class="form-select" id="inputEventTypeSelect" required onchange="app.toggleOtherEvent()">
-                        <option value="Cumpleaños">Cumpleaños</option>
-                        <option value="Casamiento">Casamiento</option>
-                        <option value="Fiesta">Fiesta</option>
-                        <option value="Boliche">Boliche</option>
-                        <option value="Bar">Bar</option>
-                        <option value="Otro">Otro</option>
-                    </select>
+                    <label class="form-label">Fecha</label>
+                    <input type="date" class="form-input" id="inputDate" required>
                 </div>
 
-                <div class="form-group" id="otherEventGroup" style="display: none;">
-                    <label class="form-label">Otro Tipo</label>
-                    <input type="text" class="form-input" id="inputOtherEvent" placeholder="Especifica el tipo de evento">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" class="form-input" id="inputDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Horario</label>
-                        <input type="time" class="form-input" id="inputTime" required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Horario</label>
+                    <input type="time" class="form-input" id="inputTime" required>
                 </div>
 
                 <div class="form-group">
@@ -760,36 +790,43 @@
 
                 <div class="form-group">
                     <label class="form-label">Valor Total ($)</label>
-                    <input type="number" class="form-input" id="inputTotal" required min="0" step="1000">
+                    <input type="number" class="form-input" id="inputTotal" required min="0" step="1000" oninput="app.calculateSaldo()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Seña Recibida ($)</label>
+                    <input type="number" class="form-input" id="inputDeposit" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿A quién se dio la seña?</label>
+                    <select class="form-select" id="inputDepositTo" required>
+                        <option value="lysaurio">Lysaurio</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Gastos ($) - viajes, equipos, etc.</label>
-                    <input type="number" class="form-input" id="inputExpenses" value="0" min="0" step="1000">
+                    <input type="number" class="form-input" id="inputExpenses" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
                     <small style="color: var(--text-muted); font-size: 0.75rem;">Se resta del total antes de calcular la comisión</small>
                 </div>
 
-                <div class="form-group" id="sellerGroup">
-                    <label class="form-label">Vendedor</label>
-                    <select class="form-select" id="inputSeller" required onchange="app.updateCommissionField()">
-                        <option value="lisaurio">Lisaurio</option>
-                        <!-- Dynamic options added here -->
+                <div class="saldo-display" id="saldoDisplay">
+                    <div class="saldo-label">💰 SALDO A COBRAR</div>
+                    <div class="saldo-value" id="saldoValue">$0</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿Quién tomó el show?</label>
+                    <select class="form-select" id="inputSeller" required onchange="app.handleSellerChange()">
+                        <option value="lysaurio">Lysaurio</option>
                     </select>
                 </div>
 
-                <div id="senaGroups"></div>
-
-                <div class="form-group" id="commissionTypeGroup" style="display: none;">
-                    <label class="form-label">Tipo de Comisión</label>
-                    <select class="form-select" id="inputCommissionType" onchange="app.toggleCommissionInput()">
-                        <option value="percentage">Porcentaje (%)</option>
-                        <option value="fixed">Monto Fijo ($)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="commissionGroup" style="display: none;">
-                    <label class="form-label" id="labelCommission">Comisión (%)</label>
-                    <input type="number" class="form-input" id="inputCommission" min="0" step="1">
+                <div class="form-group" id="musicianPaymentsSection" style="display: none;">
+                    <label class="form-label">Pagos a Músicos</label>
+                    <div id="musicianPaymentsList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="app.addMusicianPayment()">➕ Agregar Músico</button>
                 </div>
 
                 <div class="form-group">
@@ -805,61 +842,27 @@
         </div>
     </div>
 
-    <!-- Modal: Agregar/Editar Vendedor -->
-    <div class="modal" id="modalSeller">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modalSellerTitle">Nuevo Vendedor</h2>
-                <button class="modal-close" onclick="app.closeSellerModal()">&times;</button>
-            </div>
-            
-            <form onsubmit="app.saveSeller(event)">
-                <div class="form-group">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" class="form-input" id="inputSellerName" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Color (hex)</label>
-                    <input type="text" class="form-input" id="inputSellerColor" required placeholder="#f59e0b">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Comisión (%)</label>
-                    <input type="number" class="form-input" id="inputSellerCommission" required min="0" max="100" step="1">
-                </div>
-
-                <div style="display: flex; gap: 0.5rem;">
-                    <button type="button" class="btn btn-secondary" onclick="app.closeSellerModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
         const app = {
-            currentUser: 'lisaurio',
+            currentUser: 'lysaurio',
             currentView: 'list',
             currentMonth: new Date(),
             selectedDay: new Date(),
             editingId: null,
-            editingSellerId: null,
             currentFilter: 'all',
 
             config: {
                 showTotal: true,
                 showExpenses: true,
-                showCommission: true,
-                sellers: [
-                    {id: 'valentin', name: 'Valentín', color: '#f59e0b', commission: 30},
-                    {id: 'lisandro', name: 'Lisandro', color: '#3b82f6', commission: 30}
-                ],
-                musicianFixed: 50000
+                sellers: {
+                    lysaurio: { name: 'Lysaurio', percentage: 0, isAdmin: true },
+                    valentin: { name: 'Valentín', percentage: 30, isAdmin: false }
+                }
             },
 
             shows: [],
             changeLog: [],
+            musicianPayments: [],
 
             init() {
                 // Detectar usuario desde URL
@@ -872,40 +875,16 @@
                 this.loadData();
                 this.loadConfig();
 
-                // Set colors
-                this.config.sellers.forEach(seller => {
-                    document.documentElement.style.setProperty(`--${seller.id}-color`, seller.color);
-                });
-
-                // Generar enlaces
-                this.generateLinks();
-
                 // Actualizar UI según usuario
                 this.updateUserUI();
 
                 // Renderizar vistas
-                this.renderFilterChips();
-                this.renderLegend();
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
-                this.renderPendingCount();
-
-                if (this.currentUser === 'lisaurio') {
-                    this.renderSellersList();
-                    this.renderSellerLinks();
-                    document.getElementById('musicianFixed').value = this.config.musicianFixed;
-                }
-
-                // Event listeners para filtros
-                document.querySelectorAll('.chip').forEach(chip => {
-                    chip.addEventListener('click', (e) => {
-                        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                        e.target.classList.add('active');
-                        this.currentFilter = e.target.dataset.filter;
-                        this.renderList();
-                    });
-                });
+                this.renderSellersList();
+                this.renderLinks();
+                this.updateShowCounter();
 
                 // Auto-guardar en cada cambio
                 window.addEventListener('beforeunload', () => {
@@ -914,7 +893,7 @@
             },
 
             loadData() {
-                const saved = localStorage.getItem('showsData');
+                const saved = localStorage.getItem('showsLysaurioData');
                 if (saved) {
                     const data = JSON.parse(saved);
                     this.shows = data.shows || [];
@@ -923,22 +902,26 @@
             },
 
             saveData() {
-                localStorage.setItem('showsData', JSON.stringify({
+                localStorage.setItem('showsLysaurioData', JSON.stringify({
                     shows: this.shows,
                     changeLog: this.changeLog
                 }));
             },
 
             loadConfig() {
-                const saved = localStorage.getItem('showsConfig');
+                const saved = localStorage.getItem('showsLysaurioConfig');
                 if (saved) {
                     this.config = JSON.parse(saved);
+                }
+                // Asegurar que Lysaurio siempre existe
+                if (!this.config.sellers.lysaurio) {
+                    this.config.sellers.lysaurio = { name: 'Lysaurio', percentage: 0, isAdmin: true };
                 }
                 this.updateConfigToggles();
             },
 
             saveConfig() {
-                localStorage.setItem('showsConfig', JSON.stringify(this.config));
+                localStorage.setItem('showsLysaurioConfig', JSON.stringify(this.config));
             },
 
             updateUserUI() {
@@ -946,50 +929,232 @@
                 const navConfig = document.getElementById('navConfig');
                 const fab = document.getElementById('fabButton');
 
-                const userNames = {
-                    lisaurio: 'Lisaurio',
-                    ...this.config.sellers.reduce((acc, s) => ({...acc, [s.id]: s.name}), {})
-                };
+                const seller = this.config.sellers[this.currentUser];
+                badge.textContent = seller ? seller.name : 'Usuario';
 
-                badge.textContent = userNames[this.currentUser] || 'Usuario';
-
-                // Config solo para lisaurio
-                if (this.currentUser !== 'lisaurio') {
+                // Solo Lysaurio puede ver config y crear shows
+                if (this.currentUser !== 'lysaurio') {
                     navConfig.style.display = 'none';
-                    document.getElementById('filterChips').style.display = 'none';
+                    fab.style.display = 'none';
                 } else {
                     navConfig.style.display = 'flex';
-                    document.getElementById('filterChips').style.display = 'flex';
+                    fab.style.display = 'flex';
+                }
+            },
+
+            addSeller() {
+                const nameInput = document.getElementById('newSellerName');
+                const percentInput = document.getElementById('newSellerPercent');
+                
+                const name = nameInput.value.trim();
+                const percentage = parseFloat(percentInput.value);
+
+                if (!name) {
+                    alert('Ingresa un nombre para el vendedor');
+                    return;
                 }
 
-                // FAB para todos
-                fab.style.display = 'flex';
+                const sellerId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+
+                if (this.config.sellers[sellerId]) {
+                    alert('Este vendedor ya existe');
+                    return;
+                }
+
+                this.config.sellers[sellerId] = {
+                    name: name,
+                    percentage: percentage,
+                    isAdmin: false
+                };
+
+                this.saveConfig();
+                this.renderSellersList();
+                this.renderLinks();
+                this.updateSellerOptions();
+                
+                nameInput.value = '';
+                percentInput.value = '30';
+                
+                alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
             },
 
-            generateLinks() {
+            removeSeller(sellerId) {
+                if (sellerId === 'lysaurio') {
+                    alert('No puedes eliminar a Lysaurio');
+                    return;
+                }
+
+                if (!confirm(`¿Eliminar al vendedor ${this.config.sellers[sellerId].name}?`)) {
+                    return;
+                }
+
+                delete this.config.sellers[sellerId];
+                this.saveConfig();
+                this.renderSellersList();
+                this.renderLinks();
+                this.updateSellerOptions();
+            },
+
+            updateSellerPercentage(sellerId, newPercent) {
+                if (this.config.sellers[sellerId]) {
+                    this.config.sellers[sellerId].percentage = parseFloat(newPercent);
+                    this.saveConfig();
+                }
+            },
+
+            renderSellersList() {
+                const container = document.getElementById('sellersList');
+                
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    const isLysaurio = sellerId === 'lysaurio';
+                    
+                    html += `
+                        <div class="musician-payment">
+                            <div>
+                                <strong>${seller.name}</strong>
+                                <br>
+                                <small style="color: var(--text-muted);">
+                                    ${isLysaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
+                                </small>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                ${!isLysaurio ? `
+                                    <input type="number" 
+                                           value="${seller.percentage}" 
+                                           min="0" max="100" 
+                                           style="width: 70px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
+                                           onchange="app.updateSellerPercentage('${sellerId}', this.value)">
+                                    <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            },
+
+            renderLinks() {
+                const container = document.getElementById('linksContainer');
                 const baseUrl = window.location.origin + window.location.pathname;
-                document.getElementById('linkLisaurio').value = baseUrl + '#lisaurio';
+                
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    const link = baseUrl + '#' + sellerId;
+                    
+                    html += `
+                        <div class="form-group">
+                            <label class="form-label">Enlace ${seller.name}</label>
+                            <input type="text" class="form-input" value="${link}" readonly id="link-${sellerId}">
+                            <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${sellerId}')">Copiar</button>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
             },
 
-            renderSellerLinks() {
-                const container = document.getElementById('sellerLinks');
-                container.innerHTML = this.config.sellers.map(seller => `
-                    <div class="form-group">
-                        <label class="form-label">Enlace ${seller.name}</label>
-                        <input type="text" class="form-input" id="link${seller.id.charAt(0).toUpperCase() + seller.id.slice(1)}" readonly value="${window.location.origin + window.location.pathname + '#' + seller.id}">
-                        <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${seller.id}')">Copiar</button>
-                    </div>
-                `).join('');
-            },
-
-            copyLink(user) {
-                const input = document.getElementById(`link${user.charAt(0).toUpperCase() + user.slice(1)}`);
+            copyLink(sellerId) {
+                const input = document.getElementById(`link-${sellerId}`);
                 input.select();
                 document.execCommand('copy');
                 alert('¡Enlace copiado!');
             },
 
-            switchView(view, button) {
+            updateSellerOptions() {
+                const sellerSelect = document.getElementById('inputSeller');
+                const depositToSelect = document.getElementById('inputDepositTo');
+                
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    html += `<option value="${sellerId}">${seller.name}</option>`;
+                });
+
+                sellerSelect.innerHTML = html;
+                depositToSelect.innerHTML = html;
+            },
+
+            handleSellerChange() {
+                const seller = document.getElementById('inputSeller').value;
+                const musicianSection = document.getElementById('musicianPaymentsSection');
+
+                if (seller === 'lysaurio') {
+                    musicianSection.style.display = 'block';
+                } else {
+                    musicianSection.style.display = 'none';
+                    this.musicianPayments = [];
+                    this.renderMusicianPayments();
+                }
+            },
+
+            addMusicianPayment() {
+                const container = document.getElementById('musicianPaymentsList');
+                const id = Date.now();
+                
+                this.musicianPayments.push({ id, musician: '', amount: 0 });
+                this.renderMusicianPayments();
+            },
+
+            removeMusicianPayment(id) {
+                this.musicianPayments = this.musicianPayments.filter(m => m.id !== id);
+                this.renderMusicianPayments();
+            },
+
+            renderMusicianPayments() {
+                const container = document.getElementById('musicianPaymentsList');
+                
+                if (this.musicianPayments.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                let html = '';
+                this.musicianPayments.forEach(payment => {
+                    html += `
+                        <div class="musician-payment">
+                            <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" 
+                                    style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
+                                <option value="">Seleccionar músico</option>
+                                ${Object.keys(this.config.sellers).filter(s => s !== 'lysaurio').map(s => 
+                                    `<option value="${s}" ${payment.musician === s ? 'selected' : ''}>${this.config.sellers[s].name}</option>`
+                                ).join('')}
+                            </select>
+                            <input type="number" 
+                                   value="${payment.amount}" 
+                                   placeholder="Monto" 
+                                   min="0" step="1000"
+                                   onchange="app.updateMusicianPayment(${payment.id}, 'amount', this.value)"
+                                   style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
+                            <button class="remove-musician" onclick="app.removeMusicianPayment(${payment.id})">✕</button>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            },
+
+            updateMusicianPayment(id, field, value) {
+                const payment = this.musicianPayments.find(m => m.id === id);
+                if (payment) {
+                    payment[field] = field === 'amount' ? parseFloat(value) : value;
+                }
+            },
+
+            calculateSaldo() {
+                const total = parseFloat(document.getElementById('inputTotal').value) || 0;
+                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
+
+                const saldo = total - deposit - expenses;
+                
+                document.getElementById('saldoValue').textContent = '$' + this.formatMoney(Math.max(0, saldo));
+            },
+
+            switchView(view) {
                 this.currentView = view;
                 
                 // Update views
@@ -998,120 +1163,47 @@
 
                 // Update nav
                 document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+                event.currentTarget.classList.add('active');
 
                 // Refresh current view
                 if (view === 'calendar') this.renderCalendar();
                 if (view === 'reports') this.renderReports();
-                if (view === 'config' && this.currentUser === 'lisaurio') {
+                if (view === 'config') {
                     this.renderSellersList();
-                }
-            },
-
-            toggleOtherEvent() {
-                const select = document.getElementById('inputEventTypeSelect');
-                const group = document.getElementById('otherEventGroup');
-                group.style.display = select.value === 'Otro' ? 'block' : 'none';
-            },
-
-            updateCommissionField() {
-                const seller = document.getElementById('inputSeller').value;
-                const commissionTypeGroup = document.getElementById('commissionTypeGroup');
-                const commissionGroup = document.getElementById('commissionGroup');
-                const labelCommission = document.getElementById('labelCommission');
-                const inputCommission = document.getElementById('inputCommission');
-
-                if (seller === 'lisaurio') {
-                    commissionTypeGroup.style.display = 'none';
-                    commissionGroup.style.display = 'block';
-                    labelCommission.textContent = 'Pago a músico ($)';
-                    inputCommission.value = this.config.musicianFixed;
-                    inputCommission.step = '1000';
-                    inputCommission.max = '';
-                } else {
-                    commissionTypeGroup.style.display = 'none';
-                    commissionGroup.style.display = 'block';
-                    labelCommission.textContent = 'Comisión (%)';
-                    const sellerConfig = this.config.sellers.find(s => s.id === seller);
-                    inputCommission.value = sellerConfig ? sellerConfig.commission : 30;
-                    inputCommission.step = '1';
-                    inputCommission.max = '100';
+                    this.renderLinks();
                 }
             },
 
             openNewShowModal() {
+                if (this.currentUser !== 'lysaurio') return;
+                
                 this.editingId = null;
+                this.musicianPayments = [];
+                
                 document.getElementById('modalTitle').textContent = 'Nuevo Show';
                 document.getElementById('modalShow').classList.add('active');
                 
                 // Reset form
-                document.getElementById('inputName').value = '';
-                document.getElementById('inputEventTypeSelect').value = 'Cumpleaños';
-                document.getElementById('inputOtherEvent').value = '';
-                this.toggleOtherEvent();
+                document.getElementById('inputEventType').value = '';
                 document.getElementById('inputDate').value = '';
                 document.getElementById('inputTime').value = '';
                 document.getElementById('inputAddress').value = '';
                 document.getElementById('inputPhone').value = '';
                 document.getElementById('inputTotal').value = '';
+                document.getElementById('inputDeposit').value = '0';
                 document.getElementById('inputExpenses').value = '0';
                 document.getElementById('inputNotes').value = '';
-
-                // Seller select
-                const sellerSelect = document.getElementById('inputSeller');
-                sellerSelect.innerHTML = `<option value="lisaurio">Lisaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-
-                const isLisaurio = this.currentUser === 'lisaurio';
-
-                const sellerGroup = document.getElementById('sellerGroup');
-                sellerGroup.style.display = isLisaurio ? 'block' : 'none';
-                if (!isLisaurio) {
-                    sellerSelect.value = this.currentUser;
-                } else {
-                    sellerSelect.value = 'lisaurio';
-                }
-
-                const commissionTypeGroup = document.getElementById('commissionTypeGroup');
-                const commissionGroup = document.getElementById('commissionGroup');
-                commissionTypeGroup.style.display = 'none';
-                commissionGroup.style.display = isLisaurio ? 'block' : 'none';
-
-                this.updateCommissionField();
-
-                // Sena groups
-                const senaContainer = document.getElementById('senaGroups');
-                senaContainer.innerHTML = '';
-                if (isLisaurio) {
-                    senaContainer.innerHTML += `
-                        <div class="form-group">
-                            <label class="form-label">Seña a Lisaurio ($)</label>
-                            <input type="number" class="form-input" id="inputSena_lisaurio" value="0" min="0" step="1000">
-                        </div>
-                    `;
-                    this.config.sellers.forEach(seller => {
-                        senaContainer.innerHTML += `
-                            <div class="form-group">
-                                <label class="form-label">Seña a ${seller.name} ($)</label>
-                                <input type="number" class="form-input" id="inputSena_${seller.id}" value="0" min="0" step="1000">
-                            </div>
-                        `;
-                    });
-                } else {
-                    senaContainer.innerHTML += `
-                        <div class="form-group">
-                            <label class="form-label">Seña a Lisaurio ($)</label>
-                            <input type="number" class="form-input" id="inputSena_lisaurio" value="0" min="0" step="1000">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Seña a mí ($)</label>
-                            <input type="number" class="form-input" id="inputSena_${this.currentUser}" value="0" min="0" step="1000">
-                        </div>
-                    `;
-                }
+                
+                this.updateSellerOptions();
+                document.getElementById('inputSeller').value = 'lysaurio';
+                document.getElementById('inputDepositTo').value = 'lysaurio';
+                
+                this.handleSellerChange();
+                this.calculateSaldo();
             },
 
             openEditModal(id) {
-                if (this.currentUser !== 'lisaurio') return;
+                if (this.currentUser !== 'lysaurio') return;
 
                 this.editingId = id;
                 const show = this.shows.find(s => s.id === id);
@@ -1119,122 +1211,70 @@
                 document.getElementById('modalTitle').textContent = 'Editar Show';
                 document.getElementById('modalShow').classList.add('active');
                 
-                document.getElementById('inputName').value = show.name || '';
-                if (['Cumpleaños', 'Casamiento', 'Fiesta', 'Boliche', 'Bar'].includes(show.eventType)) {
-                    document.getElementById('inputEventTypeSelect').value = show.eventType;
-                    document.getElementById('inputOtherEvent').value = '';
-                } else {
-                    document.getElementById('inputEventTypeSelect').value = 'Otro';
-                    document.getElementById('inputOtherEvent').value = show.eventType;
-                }
-                this.toggleOtherEvent();
+                document.getElementById('inputEventType').value = show.eventType;
                 document.getElementById('inputDate').value = show.date;
                 document.getElementById('inputTime').value = show.time;
                 document.getElementById('inputAddress').value = show.address;
                 document.getElementById('inputPhone').value = show.phone;
                 document.getElementById('inputTotal').value = show.total;
+                document.getElementById('inputDeposit').value = show.deposit || 0;
+                document.getElementById('inputDepositTo').value = show.depositTo || 'lysaurio';
                 document.getElementById('inputExpenses').value = show.expenses || 0;
                 document.getElementById('inputNotes').value = show.notes || '';
-
-                // Seller select
-                const sellerSelect = document.getElementById('inputSeller');
-                sellerSelect.innerHTML = `<option value="lisaurio">Lisaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-                sellerSelect.value = show.seller;
-
-                const commissionTypeGroup = document.getElementById('commissionTypeGroup');
-                const commissionGroup = document.getElementById('commissionGroup');
-                commissionTypeGroup.style.display = 'none';
-                commissionGroup.style.display = 'block';
-
-                this.updateCommissionField();
-                document.getElementById('inputCommission').value = show.commission;
-
-                // Sena groups
-                const senaContainer = document.getElementById('senaGroups');
-                senaContainer.innerHTML = `
-                    <div class="form-group">
-                        <label class="form-label">Seña a Lisaurio ($)</label>
-                        <input type="number" class="form-input" id="inputSena_lisaurio" value="${show.sena?.lisaurio || 0}" min="0" step="1000">
-                    </div>
-                `;
-                this.config.sellers.forEach(seller => {
-                    senaContainer.innerHTML += `
-                        <div class="form-group">
-                            <label class="form-label">Seña a ${seller.name} ($)</label>
-                            <input type="number" class="form-input" id="inputSena_${seller.id}" value="${show.sena?.[seller.id] || 0}" min="0" step="1000">
-                        </div>
-                    `;
-                });
+                
+                this.updateSellerOptions();
+                document.getElementById('inputSeller').value = show.seller;
+                
+                this.musicianPayments = show.musicianPayments || [];
+                this.handleSellerChange();
+                this.renderMusicianPayments();
+                this.calculateSaldo();
             },
 
             closeModal() {
                 document.getElementById('modalShow').classList.remove('active');
             },
 
-            toggleCommissionInput() {
-                // Not used since type is hidden
-            },
-
             saveShow(event) {
                 event.preventDefault();
+                if (this.currentUser !== 'lysaurio') return;
 
-                const isLisaurio = this.currentUser === 'lisaurio';
-
-                const eventTypeSelect = document.getElementById('inputEventTypeSelect').value;
-                const eventType = eventTypeSelect === 'Otro' ? document.getElementById('inputOtherEvent').value : eventTypeSelect;
-
-                const seller = isLisaurio ? document.getElementById('inputSeller').value : this.currentUser;
-
-                const commission = isLisaurio ? parseFloat(document.getElementById('inputCommission').value) : this.getSellerCommission(seller);
-
-                const commissionType = seller === 'lisaurio' ? 'fixed' : 'percentage';
-
-                const sena = {};
-                if (isLisaurio) {
-                    sena['lisaurio'] = parseFloat(document.getElementById('inputSena_lisaurio').value) || 0;
-                    this.config.sellers.forEach(s => {
-                        sena[s.id] = parseFloat(document.getElementById(`inputSena_${s.id}`).value) || 0;
-                    });
-                } else {
-                    sena['lisaurio'] = parseFloat(document.getElementById('inputSena_lisaurio').value) || 0;
-                    sena[this.currentUser] = parseFloat(document.getElementById(`inputSena_${this.currentUser}`).value) || 0;
-                }
-
-                const totalSena = Object.values(sena).reduce((a, b) => a + b, 0);
+                const seller = document.getElementById('inputSeller').value;
+                const total = parseFloat(document.getElementById('inputTotal').value);
+                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+                const depositTo = document.getElementById('inputDepositTo').value;
+                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
 
                 const showData = {
                     id: this.editingId || Date.now(),
-                    name: document.getElementById('inputName').value,
-                    eventType: eventType,
+                    eventType: document.getElementById('inputEventType').value,
                     date: document.getElementById('inputDate').value,
                     time: document.getElementById('inputTime').value,
                     address: document.getElementById('inputAddress').value,
                     phone: document.getElementById('inputPhone').value,
-                    total: parseFloat(document.getElementById('inputTotal').value),
-                    expenses: parseFloat(document.getElementById('inputExpenses').value) || 0,
-                    sena: sena,
+                    total: total,
+                    deposit: deposit,
+                    depositTo: depositTo,
+                    expenses: expenses,
                     seller: seller,
-                    commissionType: commissionType,
-                    commission: commission,
                     notes: document.getElementById('inputNotes').value,
+                    musicianPayments: seller === 'lysaurio' ? [...this.musicianPayments] : [],
                     createdBy: this.currentUser,
                     createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 };
 
-                // Calcular
-                const netAmount = showData.total - showData.expenses;
-                showData.calculatedCommission = showData.commissionType === 'percentage' 
-                    ? (netAmount * showData.commission / 100)
-                    : showData.commission;
-                showData.clientBalance = showData.total - totalSena;
-
-                // Balance for beneficiary
-                let beneficiary = showData.seller;
-                if (showData.seller === 'lisaurio') {
-                    beneficiary = 'valentin'; // Hardcoded musician
+                // Calcular comisión según el vendedor
+                const netAmount = total - expenses;
+                
+                if (seller === 'lysaurio') {
+                    showData.calculatedCommission = 0;
+                } else {
+                    const sellerConfig = this.config.sellers[seller];
+                    const commission = netAmount * (sellerConfig.percentage / 100);
+                    const depositForSeller = depositTo === seller ? deposit : 0;
+                    showData.calculatedCommission = commission - depositForSeller;
                 }
-                showData.balance = showData.calculatedCommission - (showData.sena[beneficiary] || 0);
 
                 if (this.editingId) {
                     const index = this.shows.findIndex(s => s.id === this.editingId);
@@ -1250,16 +1290,11 @@
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
-                this.renderPendingCount();
-            },
-
-            getSellerCommission(id) {
-                const seller = this.config.sellers.find(s => s.id === id);
-                return seller ? seller.commission : 30;
+                this.updateShowCounter();
             },
 
             deleteShow(id) {
-                if (this.currentUser !== 'lisaurio') return;
+                if (this.currentUser !== 'lysaurio') return;
                 if (!confirm('¿Eliminar este show?')) return;
 
                 const show = this.shows.find(s => s.id === id);
@@ -1270,7 +1305,7 @@
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
-                this.renderPendingCount();
+                this.updateShowCounter();
             },
 
             addToLog(action, show) {
@@ -1283,34 +1318,51 @@
                 });
             },
 
-            renderFilterChips() {
-                const container = document.getElementById('filterChips');
-                container.innerHTML = `
-                    <div class="chip active" data-filter="all">Todos</div>
-                    <div class="chip" data-filter="lisaurio">Lisaurio</div>
-                ` + this.config.sellers.map(s => `
-                    <div class="chip" data-filter="${s.id}">${s.name}</div>
-                `).join('');
-            },
+            updateShowCounter() {
+                const counter = document.getElementById('showCounter');
+                const number = document.getElementById('showCountNumber');
+                
+                const futureShows = this.shows.filter(s => {
+                    const showDate = new Date(s.date + ' ' + s.time);
+                    return showDate >= new Date();
+                });
 
-            renderLegend() {
-                const container = document.getElementById('legend');
-                container.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--lisaurio-color);"></div>
-                        <span>Lisaurio</span>
-                    </div>
-                ` + this.config.sellers.map(s => `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--${s.id}-color);"></div>
-                        <span>${s.name}</span>
-                    </div>
-                `).join('');
+                if (futureShows.length > 0) {
+                    number.textContent = futureShows.length;
+                    counter.style.display = 'block';
+                } else {
+                    counter.style.display = 'none';
+                }
             },
 
             renderList() {
                 const container = document.getElementById('showsList');
                 const empty = document.getElementById('emptyState');
+                const filterChips = document.getElementById('filterChips');
+                const legend = document.getElementById('legendContainer');
+
+                // Render filters
+                let filtersHTML = '<div class="chip active" data-filter="all" onclick="app.filterShows(\'all\')">Todos</div>';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    filtersHTML += `<div class="chip" data-filter="${sellerId}" onclick="app.filterShows('${sellerId}')">${seller.name}</div>`;
+                });
+                filterChips.innerHTML = filtersHTML;
+
+                // Render legend
+                let legendHTML = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    const colorVar = sellerId === 'lysaurio' ? '--lysaurio-color' : 
+                                    sellerId === 'valentin' ? '--valentin-color' : '--default-color';
+                    legendHTML += `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(${colorVar});"></div>
+                            <span>${seller.name}</span>
+                        </div>
+                    `;
+                });
+                legend.innerHTML = legendHTML;
 
                 let shows = this.getFilteredShows();
 
@@ -1326,38 +1378,17 @@
                 empty.style.display = 'none';
 
                 container.innerHTML = shows.map(show => {
-                    const canEdit = this.currentUser === 'lisaurio';
+                    const canEdit = this.currentUser === 'lysaurio';
                     const showDetails = this.shouldShowDetails(show);
 
                     const netAmount = show.total - show.expenses;
-                    const commission = show.calculatedCommission || 0;
-                    const balance = show.balance || 0;
-                    const clientBalance = show.clientBalance || 0;
+                    const saldo = show.total - show.deposit - show.expenses;
 
-                    let commissionLabel = 'Comisión';
-                    let isMusicianPayment = false;
-                    if (show.seller === 'lisaurio') {
-                        commissionLabel = 'Pago músico';
-                        isMusicianPayment = true;
-                    }
-
-                    let senaHTML = '';
-                    if (this.currentUser === 'lisaurio') {
-                        Object.keys(show.sena || {}).forEach(user => {
-                            if (show.sena[user] > 0) {
-                                const name = user === 'lisaurio' ? 'Lisaurio' : this.config.sellers.find(s => s.id === user)?.name || user;
-                                senaHTML += `<div class="card-row">📥 Seña a ${name}: $${this.formatMoney(show.sena[user])}</div>`;
-                            }
-                        });
-                    } else {
-                        const ownSena = show.sena?.[this.currentUser] || 0;
-                        if (ownSena > 0) {
-                            senaHTML += `<div class="card-row">📥 Seña: $${this.formatMoney(ownSena)}</div>`;
-                        }
-                    }
+                    let cardClass = show.seller === 'lysaurio' ? 'lysaurio' : 
+                                   show.seller === 'valentin' ? 'valentin' : 'other';
 
                     return `
-                        <div class="card ${show.seller}">
+                        <div class="card ${cardClass}">
                             <div class="card-header">
                                 <div>
                                     <div class="card-title">${show.eventType}</div>
@@ -1369,7 +1400,6 @@
                             </div>
                             
                             <div class="card-info">
-                                <div class="card-row">👤 ${show.name}</div>
                                 <div class="card-row">📍 ${show.address}</div>
                                 <div class="card-row">📞 ${show.phone}</div>
                                 
@@ -1377,30 +1407,35 @@
                                     <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
                                 ` : ''}
                                 
+                                ${showDetails.canSeeDeposit ? `
+                                    <div class="card-row">💵 Seña: $${this.formatMoney(show.deposit)} (${this.getSellerName(show.depositTo)})</div>
+                                ` : ''}
+                                
                                 ${showDetails.showExpenses && show.expenses > 0 ? `
                                     <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
                                     <div class="card-row">📊 Neto: $${this.formatMoney(netAmount)}</div>
                                 ` : ''}
                                 
-                                ${senaHTML}
-                                
-                                ${showDetails.showTotal ? `
-                                    <div class="card-row" style="color: var(--primary); font-weight: 600;">
-                                        🏦 Saldo cliente: $${this.formatMoney(clientBalance)}
+                                ${showDetails.showCommission && show.seller !== 'lysaurio' ? `
+                                    <div class="card-row" style="color: var(--success); font-weight: 600;">
+                                        💵 Tu comisión: $${this.formatMoney(show.calculatedCommission)}
                                     </div>
                                 ` : ''}
                                 
-                                ${showDetails.showCommission ? `
-                                    <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 ${commissionLabel}: $${this.formatMoney(commission)}
-                                        ${show.commissionType === 'percentage' ? `(${show.commission}%)` : '(fija)'}
-                                    </div>
-                                    <div class="card-row" style="color: var(--warning); font-weight: 600;">
-                                        ⚖️ Saldo: $${this.formatMoney(balance)}
-                                    </div>
+                                ${show.musicianPayments && show.musicianPayments.length > 0 && canEdit ? `
+                                    <div class="card-row" style="font-weight: 600;">Pagos a músicos:</div>
+                                    ${show.musicianPayments.map(mp => `
+                                        <div class="card-row" style="padding-left: 1rem;">
+                                            → ${this.getSellerName(mp.musician)}: $${this.formatMoney(mp.amount)}
+                                        </div>
+                                    `).join('')}
                                 ` : ''}
                                 
                                 ${show.notes ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
+                            </div>
+
+                            <div class="card-highlight">
+                                💰 SALDO A COBRAR: $${this.formatMoney(Math.max(0, saldo))}
                             </div>
                             
                             ${canEdit ? `
@@ -1414,11 +1449,11 @@
                 }).join('');
             },
 
-            renderPendingCount() {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const pending = this.shows.filter(s => new Date(s.date) >= today).length;
-                document.getElementById('pendingShows').textContent = `Pendientes: ${pending}`;
+            filterShows(filter) {
+                this.currentFilter = filter;
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+                this.renderList();
             },
 
             renderCalendar() {
@@ -1466,7 +1501,7 @@
             renderDayShows() {
                 const container = document.getElementById('dayShows');
                 const dateStr = this.selectedDay.toISOString().split('T')[0];
-                const dayShows = this.shows.filter(s => s.date === dateStr);
+                const dayShows = this.getFilteredShows().filter(s => s.date === dateStr);
 
                 if (dayShows.length === 0) {
                     container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
@@ -1475,32 +1510,27 @@
 
                 container.innerHTML = dayShows.map(show => {
                     const showDetails = this.shouldShowDetails(show);
-                    const commission = show.calculatedCommission || 0;
-                    const balance = show.balance || 0;
-                    const clientBalance = show.clientBalance || 0;
+                    const saldo = show.total - show.deposit - show.expenses;
+
+                    let cardClass = show.seller === 'lysaurio' ? 'lysaurio' : 
+                                   show.seller === 'valentin' ? 'valentin' : 'other';
 
                     return `
-                        <div class="card ${show.seller}">
+                        <div class="card ${cardClass}">
                             <div class="card-header">
                                 <div class="card-title">${show.eventType}</div>
                                 <div class="card-badge">${show.time}</div>
                             </div>
                             <div class="card-info">
-                                <div class="card-row">👤 ${show.name}</div>
                                 <div class="card-row">📍 ${show.address}</div>
-                                ${showDetails.showCommission ? `
+                                ${showDetails.showCommission && show.seller !== 'lysaurio' ? `
                                     <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 ${show.seller === 'lisaurio' ? 'Pago músico' : 'Comisión'}: $${this.formatMoney(commission)}
-                                    </div>
-                                    <div class="card-row" style="color: var(--warning); font-weight: 600;">
-                                        ⚖️ Saldo: $${this.formatMoney(balance)}
+                                        💵 $${this.formatMoney(show.calculatedCommission)}
                                     </div>
                                 ` : ''}
-                                ${showDetails.showTotal ? `
-                                    <div class="card-row" style="color: var(--primary); font-weight: 600;">
-                                        🏦 Saldo cliente: $${this.formatMoney(clientBalance)}
-                                    </div>
-                                ` : ''}
+                            </div>
+                            <div class="card-highlight">
+                                💰 SALDO: $${this.formatMoney(Math.max(0, saldo))}
                             </div>
                         </div>
                     `;
@@ -1522,22 +1552,29 @@
                 });
 
                 let totalIncome = 0;
-                let lisaurioIncome = 0;
-                const sellerBalances = {};
+                let lysaurioIncome = 0;
+                const sellerCommissions = {};
 
                 monthShows.forEach(show => {
                     const netAmount = show.total - show.expenses;
-                    const commission = show.calculatedCommission || 0;
 
                     totalIncome += show.total;
 
-                    if (show.seller === 'lisaurio') {
-                        // Pago fijo a valentin
-                        sellerBalances['valentin'] = (sellerBalances['valentin'] || 0) + commission - (show.sena['valentin'] || 0);
-                        lisaurioIncome += netAmount - commission;
+                    if (show.seller === 'lysaurio') {
+                        // Lysaurio se queda con todo menos lo que paga a músicos
+                        let musicianTotal = 0;
+                        if (show.musicianPayments) {
+                            show.musicianPayments.forEach(mp => {
+                                musicianTotal += mp.amount;
+                                sellerCommissions[mp.musician] = (sellerCommissions[mp.musician] || 0) + mp.amount;
+                            });
+                        }
+                        lysaurioIncome += (netAmount - musicianTotal);
                     } else {
-                        sellerBalances[show.seller] = (sellerBalances[show.seller] || 0) + commission - (show.sena[show.seller] || 0);
-                        lisaurioIncome += netAmount - commission;
+                        // Vendedor cobra comisión
+                        const commission = show.calculatedCommission || 0;
+                        lysaurioIncome += (netAmount - commission);
+                        sellerCommissions[show.seller] = (sellerCommissions[show.seller] || 0) + commission;
                     }
                 });
 
@@ -1548,17 +1585,16 @@
                         <div class="stat-label">Ingresos Totales</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
-                        <div class="stat-label">Para Lisaurio</div>
+                        <div class="stat-value">$${this.formatMoney(lysaurioIncome)}</div>
+                        <div class="stat-label">Para Lysaurio</div>
                     </div>
                 `;
 
-                this.config.sellers.forEach(seller => {
-                    const balance = sellerBalances[seller.id] || 0;
+                Object.keys(sellerCommissions).forEach(sellerId => {
                     statsHTML += `
                         <div class="stat-card">
-                            <div class="stat-value">$${this.formatMoney(balance)}</div>
-                            <div class="stat-label">Saldo ${seller.name}</div>
+                            <div class="stat-value">$${this.formatMoney(sellerCommissions[sellerId])}</div>
+                            <div class="stat-label">${this.getSellerName(sellerId)}</div>
                         </div>
                     `;
                 });
@@ -1623,41 +1659,43 @@
             },
 
             getFilteredShows() {
-                if (this.currentUser === 'lisaurio') {
-                    if (this.currentFilter === 'all') {
-                        return this.shows;
-                    }
-                    return this.shows.filter(s => s.seller === this.currentFilter);
-                } else {
-                    // Non-lisaurio see all shows
+                if (this.currentUser !== 'lysaurio') {
+                    // Vendedores solo ven shows donde:
+                    // 1. Ellos tomaron el show
+                    // 2. Recibieron la seña
+                    return this.shows.filter(s => 
+                        s.seller === this.currentUser || s.depositTo === this.currentUser
+                    );
+                }
+
+                if (this.currentFilter === 'all') {
                     return this.shows;
                 }
+
+                return this.shows.filter(s => s.seller === this.currentFilter);
             },
 
             shouldShowDetails(show) {
-                if (this.currentUser === 'lisaurio') {
+                if (this.currentUser === 'lysaurio') {
                     return {
                         showTotal: true,
                         showExpenses: true,
-                        showCommission: true
+                        showCommission: true,
+                        canSeeDeposit: true
                     };
                 }
 
-                const isOwn = show.seller === this.currentUser || (show.seller === 'lisaurio' && this.currentUser === 'valentin'); // Valentin sees lisaurio shows as own for commission
+                // Vendedor puede ver detalles si:
+                // - Tomó el show
+                // - Recibió la seña
+                const isHisShow = show.seller === this.currentUser;
+                const gotDeposit = show.depositTo === this.currentUser;
 
-                if (isOwn) {
-                    return {
-                        showTotal: this.config.showTotal,
-                        showExpenses: this.config.showExpenses,
-                        showCommission: this.config.showCommission
-                    };
-                }
-
-                // For other shows: basic info
                 return {
-                    showTotal: false,
-                    showExpenses: false,
-                    showCommission: false
+                    showTotal: this.config.showTotal && (isHisShow || gotDeposit),
+                    showExpenses: this.config.showExpenses && (isHisShow || gotDeposit),
+                    showCommission: isHisShow,
+                    canSeeDeposit: gotDeposit
                 };
             },
 
@@ -1671,29 +1709,20 @@
             updateConfigToggles() {
                 document.getElementById('toggleShowTotal').classList.toggle('active', this.config.showTotal);
                 document.getElementById('toggleShowExpenses').classList.toggle('active', this.config.showExpenses);
-                document.getElementById('toggleShowCommission').classList.toggle('active', this.config.showCommission);
-            },
-
-            saveMusicianFixed() {
-                this.config.musicianFixed = parseFloat(document.getElementById('musicianFixed').value) || 50000;
-                this.saveConfig();
-                alert('Guardado');
             },
 
             clearAllData() {
-                if (this.currentUser !== 'lisaurio') return;
+                if (this.currentUser !== 'lysaurio') return;
                 if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
                 if (!confirm('¿Estás completamente seguro?')) return;
 
-                localStorage.removeItem('showsData');
-                localStorage.removeItem('showsConfig');
+                localStorage.removeItem('showsLysaurioData');
+                localStorage.removeItem('showsLysaurioConfig');
                 location.reload();
             },
 
-            getSellerName(id) {
-                if (id === 'lisaurio') return 'Lisaurio';
-                const seller = this.config.sellers.find(s => s.id === id);
-                return seller ? seller.name : id;
+            getSellerName(sellerId) {
+                return this.config.sellers[sellerId] ? this.config.sellers[sellerId].name : sellerId;
             },
 
             formatMoney(amount) {
@@ -1715,89 +1744,6 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 });
-            },
-
-            // Sellers management
-            renderSellersList() {
-                const container = document.getElementById('sellersList');
-                container.innerHTML = this.config.sellers.map(seller => `
-                    <div class="seller-card">
-                        <div class="seller-info">
-                            <div class="seller-color" style="background: var(--${seller.id}-color);"></div>
-                            <span>${seller.name} - ${seller.commission}%</span>
-                        </div>
-                        <div class="seller-actions">
-                            <button class="btn-small btn-primary" onclick="app.openEditSellerModal('${seller.id}')">Editar</button>
-                            <button class="btn-small btn-danger" onclick="app.deleteSeller('${seller.id}')">Eliminar</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            openAddSellerModal() {
-                this.editingSellerId = null;
-                document.getElementById('modalSellerTitle').textContent = 'Nuevo Vendedor';
-                document.getElementById('modalSeller').classList.add('active');
-                document.getElementById('inputSellerName').value = '';
-                document.getElementById('inputSellerColor').value = '#8b5cf6';
-                document.getElementById('inputSellerCommission').value = '30';
-            },
-
-            openEditSellerModal(id) {
-                this.editingSellerId = id;
-                const seller = this.config.sellers.find(s => s.id === id);
-                document.getElementById('modalSellerTitle').textContent = 'Editar Vendedor';
-                document.getElementById('modalSeller').classList.add('active');
-                document.getElementById('inputSellerName').value = seller.name;
-                document.getElementById('inputSellerColor').value = seller.color;
-                document.getElementById('inputSellerCommission').value = seller.commission;
-            },
-
-            closeSellerModal() {
-                document.getElementById('modalSeller').classList.remove('active');
-            },
-
-            saveSeller(event) {
-                event.preventDefault();
-
-                const name = document.getElementById('inputSellerName').value.trim();
-                const id = this.editingSellerId || name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                const color = document.getElementById('inputSellerColor').value;
-                const commission = parseFloat(document.getElementById('inputSellerCommission').value);
-
-                if (!name || !color || isNaN(commission)) {
-                    alert('Completa todos los campos');
-                    return;
-                }
-
-                const seller = {id, name, color, commission};
-
-                if (this.editingSellerId) {
-                    const index = this.config.sellers.findIndex(s => s.id === this.editingSellerId);
-                    this.config.sellers[index] = seller;
-                } else {
-                    this.config.sellers.push(seller);
-                }
-
-                document.documentElement.style.setProperty(`--${id}-color`, color);
-
-                this.saveConfig();
-                this.closeSellerModal();
-                this.renderSellersList();
-                this.renderSellerLinks();
-                this.renderFilterChips();
-                this.renderLegend();
-            },
-
-            deleteSeller(id) {
-                if (!confirm('¿Eliminar este vendedor?')) return;
-
-                this.config.sellers = this.config.sellers.filter(s => s.id !== id);
-                this.saveConfig();
-                this.renderSellersList();
-                this.renderSellerLinks();
-                this.renderFilterChips();
-                this.renderLegend();
             }
         };
 

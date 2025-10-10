@@ -240,6 +240,11 @@
             color: var(--text);
             font-size: 1rem;
             font-family: inherit;
+            min-height: 48px;
+        }
+
+        input[type="date"], input[type="time"] {
+            min-height: 48px;
         }
 
         .form-input:focus, .form-select:focus, .form-textarea:focus {
@@ -296,7 +301,7 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         .calendar-day {
@@ -307,6 +312,7 @@
             border-radius: 8px;
             font-size: 0.875rem;
             position: relative;
+            text-align: center;
         }
 
         .calendar-day.header {
@@ -689,8 +695,25 @@
             
             <form onsubmit="app.saveShow(event)">
                 <div class="form-group">
+                    <label class="form-label">Nombre del Contacto</label>
+                    <input type="text" class="form-input" id="inputName" required placeholder="Nombre de la persona que contactó">
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Tipo de Evento</label>
-                    <input type="text" class="form-input" id="inputEventType" required placeholder="Cumpleaños, Boda, Corporativo...">
+                    <select class="form-select" id="inputEventTypeSelect" required onchange="app.toggleOtherEvent()">
+                        <option value="Cumpleaños">Cumpleaños</option>
+                        <option value="Casamiento">Casamiento</option>
+                        <option value="Fiesta">Fiesta</option>
+                        <option value="Boliche">Boliche</option>
+                        <option value="Bar">Bar</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="otherEventGroup" style="display: none;">
+                    <label class="form-label">Otro Tipo</label>
+                    <input type="text" class="form-input" id="inputOtherEvent" placeholder="Especifica el tipo de evento">
                 </div>
 
                 <div class="form-row">
@@ -725,7 +748,7 @@
                     <small style="color: var(--text-muted); font-size: 0.75rem;">Se resta del total antes de calcular la comisión</small>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="sellerGroup">
                     <label class="form-label">Seña/Vendedor</label>
                     <select class="form-select" id="inputSeller" required>
                         <option value="admin">Admin</option>
@@ -735,6 +758,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Seña ($)</label>
+                    <input type="number" class="form-input" id="inputSena" value="0" min="0" step="1000">
+                </div>
+
+                <div class="form-group" id="commissionTypeGroup">
                     <label class="form-label">Tipo de Comisión</label>
                     <select class="form-select" id="inputCommissionType" onchange="app.toggleCommissionInput()">
                         <option value="percentage">Porcentaje (%)</option>
@@ -742,7 +770,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="commissionGroup">
                     <label class="form-label" id="labelCommission">Comisión (%)</label>
                     <input type="number" class="form-input" id="inputCommission" value="30" min="0" step="1">
                 </div>
@@ -857,14 +885,15 @@
 
                 badge.textContent = userNames[this.currentUser] || 'Usuario';
 
-                // Solo admin puede ver config y crear shows
+                // Config solo para admin
                 if (this.currentUser !== 'admin') {
                     navConfig.style.display = 'none';
-                    fab.style.display = 'none';
                 } else {
                     navConfig.style.display = 'flex';
-                    fab.style.display = 'flex';
                 }
+
+                // FAB para todos
+                fab.style.display = 'flex';
             },
 
             generateLinks() {
@@ -897,26 +926,50 @@
                 if (view === 'reports') this.renderReports();
             },
 
-            openNewShowModal() {
-                if (this.currentUser !== 'admin') return;
-                
+            toggleOtherEvent() {
+                const select = document.getElementById('inputEventTypeSelect');
+                const group = document.getElementById('otherEventGroup');
+                group.style.display = select.value === 'Otro' ? 'block' : 'none';
+            },
+
+            openNewShowModal() {                
                 this.editingId = null;
                 document.getElementById('modalTitle').textContent = 'Nuevo Show';
                 document.getElementById('modalShow').classList.add('active');
                 
                 // Reset form
-                document.getElementById('inputEventType').value = '';
+                document.getElementById('inputName').value = '';
+                document.getElementById('inputEventTypeSelect').value = 'Cumpleaños';
+                document.getElementById('inputOtherEvent').value = '';
+                this.toggleOtherEvent();
                 document.getElementById('inputDate').value = '';
                 document.getElementById('inputTime').value = '';
                 document.getElementById('inputAddress').value = '';
                 document.getElementById('inputPhone').value = '';
                 document.getElementById('inputTotal').value = '';
                 document.getElementById('inputExpenses').value = '0';
-                document.getElementById('inputSeller').value = 'admin';
+                document.getElementById('inputSena').value = '0';
                 document.getElementById('inputCommissionType').value = 'percentage';
                 document.getElementById('inputCommission').value = '30';
                 document.getElementById('inputNotes').value = '';
                 this.toggleCommissionInput();
+
+                // Ajustes por usuario
+                const sellerGroup = document.getElementById('sellerGroup');
+                const commissionTypeGroup = document.getElementById('commissionTypeGroup');
+                const commissionGroup = document.getElementById('commissionGroup');
+
+                if (this.currentUser !== 'admin') {
+                    sellerGroup.style.display = 'none';
+                    document.getElementById('inputSeller').value = this.currentUser;
+                    commissionTypeGroup.style.display = 'none';
+                    commissionGroup.style.display = 'none';
+                } else {
+                    sellerGroup.style.display = 'block';
+                    document.getElementById('inputSeller').value = 'admin';
+                    commissionTypeGroup.style.display = 'block';
+                    commissionGroup.style.display = 'block';
+                }
             },
 
             openEditModal(id) {
@@ -928,18 +981,32 @@
                 document.getElementById('modalTitle').textContent = 'Editar Show';
                 document.getElementById('modalShow').classList.add('active');
                 
-                document.getElementById('inputEventType').value = show.eventType;
+                document.getElementById('inputName').value = show.name || '';
+                if (['Cumpleaños', 'Casamiento', 'Fiesta', 'Boliche', 'Bar'].includes(show.eventType)) {
+                    document.getElementById('inputEventTypeSelect').value = show.eventType;
+                    document.getElementById('inputOtherEvent').value = '';
+                } else {
+                    document.getElementById('inputEventTypeSelect').value = 'Otro';
+                    document.getElementById('inputOtherEvent').value = show.eventType;
+                }
+                this.toggleOtherEvent();
                 document.getElementById('inputDate').value = show.date;
                 document.getElementById('inputTime').value = show.time;
                 document.getElementById('inputAddress').value = show.address;
                 document.getElementById('inputPhone').value = show.phone;
                 document.getElementById('inputTotal').value = show.total;
                 document.getElementById('inputExpenses').value = show.expenses || 0;
+                document.getElementById('inputSena').value = show.sena || 0;
                 document.getElementById('inputSeller').value = show.seller;
                 document.getElementById('inputCommissionType').value = show.commissionType;
                 document.getElementById('inputCommission').value = show.commission;
                 document.getElementById('inputNotes').value = show.notes || '';
                 this.toggleCommissionInput();
+
+                // Para edit, admin ve todo
+                document.getElementById('sellerGroup').style.display = 'block';
+                document.getElementById('commissionTypeGroup').style.display = 'block';
+                document.getElementById('commissionGroup').style.display = 'block';
             },
 
             closeModal() {
@@ -964,20 +1031,29 @@
 
             saveShow(event) {
                 event.preventDefault();
-                if (this.currentUser !== 'admin') return;
+
+                const isAdmin = this.currentUser === 'admin';
+
+                const eventTypeSelect = document.getElementById('inputEventTypeSelect').value;
+                const eventType = eventTypeSelect === 'Otro' ? document.getElementById('inputOtherEvent').value : eventTypeSelect;
+
+                const commissionType = isAdmin ? document.getElementById('inputCommissionType').value : 'percentage';
+                const commission = isAdmin ? parseFloat(document.getElementById('inputCommission').value) : 30;
 
                 const showData = {
                     id: this.editingId || Date.now(),
-                    eventType: document.getElementById('inputEventType').value,
+                    name: document.getElementById('inputName').value,
+                    eventType: eventType,
                     date: document.getElementById('inputDate').value,
                     time: document.getElementById('inputTime').value,
                     address: document.getElementById('inputAddress').value,
                     phone: document.getElementById('inputPhone').value,
                     total: parseFloat(document.getElementById('inputTotal').value),
                     expenses: parseFloat(document.getElementById('inputExpenses').value) || 0,
-                    seller: document.getElementById('inputSeller').value,
-                    commissionType: document.getElementById('inputCommissionType').value,
-                    commission: parseFloat(document.getElementById('inputCommission').value),
+                    sena: parseFloat(document.getElementById('inputSena').value) || 0,
+                    seller: isAdmin && this.editingId ? document.getElementById('inputSeller').value : (isAdmin ? document.getElementById('inputSeller').value : this.currentUser),
+                    commissionType: commissionType,
+                    commission: commission,
                     notes: document.getElementById('inputNotes').value,
                     createdBy: this.currentUser,
                     createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
@@ -989,6 +1065,7 @@
                 showData.calculatedCommission = showData.commissionType === 'percentage' 
                     ? (netAmount * showData.commission / 100)
                     : showData.commission;
+                showData.balance = showData.calculatedCommission - showData.sena;
 
                 if (this.editingId) {
                     const index = this.shows.findIndex(s => s.id === this.editingId);
@@ -1053,6 +1130,7 @@
 
                     const netAmount = show.total - show.expenses;
                     const commission = show.calculatedCommission || 0;
+                    const balance = show.balance || 0;
 
                     return `
                         <div class="card ${show.seller}">
@@ -1067,6 +1145,7 @@
                             </div>
                             
                             <div class="card-info">
+                                <div class="card-row">👤 ${show.name}</div>
                                 <div class="card-row">📍 ${show.address}</div>
                                 <div class="card-row">📞 ${show.phone}</div>
                                 
@@ -1079,10 +1158,17 @@
                                     <div class="card-row">📊 Neto: $${this.formatMoney(netAmount)}</div>
                                 ` : ''}
                                 
+                                ${show.sena > 0 ? `
+                                    <div class="card-row">📥 Seña: $${this.formatMoney(show.sena)}</div>
+                                ` : ''}
+                                
                                 ${showDetails.showCommission ? `
                                     <div class="card-row" style="color: var(--success); font-weight: 600;">
                                         💵 Comisión: $${this.formatMoney(commission)}
                                         ${show.commissionType === 'percentage' ? `(${show.commission}%)` : '(fija)'}
+                                    </div>
+                                    <div class="card-row" style="color: var(--warning); font-weight: 600;">
+                                        ⚖️ Saldo: $${this.formatMoney(balance)}
                                     </div>
                                 ` : ''}
                                 
@@ -1155,6 +1241,7 @@
                 container.innerHTML = dayShows.map(show => {
                     const showDetails = this.shouldShowDetails(show);
                     const commission = show.calculatedCommission || 0;
+                    const balance = show.balance || 0;
 
                     return `
                         <div class="card ${show.seller}">
@@ -1163,10 +1250,14 @@
                                 <div class="card-badge">${show.time}</div>
                             </div>
                             <div class="card-info">
+                                <div class="card-row">👤 ${show.name}</div>
                                 <div class="card-row">📍 ${show.address}</div>
                                 ${showDetails.showCommission ? `
                                     <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 $${this.formatMoney(commission)}
+                                        💵 Comisión: $${this.formatMoney(commission)}
+                                    </div>
+                                    <div class="card-row" style="color: var(--warning); font-weight: 600;">
+                                        ⚖️ Saldo: $${this.formatMoney(balance)}
                                     </div>
                                 ` : ''}
                             </div>
@@ -1191,19 +1282,20 @@
 
                 let totalIncome = 0;
                 let adminIncome = 0;
-                const sellerCommissions = {};
+                const sellerBalances = {};
 
                 monthShows.forEach(show => {
                     const netAmount = show.total - show.expenses;
                     const commission = show.calculatedCommission || 0;
+                    const balance = show.balance || 0;
 
                     totalIncome += show.total;
 
                     if (show.seller === 'admin') {
-                        adminIncome += netAmount;
+                        adminIncome += netAmount - show.sena; // Assuming sena to admin
                     } else {
                         adminIncome += (netAmount - commission);
-                        sellerCommissions[show.seller] = (sellerCommissions[show.seller] || 0) + commission;
+                        sellerBalances[show.seller] = (sellerBalances[show.seller] || 0) + balance;
                     }
                 });
 
@@ -1219,11 +1311,11 @@
                     </div>
                 `;
 
-                Object.keys(sellerCommissions).forEach(seller => {
+                Object.keys(sellerBalances).forEach(seller => {
                     statsHTML += `
                         <div class="stat-card">
-                            <div class="stat-value">$${this.formatMoney(sellerCommissions[seller])}</div>
-                            <div class="stat-label">${this.getSellerName(seller)}</div>
+                            <div class="stat-value">$${this.formatMoney(sellerBalances[seller])}</div>
+                            <div class="stat-label">Saldo ${this.getSellerName(seller)}</div>
                         </div>
                     `;
                 });
@@ -1288,16 +1380,15 @@
             },
 
             getFilteredShows() {
-                if (this.currentUser !== 'admin') {
-                    // Vendedores solo ven sus shows
-                    return this.shows.filter(s => s.seller === this.currentUser);
-                }
-
-                if (this.currentFilter === 'all') {
+                if (this.currentUser === 'admin') {
+                    if (this.currentFilter === 'all') {
+                        return this.shows;
+                    }
+                    return this.shows.filter(s => s.seller === this.currentFilter);
+                } else {
+                    // Non-admins see all shows
                     return this.shows;
                 }
-
-                return this.shows.filter(s => s.seller === this.currentFilter);
             },
 
             shouldShowDetails(show) {
@@ -1309,7 +1400,6 @@
                     };
                 }
 
-                // Vendedor solo ve su info según config
                 if (show.seller === this.currentUser) {
                     return {
                         showTotal: this.config.showTotal,
@@ -1318,7 +1408,7 @@
                     };
                 }
 
-                // Shows de otros vendedores: solo info básica
+                // For other sellers' shows, basic info only
                 return {
                     showTotal: false,
                     showExpenses: false,

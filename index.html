@@ -342,6 +342,7 @@
         .calendar-title {
             font-size: 1.25rem;
             font-weight: 600;
+            text-transform: capitalize;
         }
 
         .calendar-nav {
@@ -380,6 +381,7 @@
         .calendar-day.header {
             font-weight: 600;
             color: var(--text-muted);
+            text-align: center;
         }
 
         .calendar-day.other-month {
@@ -611,6 +613,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 0.5rem;
         }
 
         .remove-musician {
@@ -621,6 +624,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.875rem;
+            flex-shrink: 0;
         }
 
         .add-seller-section {
@@ -738,6 +742,20 @@
 
                 <h3 style="margin-bottom: 1rem;">Vendedores Actuales</h3>
                 <div id="sellersList"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">➕ Agregar Músico</h3>
+                <div class="add-seller-section">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Músico</label>
+                        <input type="text" class="form-input" id="newMusicianName" placeholder="Ej: Roberto">
+                    </div>
+                    <button class="btn btn-success" onclick="app.addMusician()">Agregar Músico</button>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Músicos Actuales</h3>
+                <div id="musiciansList"></div>
             </div>
 
             <div class="card">
@@ -919,6 +937,9 @@
                 sellers: {
                     lisaurio: { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' },
                     valentin: { name: 'Valentín', percentage: 30, isAdmin: false, color: '#f59e0b' }
+                },
+                musicians: {
+                    valentin: { name: 'Valentín', defaultPay: 50000 }
                 }
             },
 
@@ -945,6 +966,7 @@
                 this.renderCalendar();
                 this.renderReports();
                 this.renderSellersList();
+                this.renderMusiciansList();
                 this.renderLinks();
                 this.updateShowCounter();
 
@@ -979,6 +1001,11 @@
                 if (!this.config.sellers.lisaurio) {
                     this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
                 }
+                if (!this.config.musicians) {
+                    this.config.musicians = {
+                        valentin: { name: 'Valentín', defaultPay: 50000 }
+                    };
+                }
                 this.updateConfigToggles();
                 this.updateCSSColors();
             },
@@ -999,19 +1026,19 @@
             updateUserUI() {
                 const badge = document.getElementById('userBadge');
                 const navConfig = document.getElementById('navConfig');
-                const fab = document.getElementById('fabButton');
 
                 const seller = this.config.sellers[this.currentUser];
                 badge.textContent = seller ? seller.name : 'Usuario';
 
-                // Solo Lisaurio puede ver config y crear shows
+                // Solo Lisaurio puede ver config
                 if (this.currentUser !== 'lisaurio') {
                     navConfig.style.display = 'none';
-                    fab.style.display = 'none';
                 } else {
                     navConfig.style.display = 'flex';
-                    fab.style.display = 'flex';
                 }
+
+                // TODOS pueden crear shows
+                document.getElementById('fabButton').style.display = 'flex';
             },
 
             addSeller() {
@@ -1054,6 +1081,34 @@
                 alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
             },
 
+            addMusician() {
+                const nameInput = document.getElementById('newMusicianName');
+                const name = nameInput.value.trim();
+
+                if (!name) {
+                    alert('Ingresa un nombre para el músico');
+                    return;
+                }
+
+                const musicianId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+
+                if (this.config.musicians[musicianId]) {
+                    alert('Este músico ya existe');
+                    return;
+                }
+
+                this.config.musicians[musicianId] = {
+                    name: name,
+                    defaultPay: 50000
+                };
+
+                this.saveConfig();
+                this.renderMusiciansList();
+                
+                nameInput.value = '';
+                alert(`Músico ${name} agregado`);
+            },
+
             removeSeller(sellerId) {
                 if (sellerId === 'lisaurio') {
                     alert('No puedes eliminar a Lisaurio');
@@ -1072,9 +1127,26 @@
                 this.renderList();
             },
 
+            removeMusician(musicianId) {
+                if (!confirm(`¿Eliminar al músico ${this.config.musicians[musicianId].name}?`)) {
+                    return;
+                }
+
+                delete this.config.musicians[musicianId];
+                this.saveConfig();
+                this.renderMusiciansList();
+            },
+
             updateSellerPercentage(sellerId, newPercent) {
                 if (this.config.sellers[sellerId]) {
                     this.config.sellers[sellerId].percentage = parseFloat(newPercent);
+                    this.saveConfig();
+                }
+            },
+
+            updateMusicianPay(musicianId, newPay) {
+                if (this.config.musicians[musicianId]) {
+                    this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
                     this.saveConfig();
                 }
             },
@@ -1098,7 +1170,7 @@
                     
                     html += `
                         <div class="musician-payment">
-                            <div>
+                            <div style="flex: 1;">
                                 <strong>${seller.name}</strong>
                                 <br>
                                 <small style="color: var(--text-muted);">
@@ -1118,6 +1190,35 @@
                                            onchange="app.updateSellerPercentage('${sellerId}', this.value)">
                                     <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
                                 ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            },
+
+            renderMusiciansList() {
+                const container = document.getElementById('musiciansList');
+                
+                let html = '';
+                Object.keys(this.config.musicians).forEach(musicianId => {
+                    const musician = this.config.musicians[musicianId];
+                    
+                    html += `
+                        <div class="musician-payment">
+                            <div style="flex: 1;">
+                                <strong>${musician.name}</strong>
+                                <br>
+                                <small style="color: var(--text-muted);">Pago por defecto: $${this.formatMoney(musician.defaultPay)}</small>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="number" 
+                                       value="${musician.defaultPay}" 
+                                       min="0" step="1000"
+                                       style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
+                                       onchange="app.updateMusicianPay('${musicianId}', this.value)">
+                                <button class="remove-musician" onclick="app.removeMusician('${musicianId}')">✕</button>
                             </div>
                         </div>
                     `;
@@ -1174,6 +1275,15 @@
 
                 if (seller === 'lisaurio') {
                     musicianSection.style.display = 'block';
+                    // Auto-agregar Valentín si no hay músicos
+                    if (this.musicianPayments.length === 0) {
+                        this.musicianPayments = [{
+                            id: Date.now(),
+                            musician: 'valentin',
+                            amount: this.config.musicians.valentin?.defaultPay || 50000
+                        }];
+                        this.renderMusicianPayments();
+                    }
                 } else {
                     musicianSection.style.display = 'none';
                     this.musicianPayments = [];
@@ -1182,10 +1292,13 @@
             },
 
             addMusicianPayment() {
-                const container = document.getElementById('musicianPaymentsList');
                 const id = Date.now();
                 
-                this.musicianPayments.push({ id, musician: '', amount: 0 });
+                this.musicianPayments.push({ 
+                    id, 
+                    musician: Object.keys(this.config.musicians)[0] || '',
+                    amount: this.config.musicians[Object.keys(this.config.musicians)[0]]?.defaultPay || 50000
+                });
                 this.renderMusicianPayments();
             },
 
@@ -1209,8 +1322,8 @@
                             <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" 
                                     style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
                                 <option value="">Seleccionar músico</option>
-                                ${Object.keys(this.config.sellers).filter(s => s !== 'lisaurio').map(s => 
-                                    `<option value="${s}" ${payment.musician === s ? 'selected' : ''}>${this.config.sellers[s].name}</option>`
+                                ${Object.keys(this.config.musicians).map(m => 
+                                    `<option value="${m}" ${payment.musician === m ? 'selected' : ''}>${this.config.musicians[m].name}</option>`
                                 ).join('')}
                             </select>
                             <input type="number" 
@@ -1230,7 +1343,16 @@
             updateMusicianPayment(id, field, value) {
                 const payment = this.musicianPayments.find(m => m.id === id);
                 if (payment) {
-                    payment[field] = field === 'amount' ? parseFloat(value) : value;
+                    if (field === 'amount') {
+                        payment[field] = parseFloat(value);
+                    } else if (field === 'musician') {
+                        payment[field] = value;
+                        // Auto-completar con el pago por defecto
+                        if (this.config.musicians[value]) {
+                            payment.amount = this.config.musicians[value].defaultPay;
+                            this.renderMusicianPayments();
+                        }
+                    }
                 }
             },
 
@@ -1260,13 +1382,12 @@
                 if (view === 'reports') this.renderReports();
                 if (view === 'config') {
                     this.renderSellersList();
+                    this.renderMusiciansList();
                     this.renderLinks();
                 }
             },
 
             openNewShowModal() {
-                if (this.currentUser !== 'lisaurio') return;
-                
                 this.editingId = null;
                 this.musicianPayments = [];
                 
@@ -1285,18 +1406,20 @@
                 document.getElementById('inputNotes').value = '';
                 
                 this.updateSellerOptions();
-                document.getElementById('inputSeller').value = 'lisaurio';
-                document.getElementById('inputDepositTo').value = 'lisaurio';
+                // El usuario actual es quien toma el show por defecto
+                document.getElementById('inputSeller').value = this.currentUser;
+                document.getElementById('inputDepositTo').value = this.currentUser;
                 
                 this.handleSellerChange();
                 this.calculateSaldo();
             },
 
             openEditModal(id) {
-                if (this.currentUser !== 'lisaurio') return;
+                // Solo pueden editar sus propios shows o Lisaurio
+                const show = this.shows.find(s => s.id === id);
+                if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
 
                 this.editingId = id;
-                const show = this.shows.find(s => s.id === id);
                 
                 document.getElementById('modalTitle').textContent = 'Editar Show';
                 document.getElementById('modalShow').classList.add('active');
@@ -1327,7 +1450,6 @@
 
             saveShow(event) {
                 event.preventDefault();
-                if (this.currentUser !== 'lisaurio') return;
 
                 const seller = document.getElementById('inputSeller').value;
                 const total = parseFloat(document.getElementById('inputTotal').value);
@@ -1365,14 +1487,18 @@
                             totalMusicianPayments += mp.amount;
                         });
                     }
-                    showData.saldoLisaurio = netAmount - totalMusicianPayments;
+                    // CORREGIDO: Descontar la seña si es para Lisaurio
+                    const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                    showData.saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
                 } else {
                     // Vendedor toma el show
                     const sellerConfig = this.config.sellers[seller];
                     const commission = netAmount * (sellerConfig.percentage / 100);
                     const depositForSeller = depositTo === seller ? deposit : 0;
                     showData.saldoSeller = commission - depositForSeller;
-                    showData.saldoLisaurio = netAmount - commission;
+                    
+                    const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                    showData.saldoLisaurio = netAmount - commission - depositForLisaurio;
                 }
 
                 if (this.editingId) {
@@ -1393,10 +1519,12 @@
             },
 
             deleteShow(id) {
-                if (this.currentUser !== 'lisaurio') return;
+                // Solo pueden borrar sus propios shows o Lisaurio
+                const show = this.shows.find(s => s.id === id);
+                if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
+                
                 if (!confirm('¿Eliminar este show?')) return;
 
-                const show = this.shows.find(s => s.id === id);
                 this.shows = this.shows.filter(s => s.id !== id);
                 this.addToLog('delete', show);
                 
@@ -1475,7 +1603,7 @@
                 empty.style.display = 'none';
 
                 container.innerHTML = shows.map(show => {
-                    const canEdit = this.currentUser === 'lisaurio';
+                    const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
                     const showDetails = this.shouldShowDetails(show);
 
                     const saldo = show.total - show.deposit - show.expenses;
@@ -1498,9 +1626,7 @@
                             <div class="card-info">
                                 ${showDetails.showAddress ? `
                                     <div class="card-row">📍 ${show.address}</div>
-                                ` : `
-                                    <div class="card-row">📍 Dirección asignada</div>
-                                `}
+                                ` : ''}
                                 
                                 ${showDetails.showPhone ? `
                                     <div class="card-row">📞 ${show.phone}</div>
@@ -1518,14 +1644,16 @@
                                     <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
                                 ` : ''}
                                 
-                                ${show.notes ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
+                                ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
                             </div>
 
                             ${this.renderSaldoSection(show, showDetails)}
                             
-                            <div class="card-highlight">
-                                💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
-                            </div>
+                            ${showDetails.showFullDetails ? `
+                                <div class="card-highlight">
+                                    💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
+                                </div>
+                            ` : ''}
                             
                             ${canEdit ? `
                                 <div class="card-actions">
@@ -1554,9 +1682,10 @@
                     
                     if (show.musicianPayments && show.musicianPayments.length > 0) {
                         show.musicianPayments.forEach(mp => {
+                            const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
                             html += `
                                 <div class="saldo-row">
-                                    <span>💵 Saldo ${this.getSellerName(mp.musician)}:</span>
+                                    <span>💵 Saldo ${musicianName}:</span>
                                     <span>$${this.formatMoney(mp.amount)}</span>
                                 </div>
                             `;
@@ -1564,16 +1693,21 @@
                     }
                 } else {
                     // Vendedor tomó el show
-                    html += `
-                        <div class="saldo-row">
-                            <span>💵 Saldo ${this.getSellerName(show.seller)}:</span>
-                            <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
-                        </div>
-                        <div class="saldo-row">
-                            <span>💵 Saldo Lisaurio:</span>
-                            <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
-                        </div>
-                    `;
+                    const sellerName = this.getSellerName(show.seller);
+                    
+                    // Solo mostrar saldo del vendedor si es él quien lo ve, o es Lisaurio
+                    if (this.currentUser === 'lisaurio' || this.currentUser === show.seller) {
+                        html += `
+                            <div class="saldo-row">
+                                <span>💵 Saldo ${sellerName}:</span>
+                                <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
+                            </div>
+                            <div class="saldo-row">
+                                <span>💵 Saldo Lisaurio:</span>
+                                <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                            </div>
+                        `;
+                    }
                 }
 
                 html += '</div>';
@@ -1594,7 +1728,8 @@
                 const year = this.currentMonth.getFullYear();
                 const month = this.currentMonth.getMonth();
 
-                title.textContent = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
+                const monthName = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
+                title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -1643,7 +1778,6 @@
 
                 container.innerHTML = dayShows.map(show => {
                     const showDetails = this.shouldShowDetails(show);
-                    const saldo = show.total - show.deposit - show.expenses;
                     const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
 
                     return `
@@ -1655,9 +1789,7 @@
                             <div class="card-info">
                                 ${showDetails.showAddress ? `
                                     <div class="card-row">📍 ${show.address}</div>
-                                ` : `
-                                    <div class="card-row">📍 Show asignado</div>
-                                `}
+                                ` : ''}
                                 ${showDetails.showSeller ? `
                                     <div class="card-row">👤 ${this.getSellerName(show.seller)}</div>
                                 ` : ''}
@@ -1688,18 +1820,18 @@
 
                 monthShows.forEach(show => {
                     totalIncome += show.total;
+                    lisaurioIncome += (show.saldoLisaurio || 0);
 
                     if (show.seller === 'lisaurio') {
-                        lisaurioIncome += (show.saldoLisaurio || 0);
-                        
                         if (show.musicianPayments) {
                             show.musicianPayments.forEach(mp => {
-                                sellerIncomes[mp.musician] = (sellerIncomes[mp.musician] || 0) + mp.amount;
+                                const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
+                                sellerIncomes[musicianName] = (sellerIncomes[musicianName] || 0) + mp.amount;
                             });
                         }
                     } else {
-                        lisaurioIncome += (show.saldoLisaurio || 0);
-                        sellerIncomes[show.seller] = (sellerIncomes[show.seller] || 0) + (show.saldoSeller || 0);
+                        const sellerName = this.getSellerName(show.seller);
+                        sellerIncomes[sellerName] = (sellerIncomes[sellerName] || 0) + (show.saldoSeller || 0);
                     }
                 });
 
@@ -1715,11 +1847,11 @@
                     </div>
                 `;
 
-                Object.keys(sellerIncomes).forEach(sellerId => {
+                Object.keys(sellerIncomes).forEach(name => {
                     statsHTML += `
                         <div class="stat-card">
-                            <div class="stat-value">$${this.formatMoney(sellerIncomes[sellerId])}</div>
-                            <div class="stat-label">${this.getSellerName(sellerId)}</div>
+                            <div class="stat-value">$${this.formatMoney(sellerIncomes[name])}</div>
+                            <div class="stat-label">${name}</div>
                         </div>
                     `;
                 });
@@ -1784,7 +1916,7 @@
             },
 
             getFilteredShows() {
-                // Para la vista de lista, aplicar filtros
+                // Para la vista de lista
                 if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
                     // Vendedores solo ven shows donde están involucrados
                     return this.shows.filter(s => 
@@ -1811,23 +1943,35 @@
                         showAddress: true,
                         showPhone: true,
                         showSeller: true,
-                        canSeeSaldos: true
+                        canSeeSaldos: true,
+                        showFullDetails: true
                     };
                 }
 
-                // Vendedor puede ver detalles según configuración y si está involucrado
-                const isInvolved = show.seller === this.currentUser || 
-                                  show.depositTo === this.currentUser ||
-                                  (show.musicianPayments && show.musicianPayments.some(mp => mp.musician === this.currentUser));
+                // Vendedor que TOMÓ el show ve TODO
+                if (show.seller === this.currentUser) {
+                    return {
+                        showTotal: true,
+                        showExpenses: true,
+                        canSeeDeposit: true,
+                        showAddress: true,
+                        showPhone: true,
+                        showSeller: true,
+                        canSeeSaldos: true,
+                        showFullDetails: true
+                    };
+                }
 
+                // Otros vendedores: solo ven la fecha (para evitar choques)
                 return {
-                    showTotal: this.config.showTotal && isInvolved,
-                    showExpenses: this.config.showExpenses && isInvolved,
-                    canSeeDeposit: isInvolved && show.depositTo === this.currentUser,
-                    showAddress: this.config.showAddress && isInvolved,
-                    showPhone: this.config.showPhone && isInvolved,
-                    showSeller: this.config.showSeller,
-                    canSeeSaldos: isInvolved
+                    showTotal: false,
+                    showExpenses: false,
+                    canSeeDeposit: false,
+                    showAddress: false,
+                    showPhone: false,
+                    showSeller: false,
+                    canSeeSaldos: false,
+                    showFullDetails: false
                 };
             },
 

@@ -23,7 +23,7 @@
             --text-muted: #94a3b8;
             --border: #334155;
             
-            --admin-color: #10b981;
+            --lysaurio-color: #10b981;
             --valentin-color: #f59e0b;
             --lisandro-color: #3b82f6;
             --otro-color: #8b5cf6;
@@ -58,6 +58,14 @@
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .shows-count {
+            background: var(--success);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -129,10 +137,9 @@
             position: relative;
         }
 
-        .card.admin { border-left-color: var(--admin-color); }
+        .card.lysaurio { border-left-color: var(--lysaurio-color); }
         .card.valentin { border-left-color: var(--valentin-color); }
         .card.lisandro { border-left-color: var(--lisandro-color); }
-        .card.otro { border-left-color: var(--otro-color); }
 
         .card-header {
             display: flex;
@@ -540,6 +547,34 @@
             border-radius: 4px;
         }
 
+        /* Seller List */
+        .seller-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .seller-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .seller-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .seller-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
         @media (max-width: 640px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -551,8 +586,9 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <h1 style="font-size: 1.25rem;">🎵 Shows</h1>
-            <div class="user-badge" id="userBadge">Admin</div>
+            <h1 style="font-size: 1.25rem;">🎵 Shows Lysaurio</h1>
+            <div id="pendingShows" class="shows-count">Pendientes: 0</div>
+            <div class="user-badge" id="userBadge">Lysaurio</div>
         </div>
     </div>
 
@@ -560,27 +596,9 @@
     <div class="container">
         <!-- Vista: Lista -->
         <div class="view active" id="viewList">
-            <div class="filter-chips" id="filterChips">
-                <div class="chip active" data-filter="all">Todos</div>
-                <div class="chip" data-filter="admin">Admin</div>
-                <div class="chip" data-filter="valentin">Valentín</div>
-                <div class="chip" data-filter="lisandro">Lisandro</div>
-            </div>
+            <div class="filter-chips" id="filterChips"></div>
 
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--admin-color);"></div>
-                    <span>Admin</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--valentin-color);"></div>
-                    <span>Valentín</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--lisandro-color);"></div>
-                    <span>Lisandro</span>
-                </div>
-            </div>
+            <div class="legend" id="legend"></div>
 
             <div id="showsList"></div>
 
@@ -620,20 +638,11 @@
             <div class="card">
                 <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
                 <div class="form-group">
-                    <label class="form-label">Enlace Admin</label>
-                    <input type="text" class="form-input" id="linkAdmin" readonly>
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('admin')">Copiar</button>
+                    <label class="form-label">Enlace Lysaurio</label>
+                    <input type="text" class="form-input" id="linkLysaurio" readonly>
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('lysaurio')">Copiar</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Enlace Valentín</label>
-                    <input type="text" class="form-input" id="linkValentin" readonly>
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('valentin')">Copiar</button>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Enlace Lisandro</label>
-                    <input type="text" class="form-input" id="linkLisandro" readonly>
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('lisandro')">Copiar</button>
-                </div>
+                <div id="sellerLinks"></div>
             </div>
 
             <div class="card">
@@ -656,6 +665,18 @@
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Vendedores</h3>
+                <div id="sellersList"></div>
+                <button class="btn btn-primary" onclick="app.openAddSellerModal()">Agregar Vendedor</button>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Pago fijo a músico (para shows de Lysaurio)</h3>
+                <input type="number" class="form-input" id="musicianFixed" step="1000" min="0">
+                <button class="btn btn-success" style="margin-top: 0.5rem;" onclick="app.saveMusicianFixed()">Guardar</button>
             </div>
 
             <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
@@ -749,20 +770,16 @@
                 </div>
 
                 <div class="form-group" id="sellerGroup">
-                    <label class="form-label">Seña/Vendedor</label>
-                    <select class="form-select" id="inputSeller" required>
-                        <option value="admin">Admin</option>
-                        <option value="valentin">Valentín</option>
-                        <option value="lisandro">Lisandro</option>
+                    <label class="form-label">Vendedor</label>
+                    <select class="form-select" id="inputSeller" required onchange="app.updateCommissionField()">
+                        <option value="lysaurio">Lysaurio</option>
+                        <!-- Dynamic options added here -->
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Seña ($)</label>
-                    <input type="number" class="form-input" id="inputSena" value="0" min="0" step="1000">
-                </div>
+                <div id="senaGroups"></div>
 
-                <div class="form-group" id="commissionTypeGroup">
+                <div class="form-group" id="commissionTypeGroup" style="display: none;">
                     <label class="form-label">Tipo de Comisión</label>
                     <select class="form-select" id="inputCommissionType" onchange="app.toggleCommissionInput()">
                         <option value="percentage">Porcentaje (%)</option>
@@ -770,9 +787,9 @@
                     </select>
                 </div>
 
-                <div class="form-group" id="commissionGroup">
+                <div class="form-group" id="commissionGroup" style="display: none;">
                     <label class="form-label" id="labelCommission">Comisión (%)</label>
-                    <input type="number" class="form-input" id="inputCommission" value="30" min="0" step="1">
+                    <input type="number" class="form-input" id="inputCommission" min="0" step="1">
                 </div>
 
                 <div class="form-group">
@@ -788,19 +805,57 @@
         </div>
     </div>
 
+    <!-- Modal: Agregar/Editar Vendedor -->
+    <div class="modal" id="modalSeller">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalSellerTitle">Nuevo Vendedor</h2>
+                <button class="modal-close" onclick="app.closeSellerModal()">&times;</button>
+            </div>
+            
+            <form onsubmit="app.saveSeller(event)">
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" class="form-input" id="inputSellerName" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Color (hex)</label>
+                    <input type="text" class="form-input" id="inputSellerColor" required placeholder="#f59e0b">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Comisión (%)</label>
+                    <input type="number" class="form-input" id="inputSellerCommission" required min="0" max="100" step="1">
+                </div>
+
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeSellerModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const app = {
-            currentUser: 'admin',
+            currentUser: 'lysaurio',
             currentView: 'list',
             currentMonth: new Date(),
             selectedDay: new Date(),
             editingId: null,
+            editingSellerId: null,
             currentFilter: 'all',
 
             config: {
                 showTotal: true,
                 showExpenses: true,
-                showCommission: true
+                showCommission: true,
+                sellers: [
+                    {id: 'valentin', name: 'Valentín', color: '#f59e0b', commission: 30},
+                    {id: 'lisandro', name: 'Lisandro', color: '#3b82f6', commission: 30}
+                ],
+                musicianFixed: 50000
             },
 
             shows: [],
@@ -817,6 +872,11 @@
                 this.loadData();
                 this.loadConfig();
 
+                // Set colors
+                this.config.sellers.forEach(seller => {
+                    document.documentElement.style.setProperty(`--${seller.id}-color`, seller.color);
+                });
+
                 // Generar enlaces
                 this.generateLinks();
 
@@ -824,9 +884,18 @@
                 this.updateUserUI();
 
                 // Renderizar vistas
+                this.renderFilterChips();
+                this.renderLegend();
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
+                this.renderPendingCount();
+
+                if (this.currentUser === 'lysaurio') {
+                    this.renderSellersList();
+                    this.renderSellerLinks();
+                    document.getElementById('musicianFixed').value = this.config.musicianFixed;
+                }
 
                 // Event listeners para filtros
                 document.querySelectorAll('.chip').forEach(chip => {
@@ -878,18 +947,19 @@
                 const fab = document.getElementById('fabButton');
 
                 const userNames = {
-                    admin: 'Admin',
-                    valentin: 'Valentín',
-                    lisandro: 'Lisandro'
+                    lysaurio: 'Lysaurio',
+                    ...this.config.sellers.reduce((acc, s) => ({...acc, [s.id]: s.name}), {})
                 };
 
                 badge.textContent = userNames[this.currentUser] || 'Usuario';
 
-                // Config solo para admin
-                if (this.currentUser !== 'admin') {
+                // Config solo para lysaurio
+                if (this.currentUser !== 'lysaurio') {
                     navConfig.style.display = 'none';
+                    document.getElementById('filterChips').style.display = 'none';
                 } else {
                     navConfig.style.display = 'flex';
+                    document.getElementById('filterChips').style.display = 'flex';
                 }
 
                 // FAB para todos
@@ -898,9 +968,18 @@
 
             generateLinks() {
                 const baseUrl = window.location.origin + window.location.pathname;
-                document.getElementById('linkAdmin').value = baseUrl + '#admin';
-                document.getElementById('linkValentin').value = baseUrl + '#valentin';
-                document.getElementById('linkLisandro').value = baseUrl + '#lisandro';
+                document.getElementById('linkLysaurio').value = baseUrl + '#lysaurio';
+            },
+
+            renderSellerLinks() {
+                const container = document.getElementById('sellerLinks');
+                container.innerHTML = this.config.sellers.map(seller => `
+                    <div class="form-group">
+                        <label class="form-label">Enlace ${seller.name}</label>
+                        <input type="text" class="form-input" id="link${seller.id.charAt(0).toUpperCase() + seller.id.slice(1)}" readonly value="${window.location.origin + window.location.pathname + '#' + seller.id}">
+                        <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${seller.id}')">Copiar</button>
+                    </div>
+                `).join('');
             },
 
             copyLink(user) {
@@ -924,6 +1003,9 @@
                 // Refresh current view
                 if (view === 'calendar') this.renderCalendar();
                 if (view === 'reports') this.renderReports();
+                if (view === 'config' && this.currentUser === 'lysaurio') {
+                    this.renderSellersList();
+                }
             },
 
             toggleOtherEvent() {
@@ -932,7 +1014,32 @@
                 group.style.display = select.value === 'Otro' ? 'block' : 'none';
             },
 
-            openNewShowModal() {                
+            updateCommissionField() {
+                const seller = document.getElementById('inputSeller').value;
+                const commissionTypeGroup = document.getElementById('commissionTypeGroup');
+                const commissionGroup = document.getElementById('commissionGroup');
+                const labelCommission = document.getElementById('labelCommission');
+                const inputCommission = document.getElementById('inputCommission');
+
+                if (seller === 'lysaurio') {
+                    commissionTypeGroup.style.display = 'none';
+                    commissionGroup.style.display = 'block';
+                    labelCommission.textContent = 'Pago a músico ($)';
+                    inputCommission.value = this.config.musicianFixed;
+                    inputCommission.step = '1000';
+                    inputCommission.max = '';
+                } else {
+                    commissionTypeGroup.style.display = 'none';
+                    commissionGroup.style.display = 'block';
+                    labelCommission.textContent = 'Comisión (%)';
+                    const sellerConfig = this.config.sellers.find(s => s.id === seller);
+                    inputCommission.value = sellerConfig ? sellerConfig.commission : 30;
+                    inputCommission.step = '1';
+                    inputCommission.max = '100';
+                }
+            },
+
+            openNewShowModal() {
                 this.editingId = null;
                 document.getElementById('modalTitle').textContent = 'Nuevo Show';
                 document.getElementById('modalShow').classList.add('active');
@@ -948,32 +1055,63 @@
                 document.getElementById('inputPhone').value = '';
                 document.getElementById('inputTotal').value = '';
                 document.getElementById('inputExpenses').value = '0';
-                document.getElementById('inputSena').value = '0';
-                document.getElementById('inputCommissionType').value = 'percentage';
-                document.getElementById('inputCommission').value = '30';
                 document.getElementById('inputNotes').value = '';
-                this.toggleCommissionInput();
 
-                // Ajustes por usuario
+                // Seller select
+                const sellerSelect = document.getElementById('inputSeller');
+                sellerSelect.innerHTML = `<option value="lysaurio">Lysaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+                const isLysaurio = this.currentUser === 'lysaurio';
+
                 const sellerGroup = document.getElementById('sellerGroup');
+                sellerGroup.style.display = isLysaurio ? 'block' : 'none';
+                if (!isLysaurio) {
+                    sellerSelect.value = this.currentUser;
+                } else {
+                    sellerSelect.value = 'lysaurio';
+                }
+
                 const commissionTypeGroup = document.getElementById('commissionTypeGroup');
                 const commissionGroup = document.getElementById('commissionGroup');
+                commissionTypeGroup.style.display = 'none';
+                commissionGroup.style.display = isLysaurio ? 'block' : 'none';
 
-                if (this.currentUser !== 'admin') {
-                    sellerGroup.style.display = 'none';
-                    document.getElementById('inputSeller').value = this.currentUser;
-                    commissionTypeGroup.style.display = 'none';
-                    commissionGroup.style.display = 'none';
+                this.updateCommissionField();
+
+                // Sena groups
+                const senaContainer = document.getElementById('senaGroups');
+                senaContainer.innerHTML = '';
+                if (isLysaurio) {
+                    senaContainer.innerHTML += `
+                        <div class="form-group">
+                            <label class="form-label">Seña a Lysaurio ($)</label>
+                            <input type="number" class="form-input" id="inputSena_lysaurio" value="0" min="0" step="1000">
+                        </div>
+                    `;
+                    this.config.sellers.forEach(seller => {
+                        senaContainer.innerHTML += `
+                            <div class="form-group">
+                                <label class="form-label">Seña a ${seller.name} ($)</label>
+                                <input type="number" class="form-input" id="inputSena_${seller.id}" value="0" min="0" step="1000">
+                            </div>
+                        `;
+                    });
                 } else {
-                    sellerGroup.style.display = 'block';
-                    document.getElementById('inputSeller').value = 'admin';
-                    commissionTypeGroup.style.display = 'block';
-                    commissionGroup.style.display = 'block';
+                    senaContainer.innerHTML += `
+                        <div class="form-group">
+                            <label class="form-label">Seña a Lysaurio ($)</label>
+                            <input type="number" class="form-input" id="inputSena_lysaurio" value="0" min="0" step="1000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Seña a mí ($)</label>
+                            <input type="number" class="form-input" id="inputSena_${this.currentUser}" value="0" min="0" step="1000">
+                        </div>
+                    `;
                 }
             },
 
             openEditModal(id) {
-                if (this.currentUser !== 'admin') return;
+                if (this.currentUser !== 'lysaurio') return;
 
                 this.editingId = id;
                 const show = this.shows.find(s => s.id === id);
@@ -996,17 +1134,37 @@
                 document.getElementById('inputPhone').value = show.phone;
                 document.getElementById('inputTotal').value = show.total;
                 document.getElementById('inputExpenses').value = show.expenses || 0;
-                document.getElementById('inputSena').value = show.sena || 0;
-                document.getElementById('inputSeller').value = show.seller;
-                document.getElementById('inputCommissionType').value = show.commissionType;
-                document.getElementById('inputCommission').value = show.commission;
                 document.getElementById('inputNotes').value = show.notes || '';
-                this.toggleCommissionInput();
 
-                // Para edit, admin ve todo
-                document.getElementById('sellerGroup').style.display = 'block';
-                document.getElementById('commissionTypeGroup').style.display = 'block';
-                document.getElementById('commissionGroup').style.display = 'block';
+                // Seller select
+                const sellerSelect = document.getElementById('inputSeller');
+                sellerSelect.innerHTML = `<option value="lysaurio">Lysaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                sellerSelect.value = show.seller;
+
+                const commissionTypeGroup = document.getElementById('commissionTypeGroup');
+                const commissionGroup = document.getElementById('commissionGroup');
+                commissionTypeGroup.style.display = 'none';
+                commissionGroup.style.display = 'block';
+
+                this.updateCommissionField();
+                document.getElementById('inputCommission').value = show.commission;
+
+                // Sena groups
+                const senaContainer = document.getElementById('senaGroups');
+                senaContainer.innerHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Seña a Lysaurio ($)</label>
+                        <input type="number" class="form-input" id="inputSena_lysaurio" value="${show.sena?.lysaurio || 0}" min="0" step="1000">
+                    </div>
+                `;
+                this.config.sellers.forEach(seller => {
+                    senaContainer.innerHTML += `
+                        <div class="form-group">
+                            <label class="form-label">Seña a ${seller.name} ($)</label>
+                            <input type="number" class="form-input" id="inputSena_${seller.id}" value="${show.sena?.[seller.id] || 0}" min="0" step="1000">
+                        </div>
+                    `;
+                });
             },
 
             closeModal() {
@@ -1014,31 +1172,35 @@
             },
 
             toggleCommissionInput() {
-                const type = document.getElementById('inputCommissionType').value;
-                const label = document.getElementById('labelCommission');
-                const input = document.getElementById('inputCommission');
-
-                if (type === 'percentage') {
-                    label.textContent = 'Comisión (%)';
-                    input.max = '100';
-                    input.step = '1';
-                } else {
-                    label.textContent = 'Comisión ($)';
-                    input.max = '';
-                    input.step = '1000';
-                }
+                // Not used since type is hidden
             },
 
             saveShow(event) {
                 event.preventDefault();
 
-                const isAdmin = this.currentUser === 'admin';
+                const isLysaurio = this.currentUser === 'lysaurio';
 
                 const eventTypeSelect = document.getElementById('inputEventTypeSelect').value;
                 const eventType = eventTypeSelect === 'Otro' ? document.getElementById('inputOtherEvent').value : eventTypeSelect;
 
-                const commissionType = isAdmin ? document.getElementById('inputCommissionType').value : 'percentage';
-                const commission = isAdmin ? parseFloat(document.getElementById('inputCommission').value) : 30;
+                const seller = isLysaurio ? document.getElementById('inputSeller').value : this.currentUser;
+
+                const commission = isLysaurio ? parseFloat(document.getElementById('inputCommission').value) : this.getSellerCommission(seller);
+
+                const commissionType = seller === 'lysaurio' ? 'fixed' : 'percentage';
+
+                const sena = {};
+                if (isLysaurio) {
+                    sena['lysaurio'] = parseFloat(document.getElementById('inputSena_lysaurio').value) || 0;
+                    this.config.sellers.forEach(s => {
+                        sena[s.id] = parseFloat(document.getElementById(`inputSena_${s.id}`).value) || 0;
+                    });
+                } else {
+                    sena['lysaurio'] = parseFloat(document.getElementById('inputSena_lysaurio').value) || 0;
+                    sena[this.currentUser] = parseFloat(document.getElementById(`inputSena_${this.currentUser}`).value) || 0;
+                }
+
+                const totalSena = Object.values(sena).reduce((a, b) => a + b, 0);
 
                 const showData = {
                     id: this.editingId || Date.now(),
@@ -1050,8 +1212,8 @@
                     phone: document.getElementById('inputPhone').value,
                     total: parseFloat(document.getElementById('inputTotal').value),
                     expenses: parseFloat(document.getElementById('inputExpenses').value) || 0,
-                    sena: parseFloat(document.getElementById('inputSena').value) || 0,
-                    seller: isAdmin && this.editingId ? document.getElementById('inputSeller').value : (isAdmin ? document.getElementById('inputSeller').value : this.currentUser),
+                    sena: sena,
+                    seller: seller,
                     commissionType: commissionType,
                     commission: commission,
                     notes: document.getElementById('inputNotes').value,
@@ -1060,12 +1222,19 @@
                     updatedAt: new Date().toISOString()
                 };
 
-                // Calcular comisión
+                // Calcular
                 const netAmount = showData.total - showData.expenses;
                 showData.calculatedCommission = showData.commissionType === 'percentage' 
                     ? (netAmount * showData.commission / 100)
                     : showData.commission;
-                showData.balance = showData.calculatedCommission - showData.sena;
+                showData.clientBalance = showData.total - totalSena;
+
+                // Balance for beneficiary
+                let beneficiary = showData.seller;
+                if (showData.seller === 'lysaurio') {
+                    beneficiary = 'valentin'; // Hardcoded musician
+                }
+                showData.balance = showData.calculatedCommission - (showData.sena[beneficiary] || 0);
 
                 if (this.editingId) {
                     const index = this.shows.findIndex(s => s.id === this.editingId);
@@ -1081,10 +1250,16 @@
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
+                this.renderPendingCount();
+            },
+
+            getSellerCommission(id) {
+                const seller = this.config.sellers.find(s => s.id === id);
+                return seller ? seller.commission : 30;
             },
 
             deleteShow(id) {
-                if (this.currentUser !== 'admin') return;
+                if (this.currentUser !== 'lysaurio') return;
                 if (!confirm('¿Eliminar este show?')) return;
 
                 const show = this.shows.find(s => s.id === id);
@@ -1095,6 +1270,7 @@
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
+                this.renderPendingCount();
             },
 
             addToLog(action, show) {
@@ -1105,6 +1281,31 @@
                     user: this.currentUser,
                     timestamp: new Date().toISOString()
                 });
+            },
+
+            renderFilterChips() {
+                const container = document.getElementById('filterChips');
+                container.innerHTML = `
+                    <div class="chip active" data-filter="all">Todos</div>
+                    <div class="chip" data-filter="lysaurio">Lysaurio</div>
+                ` + this.config.sellers.map(s => `
+                    <div class="chip" data-filter="${s.id}">${s.name}</div>
+                `).join('');
+            },
+
+            renderLegend() {
+                const container = document.getElementById('legend');
+                container.innerHTML = `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--lysaurio-color);"></div>
+                        <span>Lysaurio</span>
+                    </div>
+                ` + this.config.sellers.map(s => `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--${s.id}-color);"></div>
+                        <span>${s.name}</span>
+                    </div>
+                `).join('');
             },
 
             renderList() {
@@ -1125,12 +1326,35 @@
                 empty.style.display = 'none';
 
                 container.innerHTML = shows.map(show => {
-                    const canEdit = this.currentUser === 'admin';
+                    const canEdit = this.currentUser === 'lysaurio';
                     const showDetails = this.shouldShowDetails(show);
 
                     const netAmount = show.total - show.expenses;
                     const commission = show.calculatedCommission || 0;
                     const balance = show.balance || 0;
+                    const clientBalance = show.clientBalance || 0;
+
+                    let commissionLabel = 'Comisión';
+                    let isMusicianPayment = false;
+                    if (show.seller === 'lysaurio') {
+                        commissionLabel = 'Pago músico';
+                        isMusicianPayment = true;
+                    }
+
+                    let senaHTML = '';
+                    if (this.currentUser === 'lysaurio') {
+                        Object.keys(show.sena || {}).forEach(user => {
+                            if (show.sena[user] > 0) {
+                                const name = user === 'lysaurio' ? 'Lysaurio' : this.config.sellers.find(s => s.id === user)?.name || user;
+                                senaHTML += `<div class="card-row">📥 Seña a ${name}: $${this.formatMoney(show.sena[user])}</div>`;
+                            }
+                        });
+                    } else {
+                        const ownSena = show.sena?.[this.currentUser] || 0;
+                        if (ownSena > 0) {
+                            senaHTML += `<div class="card-row">📥 Seña: $${this.formatMoney(ownSena)}</div>`;
+                        }
+                    }
 
                     return `
                         <div class="card ${show.seller}">
@@ -1158,13 +1382,17 @@
                                     <div class="card-row">📊 Neto: $${this.formatMoney(netAmount)}</div>
                                 ` : ''}
                                 
-                                ${show.sena > 0 ? `
-                                    <div class="card-row">📥 Seña: $${this.formatMoney(show.sena)}</div>
+                                ${senaHTML}
+                                
+                                ${showDetails.showTotal ? `
+                                    <div class="card-row" style="color: var(--primary); font-weight: 600;">
+                                        🏦 Saldo cliente: $${this.formatMoney(clientBalance)}
+                                    </div>
                                 ` : ''}
                                 
                                 ${showDetails.showCommission ? `
                                     <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 Comisión: $${this.formatMoney(commission)}
+                                        💵 ${commissionLabel}: $${this.formatMoney(commission)}
                                         ${show.commissionType === 'percentage' ? `(${show.commission}%)` : '(fija)'}
                                     </div>
                                     <div class="card-row" style="color: var(--warning); font-weight: 600;">
@@ -1184,6 +1412,13 @@
                         </div>
                     `;
                 }).join('');
+            },
+
+            renderPendingCount() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const pending = this.shows.filter(s => new Date(s.date) >= today).length;
+                document.getElementById('pendingShows').textContent = `Pendientes: ${pending}`;
             },
 
             renderCalendar() {
@@ -1242,6 +1477,7 @@
                     const showDetails = this.shouldShowDetails(show);
                     const commission = show.calculatedCommission || 0;
                     const balance = show.balance || 0;
+                    const clientBalance = show.clientBalance || 0;
 
                     return `
                         <div class="card ${show.seller}">
@@ -1254,10 +1490,15 @@
                                 <div class="card-row">📍 ${show.address}</div>
                                 ${showDetails.showCommission ? `
                                     <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 Comisión: $${this.formatMoney(commission)}
+                                        💵 ${show.seller === 'lysaurio' ? 'Pago músico' : 'Comisión'}: $${this.formatMoney(commission)}
                                     </div>
                                     <div class="card-row" style="color: var(--warning); font-weight: 600;">
                                         ⚖️ Saldo: $${this.formatMoney(balance)}
+                                    </div>
+                                ` : ''}
+                                ${showDetails.showTotal ? `
+                                    <div class="card-row" style="color: var(--primary); font-weight: 600;">
+                                        🏦 Saldo cliente: $${this.formatMoney(clientBalance)}
                                     </div>
                                 ` : ''}
                             </div>
@@ -1281,21 +1522,22 @@
                 });
 
                 let totalIncome = 0;
-                let adminIncome = 0;
+                let lysaurioIncome = 0;
                 const sellerBalances = {};
 
                 monthShows.forEach(show => {
                     const netAmount = show.total - show.expenses;
                     const commission = show.calculatedCommission || 0;
-                    const balance = show.balance || 0;
 
                     totalIncome += show.total;
 
-                    if (show.seller === 'admin') {
-                        adminIncome += netAmount - show.sena; // Assuming sena to admin
+                    if (show.seller === 'lysaurio') {
+                        // Pago fijo a valentin
+                        sellerBalances['valentin'] = (sellerBalances['valentin'] || 0) + commission - (show.sena['valentin'] || 0);
+                        lysaurioIncome += netAmount - commission;
                     } else {
-                        adminIncome += (netAmount - commission);
-                        sellerBalances[show.seller] = (sellerBalances[show.seller] || 0) + balance;
+                        sellerBalances[show.seller] = (sellerBalances[show.seller] || 0) + commission - (show.sena[show.seller] || 0);
+                        lysaurioIncome += netAmount - commission;
                     }
                 });
 
@@ -1306,16 +1548,17 @@
                         <div class="stat-label">Ingresos Totales</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">$${this.formatMoney(adminIncome)}</div>
-                        <div class="stat-label">Para Admin</div>
+                        <div class="stat-value">$${this.formatMoney(lysaurioIncome)}</div>
+                        <div class="stat-label">Para Lysaurio</div>
                     </div>
                 `;
 
-                Object.keys(sellerBalances).forEach(seller => {
+                this.config.sellers.forEach(seller => {
+                    const balance = sellerBalances[seller.id] || 0;
                     statsHTML += `
                         <div class="stat-card">
-                            <div class="stat-value">$${this.formatMoney(sellerBalances[seller])}</div>
-                            <div class="stat-label">Saldo ${this.getSellerName(seller)}</div>
+                            <div class="stat-value">$${this.formatMoney(balance)}</div>
+                            <div class="stat-label">Saldo ${seller.name}</div>
                         </div>
                     `;
                 });
@@ -1380,19 +1623,19 @@
             },
 
             getFilteredShows() {
-                if (this.currentUser === 'admin') {
+                if (this.currentUser === 'lysaurio') {
                     if (this.currentFilter === 'all') {
                         return this.shows;
                     }
                     return this.shows.filter(s => s.seller === this.currentFilter);
                 } else {
-                    // Non-admins see all shows
+                    // Non-lysaurio see all shows
                     return this.shows;
                 }
             },
 
             shouldShowDetails(show) {
-                if (this.currentUser === 'admin') {
+                if (this.currentUser === 'lysaurio') {
                     return {
                         showTotal: true,
                         showExpenses: true,
@@ -1400,7 +1643,9 @@
                     };
                 }
 
-                if (show.seller === this.currentUser) {
+                const isOwn = show.seller === this.currentUser || (show.seller === 'lysaurio' && this.currentUser === 'valentin'); // Valentin sees lysaurio shows as own for commission
+
+                if (isOwn) {
                     return {
                         showTotal: this.config.showTotal,
                         showExpenses: this.config.showExpenses,
@@ -1408,7 +1653,7 @@
                     };
                 }
 
-                // For other sellers' shows, basic info only
+                // For other shows: basic info
                 return {
                     showTotal: false,
                     showExpenses: false,
@@ -1429,8 +1674,14 @@
                 document.getElementById('toggleShowCommission').classList.toggle('active', this.config.showCommission);
             },
 
+            saveMusicianFixed() {
+                this.config.musicianFixed = parseFloat(document.getElementById('musicianFixed').value) || 50000;
+                this.saveConfig();
+                alert('Guardado');
+            },
+
             clearAllData() {
-                if (this.currentUser !== 'admin') return;
+                if (this.currentUser !== 'lysaurio') return;
                 if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
                 if (!confirm('¿Estás completamente seguro?')) return;
 
@@ -1439,13 +1690,10 @@
                 location.reload();
             },
 
-            getSellerName(seller) {
-                const names = {
-                    admin: 'Admin',
-                    valentin: 'Valentín',
-                    lisandro: 'Lisandro'
-                };
-                return names[seller] || seller;
+            getSellerName(id) {
+                if (id === 'lysaurio') return 'Lysaurio';
+                const seller = this.config.sellers.find(s => s.id === id);
+                return seller ? seller.name : id;
             },
 
             formatMoney(amount) {
@@ -1467,6 +1715,89 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 });
+            },
+
+            // Sellers management
+            renderSellersList() {
+                const container = document.getElementById('sellersList');
+                container.innerHTML = this.config.sellers.map(seller => `
+                    <div class="seller-card">
+                        <div class="seller-info">
+                            <div class="seller-color" style="background: var(--${seller.id}-color);"></div>
+                            <span>${seller.name} - ${seller.commission}%</span>
+                        </div>
+                        <div class="seller-actions">
+                            <button class="btn-small btn-primary" onclick="app.openEditSellerModal('${seller.id}')">Editar</button>
+                            <button class="btn-small btn-danger" onclick="app.deleteSeller('${seller.id}')">Eliminar</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            openAddSellerModal() {
+                this.editingSellerId = null;
+                document.getElementById('modalSellerTitle').textContent = 'Nuevo Vendedor';
+                document.getElementById('modalSeller').classList.add('active');
+                document.getElementById('inputSellerName').value = '';
+                document.getElementById('inputSellerColor').value = '#8b5cf6';
+                document.getElementById('inputSellerCommission').value = '30';
+            },
+
+            openEditSellerModal(id) {
+                this.editingSellerId = id;
+                const seller = this.config.sellers.find(s => s.id === id);
+                document.getElementById('modalSellerTitle').textContent = 'Editar Vendedor';
+                document.getElementById('modalSeller').classList.add('active');
+                document.getElementById('inputSellerName').value = seller.name;
+                document.getElementById('inputSellerColor').value = seller.color;
+                document.getElementById('inputSellerCommission').value = seller.commission;
+            },
+
+            closeSellerModal() {
+                document.getElementById('modalSeller').classList.remove('active');
+            },
+
+            saveSeller(event) {
+                event.preventDefault();
+
+                const name = document.getElementById('inputSellerName').value.trim();
+                const id = this.editingSellerId || name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const color = document.getElementById('inputSellerColor').value;
+                const commission = parseFloat(document.getElementById('inputSellerCommission').value);
+
+                if (!name || !color || isNaN(commission)) {
+                    alert('Completa todos los campos');
+                    return;
+                }
+
+                const seller = {id, name, color, commission};
+
+                if (this.editingSellerId) {
+                    const index = this.config.sellers.findIndex(s => s.id === this.editingSellerId);
+                    this.config.sellers[index] = seller;
+                } else {
+                    this.config.sellers.push(seller);
+                }
+
+                document.documentElement.style.setProperty(`--${id}-color`, color);
+
+                this.saveConfig();
+                this.closeSellerModal();
+                this.renderSellersList();
+                this.renderSellerLinks();
+                this.renderFilterChips();
+                this.renderLegend();
+            },
+
+            deleteSeller(id) {
+                if (!confirm('¿Eliminar este vendedor?')) return;
+
+                this.config.sellers = this.config.sellers.filter(s => s.id !== id);
+                this.saveConfig();
+                this.renderSellersList();
+                this.renderSellerLinks();
+                this.renderFilterChips();
+                this.renderLegend();
             }
         };
 

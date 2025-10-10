@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shows Lysaurio</title>
+    <title>Shows Lisaurio</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,7 @@
             --text-muted: #94a3b8;
             --border: #334155;
             
-            --lysaurio-color: #10b981;
+            --lisaurio-color: #10b981;
             --valentin-color: #f59e0b;
             --default-color: #8b5cf6;
         }
@@ -149,7 +149,7 @@
             position: relative;
         }
 
-        .card.lysaurio { border-left-color: var(--lysaurio-color); }
+        .card.lisaurio { border-left-color: var(--lisaurio-color); }
         .card.valentin { border-left-color: var(--valentin-color); }
         .card.other { border-left-color: var(--default-color); }
 
@@ -194,8 +194,29 @@
             border-radius: 8px;
             margin-top: 0.5rem;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--danger);
+        }
+
+        .saldo-section {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid var(--primary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .saldo-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .saldo-row:not(:last-child) {
+            border-bottom: 1px solid var(--border);
         }
 
         .card-actions {
@@ -280,12 +301,6 @@
         .form-textarea {
             resize: vertical;
             min-height: 100px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
         }
 
         .saldo-display {
@@ -615,11 +630,23 @@
             margin-bottom: 1rem;
         }
 
-        @media (max-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        /* Color Picker */
+        .color-picker-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
 
+        .color-picker {
+            width: 50px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+
+        @media (max-width: 640px) {
             .show-counter {
                 position: static;
                 transform: none;
@@ -637,8 +664,8 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <h1 class="header-title">🎵 Shows Lysaurio</h1>
-            <div class="user-badge" id="userBadge">Lysaurio</div>
+            <h1 class="header-title">🎵 Shows Lisaurio</h1>
+            <div class="user-badge" id="userBadge">Lisaurio</div>
         </div>
         <div class="show-counter" id="showCounter" style="display: none;">
             <span id="showCountNumber">0</span> Shows
@@ -699,6 +726,13 @@
                         <label class="form-label">Porcentaje de Comisión (%)</label>
                         <input type="number" class="form-input" id="newSellerPercent" value="30" min="0" max="100">
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <div class="color-picker-group">
+                            <input type="color" class="color-picker" id="newSellerColor" value="#8b5cf6">
+                            <span id="colorPreview" style="font-size: 0.875rem; color: var(--text-muted);">Color del vendedor</span>
+                        </div>
+                    </div>
                     <button class="btn btn-success" onclick="app.addSeller()">Agregar Vendedor</button>
                 </div>
 
@@ -722,6 +756,24 @@
                 <div class="toggle">
                     <span>Ver gastos</span>
                     <div class="toggle-switch active" onclick="app.toggleConfig('showExpenses')" id="toggleShowExpenses">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver dirección completa</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showAddress')" id="toggleShowAddress">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver teléfono</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showPhone')" id="toggleShowPhone">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver quién tomó el show</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showSeller')" id="toggleShowSeller">
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
@@ -765,7 +817,14 @@
             <form onsubmit="app.saveShow(event)">
                 <div class="form-group">
                     <label class="form-label">Tipo de Evento</label>
-                    <input type="text" class="form-input" id="inputEventType" required placeholder="Cumpleaños, Boda, Corporativo...">
+                    <input list="eventTypes" class="form-input" id="inputEventType" required placeholder="Selecciona o escribe...">
+                    <datalist id="eventTypes">
+                        <option value="Cumpleaños">
+                        <option value="Casamiento">
+                        <option value="Fiesta Privada">
+                        <option value="Boliche">
+                        <option value="Bar">
+                    </datalist>
                 </div>
 
                 <div class="form-group">
@@ -801,7 +860,7 @@
                 <div class="form-group">
                     <label class="form-label">¿A quién se dio la seña?</label>
                     <select class="form-select" id="inputDepositTo" required>
-                        <option value="lysaurio">Lysaurio</option>
+                        <option value="lisaurio">Lisaurio</option>
                     </select>
                 </div>
 
@@ -812,14 +871,14 @@
                 </div>
 
                 <div class="saldo-display" id="saldoDisplay">
-                    <div class="saldo-label">💰 SALDO A COBRAR</div>
+                    <div class="saldo-label">💰 SALDO A COBRAR (Cliente)</div>
                     <div class="saldo-value" id="saldoValue">$0</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">¿Quién tomó el show?</label>
                     <select class="form-select" id="inputSeller" required onchange="app.handleSellerChange()">
-                        <option value="lysaurio">Lysaurio</option>
+                        <option value="lisaurio">Lisaurio</option>
                     </select>
                 </div>
 
@@ -844,7 +903,7 @@
 
     <script>
         const app = {
-            currentUser: 'lysaurio',
+            currentUser: 'lisaurio',
             currentView: 'list',
             currentMonth: new Date(),
             selectedDay: new Date(),
@@ -854,9 +913,12 @@
             config: {
                 showTotal: true,
                 showExpenses: true,
+                showAddress: true,
+                showPhone: true,
+                showSeller: true,
                 sellers: {
-                    lysaurio: { name: 'Lysaurio', percentage: 0, isAdmin: true },
-                    valentin: { name: 'Valentín', percentage: 30, isAdmin: false }
+                    lisaurio: { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' },
+                    valentin: { name: 'Valentín', percentage: 30, isAdmin: false, color: '#f59e0b' }
                 }
             },
 
@@ -893,7 +955,7 @@
             },
 
             loadData() {
-                const saved = localStorage.getItem('showsLysaurioData');
+                const saved = localStorage.getItem('showsLisaurioData');
                 if (saved) {
                     const data = JSON.parse(saved);
                     this.shows = data.shows || [];
@@ -902,26 +964,36 @@
             },
 
             saveData() {
-                localStorage.setItem('showsLysaurioData', JSON.stringify({
+                localStorage.setItem('showsLisaurioData', JSON.stringify({
                     shows: this.shows,
                     changeLog: this.changeLog
                 }));
             },
 
             loadConfig() {
-                const saved = localStorage.getItem('showsLysaurioConfig');
+                const saved = localStorage.getItem('showsLisaurioConfig');
                 if (saved) {
                     this.config = JSON.parse(saved);
                 }
-                // Asegurar que Lysaurio siempre existe
-                if (!this.config.sellers.lysaurio) {
-                    this.config.sellers.lysaurio = { name: 'Lysaurio', percentage: 0, isAdmin: true };
+                // Asegurar que Lisaurio siempre existe
+                if (!this.config.sellers.lisaurio) {
+                    this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
                 }
                 this.updateConfigToggles();
+                this.updateCSSColors();
             },
 
             saveConfig() {
-                localStorage.setItem('showsLysaurioConfig', JSON.stringify(this.config));
+                localStorage.setItem('showsLisaurioConfig', JSON.stringify(this.config));
+                this.updateCSSColors();
+            },
+
+            updateCSSColors() {
+                // Actualizar colores CSS dinámicamente
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    document.documentElement.style.setProperty(`--${sellerId}-color`, seller.color);
+                });
             },
 
             updateUserUI() {
@@ -932,8 +1004,8 @@
                 const seller = this.config.sellers[this.currentUser];
                 badge.textContent = seller ? seller.name : 'Usuario';
 
-                // Solo Lysaurio puede ver config y crear shows
-                if (this.currentUser !== 'lysaurio') {
+                // Solo Lisaurio puede ver config y crear shows
+                if (this.currentUser !== 'lisaurio') {
                     navConfig.style.display = 'none';
                     fab.style.display = 'none';
                 } else {
@@ -945,9 +1017,11 @@
             addSeller() {
                 const nameInput = document.getElementById('newSellerName');
                 const percentInput = document.getElementById('newSellerPercent');
+                const colorInput = document.getElementById('newSellerColor');
                 
                 const name = nameInput.value.trim();
                 const percentage = parseFloat(percentInput.value);
+                const color = colorInput.value;
 
                 if (!name) {
                     alert('Ingresa un nombre para el vendedor');
@@ -964,7 +1038,8 @@
                 this.config.sellers[sellerId] = {
                     name: name,
                     percentage: percentage,
-                    isAdmin: false
+                    isAdmin: false,
+                    color: color
                 };
 
                 this.saveConfig();
@@ -974,13 +1049,14 @@
                 
                 nameInput.value = '';
                 percentInput.value = '30';
+                colorInput.value = '#8b5cf6';
                 
                 alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
             },
 
             removeSeller(sellerId) {
-                if (sellerId === 'lysaurio') {
-                    alert('No puedes eliminar a Lysaurio');
+                if (sellerId === 'lisaurio') {
+                    alert('No puedes eliminar a Lisaurio');
                     return;
                 }
 
@@ -993,6 +1069,7 @@
                 this.renderSellersList();
                 this.renderLinks();
                 this.updateSellerOptions();
+                this.renderList();
             },
 
             updateSellerPercentage(sellerId, newPercent) {
@@ -1002,13 +1079,22 @@
                 }
             },
 
+            updateSellerColor(sellerId, newColor) {
+                if (this.config.sellers[sellerId]) {
+                    this.config.sellers[sellerId].color = newColor;
+                    this.saveConfig();
+                    this.renderList();
+                    this.renderCalendar();
+                }
+            },
+
             renderSellersList() {
                 const container = document.getElementById('sellersList');
                 
                 let html = '';
                 Object.keys(this.config.sellers).forEach(sellerId => {
                     const seller = this.config.sellers[sellerId];
-                    const isLysaurio = sellerId === 'lysaurio';
+                    const isLisaurio = sellerId === 'lisaurio';
                     
                     html += `
                         <div class="musician-payment">
@@ -1016,11 +1102,15 @@
                                 <strong>${seller.name}</strong>
                                 <br>
                                 <small style="color: var(--text-muted);">
-                                    ${isLysaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
+                                    ${isLisaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
                                 </small>
                             </div>
                             <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                ${!isLysaurio ? `
+                                <input type="color" 
+                                       value="${seller.color}" 
+                                       style="width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer;"
+                                       onchange="app.updateSellerColor('${sellerId}', this.value)">
+                                ${!isLisaurio ? `
                                     <input type="number" 
                                            value="${seller.percentage}" 
                                            min="0" max="100" 
@@ -1082,7 +1172,7 @@
                 const seller = document.getElementById('inputSeller').value;
                 const musicianSection = document.getElementById('musicianPaymentsSection');
 
-                if (seller === 'lysaurio') {
+                if (seller === 'lisaurio') {
                     musicianSection.style.display = 'block';
                 } else {
                     musicianSection.style.display = 'none';
@@ -1119,7 +1209,7 @@
                             <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" 
                                     style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
                                 <option value="">Seleccionar músico</option>
-                                ${Object.keys(this.config.sellers).filter(s => s !== 'lysaurio').map(s => 
+                                ${Object.keys(this.config.sellers).filter(s => s !== 'lisaurio').map(s => 
                                     `<option value="${s}" ${payment.musician === s ? 'selected' : ''}>${this.config.sellers[s].name}</option>`
                                 ).join('')}
                             </select>
@@ -1175,7 +1265,7 @@
             },
 
             openNewShowModal() {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
                 
                 this.editingId = null;
                 this.musicianPayments = [];
@@ -1195,15 +1285,15 @@
                 document.getElementById('inputNotes').value = '';
                 
                 this.updateSellerOptions();
-                document.getElementById('inputSeller').value = 'lysaurio';
-                document.getElementById('inputDepositTo').value = 'lysaurio';
+                document.getElementById('inputSeller').value = 'lisaurio';
+                document.getElementById('inputDepositTo').value = 'lisaurio';
                 
                 this.handleSellerChange();
                 this.calculateSaldo();
             },
 
             openEditModal(id) {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
 
                 this.editingId = id;
                 const show = this.shows.find(s => s.id === id);
@@ -1218,7 +1308,7 @@
                 document.getElementById('inputPhone').value = show.phone;
                 document.getElementById('inputTotal').value = show.total;
                 document.getElementById('inputDeposit').value = show.deposit || 0;
-                document.getElementById('inputDepositTo').value = show.depositTo || 'lysaurio';
+                document.getElementById('inputDepositTo').value = show.depositTo || 'lisaurio';
                 document.getElementById('inputExpenses').value = show.expenses || 0;
                 document.getElementById('inputNotes').value = show.notes || '';
                 
@@ -1237,7 +1327,7 @@
 
             saveShow(event) {
                 event.preventDefault();
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
 
                 const seller = document.getElementById('inputSeller').value;
                 const total = parseFloat(document.getElementById('inputTotal').value);
@@ -1258,22 +1348,31 @@
                     expenses: expenses,
                     seller: seller,
                     notes: document.getElementById('inputNotes').value,
-                    musicianPayments: seller === 'lysaurio' ? [...this.musicianPayments] : [],
+                    musicianPayments: seller === 'lisaurio' ? [...this.musicianPayments] : [],
                     createdBy: this.currentUser,
                     createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 };
 
-                // Calcular comisión según el vendedor
+                // Calcular distribución de saldos
                 const netAmount = total - expenses;
                 
-                if (seller === 'lysaurio') {
-                    showData.calculatedCommission = 0;
+                if (seller === 'lisaurio') {
+                    // Lisaurio toma el show
+                    let totalMusicianPayments = 0;
+                    if (showData.musicianPayments) {
+                        showData.musicianPayments.forEach(mp => {
+                            totalMusicianPayments += mp.amount;
+                        });
+                    }
+                    showData.saldoLisaurio = netAmount - totalMusicianPayments;
                 } else {
+                    // Vendedor toma el show
                     const sellerConfig = this.config.sellers[seller];
                     const commission = netAmount * (sellerConfig.percentage / 100);
                     const depositForSeller = depositTo === seller ? deposit : 0;
-                    showData.calculatedCommission = commission - depositForSeller;
+                    showData.saldoSeller = commission - depositForSeller;
+                    showData.saldoLisaurio = netAmount - commission;
                 }
 
                 if (this.editingId) {
@@ -1294,7 +1393,7 @@
             },
 
             deleteShow(id) {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
                 if (!confirm('¿Eliminar este show?')) return;
 
                 const show = this.shows.find(s => s.id === id);
@@ -1353,11 +1452,9 @@
                 let legendHTML = '';
                 Object.keys(this.config.sellers).forEach(sellerId => {
                     const seller = this.config.sellers[sellerId];
-                    const colorVar = sellerId === 'lysaurio' ? '--lysaurio-color' : 
-                                    sellerId === 'valentin' ? '--valentin-color' : '--default-color';
                     legendHTML += `
                         <div class="legend-item">
-                            <div class="legend-color" style="background: var(${colorVar});"></div>
+                            <div class="legend-color" style="background: ${seller.color};"></div>
                             <span>${seller.name}</span>
                         </div>
                     `;
@@ -1378,17 +1475,14 @@
                 empty.style.display = 'none';
 
                 container.innerHTML = shows.map(show => {
-                    const canEdit = this.currentUser === 'lysaurio';
+                    const canEdit = this.currentUser === 'lisaurio';
                     const showDetails = this.shouldShowDetails(show);
 
-                    const netAmount = show.total - show.expenses;
                     const saldo = show.total - show.deposit - show.expenses;
-
-                    let cardClass = show.seller === 'lysaurio' ? 'lysaurio' : 
-                                   show.seller === 'valentin' ? 'valentin' : 'other';
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
 
                     return `
-                        <div class="card ${cardClass}">
+                        <div class="card" style="border-left-color: ${sellerColor};">
                             <div class="card-header">
                                 <div>
                                     <div class="card-title">${show.eventType}</div>
@@ -1396,12 +1490,21 @@
                                         ${this.formatDate(show.date)} • ${show.time}
                                     </div>
                                 </div>
-                                <div class="card-badge">${this.getSellerName(show.seller)}</div>
+                                ${showDetails.showSeller ? `
+                                    <div class="card-badge">${this.getSellerName(show.seller)}</div>
+                                ` : ''}
                             </div>
                             
                             <div class="card-info">
-                                <div class="card-row">📍 ${show.address}</div>
-                                <div class="card-row">📞 ${show.phone}</div>
+                                ${showDetails.showAddress ? `
+                                    <div class="card-row">📍 ${show.address}</div>
+                                ` : `
+                                    <div class="card-row">📍 Dirección asignada</div>
+                                `}
+                                
+                                ${showDetails.showPhone ? `
+                                    <div class="card-row">📞 ${show.phone}</div>
+                                ` : ''}
                                 
                                 ${showDetails.showTotal ? `
                                     <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
@@ -1413,29 +1516,15 @@
                                 
                                 ${showDetails.showExpenses && show.expenses > 0 ? `
                                     <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
-                                    <div class="card-row">📊 Neto: $${this.formatMoney(netAmount)}</div>
-                                ` : ''}
-                                
-                                ${showDetails.showCommission && show.seller !== 'lysaurio' ? `
-                                    <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 Tu comisión: $${this.formatMoney(show.calculatedCommission)}
-                                    </div>
-                                ` : ''}
-                                
-                                ${show.musicianPayments && show.musicianPayments.length > 0 && canEdit ? `
-                                    <div class="card-row" style="font-weight: 600;">Pagos a músicos:</div>
-                                    ${show.musicianPayments.map(mp => `
-                                        <div class="card-row" style="padding-left: 1rem;">
-                                            → ${this.getSellerName(mp.musician)}: $${this.formatMoney(mp.amount)}
-                                        </div>
-                                    `).join('')}
                                 ` : ''}
                                 
                                 ${show.notes ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
                             </div>
 
+                            ${this.renderSaldoSection(show, showDetails)}
+                            
                             <div class="card-highlight">
-                                💰 SALDO A COBRAR: $${this.formatMoney(Math.max(0, saldo))}
+                                💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
                             </div>
                             
                             ${canEdit ? `
@@ -1447,6 +1536,48 @@
                         </div>
                     `;
                 }).join('');
+            },
+
+            renderSaldoSection(show, showDetails) {
+                if (!showDetails.canSeeSaldos) return '';
+
+                let html = '<div class="saldo-section">';
+
+                if (show.seller === 'lisaurio') {
+                    // Lisaurio tomó el show
+                    html += `
+                        <div class="saldo-row">
+                            <span>💵 Saldo Lisaurio:</span>
+                            <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                        </div>
+                    `;
+                    
+                    if (show.musicianPayments && show.musicianPayments.length > 0) {
+                        show.musicianPayments.forEach(mp => {
+                            html += `
+                                <div class="saldo-row">
+                                    <span>💵 Saldo ${this.getSellerName(mp.musician)}:</span>
+                                    <span>$${this.formatMoney(mp.amount)}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                } else {
+                    // Vendedor tomó el show
+                    html += `
+                        <div class="saldo-row">
+                            <span>💵 Saldo ${this.getSellerName(show.seller)}:</span>
+                            <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
+                        </div>
+                        <div class="saldo-row">
+                            <span>💵 Saldo Lisaurio:</span>
+                            <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+                return html;
             },
 
             filterShows(filter) {
@@ -1478,7 +1609,7 @@
                     html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
                 }
 
-                // Current month days
+                // Current month days - TODOS ven TODOS los shows
                 const today = new Date();
                 for (let day = 1; day <= daysInMonth; day++) {
                     const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -1501,7 +1632,9 @@
             renderDayShows() {
                 const container = document.getElementById('dayShows');
                 const dateStr = this.selectedDay.toISOString().split('T')[0];
-                const dayShows = this.getFilteredShows().filter(s => s.date === dateStr);
+                
+                // TODOS ven TODOS los shows del día
+                const dayShows = this.shows.filter(s => s.date === dateStr);
 
                 if (dayShows.length === 0) {
                     container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
@@ -1511,27 +1644,25 @@
                 container.innerHTML = dayShows.map(show => {
                     const showDetails = this.shouldShowDetails(show);
                     const saldo = show.total - show.deposit - show.expenses;
-
-                    let cardClass = show.seller === 'lysaurio' ? 'lysaurio' : 
-                                   show.seller === 'valentin' ? 'valentin' : 'other';
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
 
                     return `
-                        <div class="card ${cardClass}">
+                        <div class="card" style="border-left-color: ${sellerColor};">
                             <div class="card-header">
                                 <div class="card-title">${show.eventType}</div>
                                 <div class="card-badge">${show.time}</div>
                             </div>
                             <div class="card-info">
-                                <div class="card-row">📍 ${show.address}</div>
-                                ${showDetails.showCommission && show.seller !== 'lysaurio' ? `
-                                    <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 $${this.formatMoney(show.calculatedCommission)}
-                                    </div>
+                                ${showDetails.showAddress ? `
+                                    <div class="card-row">📍 ${show.address}</div>
+                                ` : `
+                                    <div class="card-row">📍 Show asignado</div>
+                                `}
+                                ${showDetails.showSeller ? `
+                                    <div class="card-row">👤 ${this.getSellerName(show.seller)}</div>
                                 ` : ''}
                             </div>
-                            <div class="card-highlight">
-                                💰 SALDO: $${this.formatMoney(Math.max(0, saldo))}
-                            </div>
+                            ${this.renderSaldoSection(show, showDetails)}
                         </div>
                     `;
                 }).join('');
@@ -1552,29 +1683,23 @@
                 });
 
                 let totalIncome = 0;
-                let lysaurioIncome = 0;
-                const sellerCommissions = {};
+                let lisaurioIncome = 0;
+                const sellerIncomes = {};
 
                 monthShows.forEach(show => {
-                    const netAmount = show.total - show.expenses;
-
                     totalIncome += show.total;
 
-                    if (show.seller === 'lysaurio') {
-                        // Lysaurio se queda con todo menos lo que paga a músicos
-                        let musicianTotal = 0;
+                    if (show.seller === 'lisaurio') {
+                        lisaurioIncome += (show.saldoLisaurio || 0);
+                        
                         if (show.musicianPayments) {
                             show.musicianPayments.forEach(mp => {
-                                musicianTotal += mp.amount;
-                                sellerCommissions[mp.musician] = (sellerCommissions[mp.musician] || 0) + mp.amount;
+                                sellerIncomes[mp.musician] = (sellerIncomes[mp.musician] || 0) + mp.amount;
                             });
                         }
-                        lysaurioIncome += (netAmount - musicianTotal);
                     } else {
-                        // Vendedor cobra comisión
-                        const commission = show.calculatedCommission || 0;
-                        lysaurioIncome += (netAmount - commission);
-                        sellerCommissions[show.seller] = (sellerCommissions[show.seller] || 0) + commission;
+                        lisaurioIncome += (show.saldoLisaurio || 0);
+                        sellerIncomes[show.seller] = (sellerIncomes[show.seller] || 0) + (show.saldoSeller || 0);
                     }
                 });
 
@@ -1585,15 +1710,15 @@
                         <div class="stat-label">Ingresos Totales</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">$${this.formatMoney(lysaurioIncome)}</div>
-                        <div class="stat-label">Para Lysaurio</div>
+                        <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
+                        <div class="stat-label">Para Lisaurio</div>
                     </div>
                 `;
 
-                Object.keys(sellerCommissions).forEach(sellerId => {
+                Object.keys(sellerIncomes).forEach(sellerId => {
                     statsHTML += `
                         <div class="stat-card">
-                            <div class="stat-value">$${this.formatMoney(sellerCommissions[sellerId])}</div>
+                            <div class="stat-value">$${this.formatMoney(sellerIncomes[sellerId])}</div>
                             <div class="stat-label">${this.getSellerName(sellerId)}</div>
                         </div>
                     `;
@@ -1659,15 +1784,17 @@
             },
 
             getFilteredShows() {
-                if (this.currentUser !== 'lysaurio') {
-                    // Vendedores solo ven shows donde:
-                    // 1. Ellos tomaron el show
-                    // 2. Recibieron la seña
+                // Para la vista de lista, aplicar filtros
+                if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
+                    // Vendedores solo ven shows donde están involucrados
                     return this.shows.filter(s => 
-                        s.seller === this.currentUser || s.depositTo === this.currentUser
+                        s.seller === this.currentUser || 
+                        s.depositTo === this.currentUser ||
+                        (s.musicianPayments && s.musicianPayments.some(mp => mp.musician === this.currentUser))
                     );
                 }
 
+                // Lisaurio ve todo, o filtro aplicado
                 if (this.currentFilter === 'all') {
                     return this.shows;
                 }
@@ -1676,26 +1803,31 @@
             },
 
             shouldShowDetails(show) {
-                if (this.currentUser === 'lysaurio') {
+                if (this.currentUser === 'lisaurio') {
                     return {
                         showTotal: true,
                         showExpenses: true,
-                        showCommission: true,
-                        canSeeDeposit: true
+                        canSeeDeposit: true,
+                        showAddress: true,
+                        showPhone: true,
+                        showSeller: true,
+                        canSeeSaldos: true
                     };
                 }
 
-                // Vendedor puede ver detalles si:
-                // - Tomó el show
-                // - Recibió la seña
-                const isHisShow = show.seller === this.currentUser;
-                const gotDeposit = show.depositTo === this.currentUser;
+                // Vendedor puede ver detalles según configuración y si está involucrado
+                const isInvolved = show.seller === this.currentUser || 
+                                  show.depositTo === this.currentUser ||
+                                  (show.musicianPayments && show.musicianPayments.some(mp => mp.musician === this.currentUser));
 
                 return {
-                    showTotal: this.config.showTotal && (isHisShow || gotDeposit),
-                    showExpenses: this.config.showExpenses && (isHisShow || gotDeposit),
-                    showCommission: isHisShow,
-                    canSeeDeposit: gotDeposit
+                    showTotal: this.config.showTotal && isInvolved,
+                    showExpenses: this.config.showExpenses && isInvolved,
+                    canSeeDeposit: isInvolved && show.depositTo === this.currentUser,
+                    showAddress: this.config.showAddress && isInvolved,
+                    showPhone: this.config.showPhone && isInvolved,
+                    showSeller: this.config.showSeller,
+                    canSeeSaldos: isInvolved
                 };
             },
 
@@ -1704,20 +1836,25 @@
                 this.saveConfig();
                 this.updateConfigToggles();
                 this.renderList();
+                this.renderCalendar();
             },
 
             updateConfigToggles() {
-                document.getElementById('toggleShowTotal').classList.toggle('active', this.config.showTotal);
-                document.getElementById('toggleShowExpenses').classList.toggle('active', this.config.showExpenses);
+                ['showTotal', 'showExpenses', 'showAddress', 'showPhone', 'showSeller'].forEach(key => {
+                    const toggle = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if (toggle) {
+                        toggle.classList.toggle('active', this.config[key]);
+                    }
+                });
             },
 
             clearAllData() {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
                 if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
                 if (!confirm('¿Estás completamente seguro?')) return;
 
-                localStorage.removeItem('showsLysaurioData');
-                localStorage.removeItem('showsLysaurioConfig');
+                localStorage.removeItem('showsLisaurioData');
+                localStorage.removeItem('showsLisaurioConfig');
                 location.reload();
             },
 

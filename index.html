@@ -23,7 +23,7 @@
             --text-muted: #94a3b8;
             --border: #334155;
             
-            --lysaurio-color: #10b981;
+            --lisaurio-color: #10b981;
             --valentin-color: #f59e0b;
             --lisandro-color: #3b82f6;
             --otro-color: #8b5cf6;
@@ -137,7 +137,7 @@
             position: relative;
         }
 
-        .card.lysaurio { border-left-color: var(--lysaurio-color); }
+        .card.lisaurio { border-left-color: var(--lisaurio-color); }
         .card.valentin { border-left-color: var(--valentin-color); }
         .card.lisandro { border-left-color: var(--lisandro-color); }
 
@@ -586,9 +586,9 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <h1 style="font-size: 1.25rem;">🎵 Shows Lysaurio</h1>
+            <h1 style="font-size: 1.25rem;">🎵 Shows Lisaurio</h1>
             <div id="pendingShows" class="shows-count">Pendientes: 0</div>
-            <div class="user-badge" id="userBadge">Lysaurio</div>
+            <div class="user-badge" id="userBadge">Lisaurio</div>
         </div>
     </div>
 
@@ -638,9 +638,9 @@
             <div class="card">
                 <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
                 <div class="form-group">
-                    <label class="form-label">Enlace Lysaurio</label>
-                    <input type="text" class="form-input" id="linkLysaurio" readonly>
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('lysaurio')">Copiar</button>
+                    <label class="form-label">Enlace Lisaurio</label>
+                    <input type="text" class="form-input" id="linkLisaurio" readonly>
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('lisaurio')">Copiar</button>
                 </div>
                 <div id="sellerLinks"></div>
             </div>
@@ -674,7 +674,7 @@
             </div>
 
             <div class="card">
-                <h3 style="margin-bottom: 1rem;">Pago fijo a músico (para shows de Lysaurio)</h3>
+                <h3 style="margin-bottom: 1rem;">Pago fijo a músico (para shows de Lisaurio)</h3>
                 <input type="number" class="form-input" id="musicianFixed" step="1000" min="0">
                 <button class="btn btn-success" style="margin-top: 0.5rem;" onclick="app.saveMusicianFixed()">Guardar</button>
             </div>
@@ -772,7 +772,7 @@
                 <div class="form-group" id="sellerGroup">
                     <label class="form-label">Vendedor</label>
                     <select class="form-select" id="inputSeller" required onchange="app.updateCommissionField()">
-                        <option value="lysaurio">Lysaurio</option>
+                        <option value="lisaurio">Lisaurio</option>
                         <!-- Dynamic options added here -->
                     </select>
                 </div>
@@ -839,7 +839,7 @@
 
     <script>
         const app = {
-            currentUser: 'lysaurio',
+            currentUser: 'lisaurio',
             currentView: 'list',
             currentMonth: new Date(),
             selectedDay: new Date(),
@@ -891,7 +891,7 @@
                 this.renderReports();
                 this.renderPendingCount();
 
-                if (this.currentUser === 'lysaurio') {
+                if (this.currentUser === 'lisaurio') {
                     this.renderSellersList();
                     this.renderSellerLinks();
                     document.getElementById('musicianFixed').value = this.config.musicianFixed;
@@ -947,14 +947,14 @@
                 const fab = document.getElementById('fabButton');
 
                 const userNames = {
-                    lysaurio: 'Lysaurio',
+                    lisaurio: 'Lisaurio',
                     ...this.config.sellers.reduce((acc, s) => ({...acc, [s.id]: s.name}), {})
                 };
 
                 badge.textContent = userNames[this.currentUser] || 'Usuario';
 
-                // Config solo para lysaurio
-                if (this.currentUser !== 'lysaurio') {
+                // Config solo para lisaurio
+                if (this.currentUser !== 'lisaurio') {
                     navConfig.style.display = 'none';
                     document.getElementById('filterChips').style.display = 'none';
                 } else {
@@ -968,7 +968,7 @@
 
             generateLinks() {
                 const baseUrl = window.location.origin + window.location.pathname;
-                document.getElementById('linkLysaurio').value = baseUrl + '#lysaurio';
+                document.getElementById('linkLisaurio').value = baseUrl + '#lisaurio';
             },
 
             renderSellerLinks() {
@@ -1003,7 +1003,7 @@
                 // Refresh current view
                 if (view === 'calendar') this.renderCalendar();
                 if (view === 'reports') this.renderReports();
-                if (view === 'config' && this.currentUser === 'lysaurio') {
+                if (view === 'config' && this.currentUser === 'lisaurio') {
                     this.renderSellersList();
                 }
             },
@@ -1021,7 +1021,7 @@
                 const labelCommission = document.getElementById('labelCommission');
                 const inputCommission = document.getElementById('inputCommission');
 
-                if (seller === 'lysaurio') {
+                if (seller === 'lisaurio') {
                     commissionTypeGroup.style.display = 'none';
                     commissionGroup.style.display = 'block';
                     labelCommission.textContent = 'Pago a músico ($)';
@@ -1059,33 +1059,33 @@
 
                 // Seller select
                 const sellerSelect = document.getElementById('inputSeller');
-                sellerSelect.innerHTML = `<option value="lysaurio">Lysaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                sellerSelect.innerHTML = `<option value="lisaurio">Lisaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
 
-                const isLysaurio = this.currentUser === 'lysaurio';
+                const isLisaurio = this.currentUser === 'lisaurio';
 
                 const sellerGroup = document.getElementById('sellerGroup');
-                sellerGroup.style.display = isLysaurio ? 'block' : 'none';
-                if (!isLysaurio) {
+                sellerGroup.style.display = isLisaurio ? 'block' : 'none';
+                if (!isLisaurio) {
                     sellerSelect.value = this.currentUser;
                 } else {
-                    sellerSelect.value = 'lysaurio';
+                    sellerSelect.value = 'lisaurio';
                 }
 
                 const commissionTypeGroup = document.getElementById('commissionTypeGroup');
                 const commissionGroup = document.getElementById('commissionGroup');
                 commissionTypeGroup.style.display = 'none';
-                commissionGroup.style.display = isLysaurio ? 'block' : 'none';
+                commissionGroup.style.display = isLisaurio ? 'block' : 'none';
 
                 this.updateCommissionField();
 
                 // Sena groups
                 const senaContainer = document.getElementById('senaGroups');
                 senaContainer.innerHTML = '';
-                if (isLysaurio) {
+                if (isLisaurio) {
                     senaContainer.innerHTML += `
                         <div class="form-group">
-                            <label class="form-label">Seña a Lysaurio ($)</label>
-                            <input type="number" class="form-input" id="inputSena_lysaurio" value="0" min="0" step="1000">
+                            <label class="form-label">Seña a Lisaurio ($)</label>
+                            <input type="number" class="form-input" id="inputSena_lisaurio" value="0" min="0" step="1000">
                         </div>
                     `;
                     this.config.sellers.forEach(seller => {
@@ -1099,8 +1099,8 @@
                 } else {
                     senaContainer.innerHTML += `
                         <div class="form-group">
-                            <label class="form-label">Seña a Lysaurio ($)</label>
-                            <input type="number" class="form-input" id="inputSena_lysaurio" value="0" min="0" step="1000">
+                            <label class="form-label">Seña a Lisaurio ($)</label>
+                            <input type="number" class="form-input" id="inputSena_lisaurio" value="0" min="0" step="1000">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Seña a mí ($)</label>
@@ -1111,7 +1111,7 @@
             },
 
             openEditModal(id) {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
 
                 this.editingId = id;
                 const show = this.shows.find(s => s.id === id);
@@ -1138,7 +1138,7 @@
 
                 // Seller select
                 const sellerSelect = document.getElementById('inputSeller');
-                sellerSelect.innerHTML = `<option value="lysaurio">Lysaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                sellerSelect.innerHTML = `<option value="lisaurio">Lisaurio</option>` + this.config.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
                 sellerSelect.value = show.seller;
 
                 const commissionTypeGroup = document.getElementById('commissionTypeGroup');
@@ -1153,8 +1153,8 @@
                 const senaContainer = document.getElementById('senaGroups');
                 senaContainer.innerHTML = `
                     <div class="form-group">
-                        <label class="form-label">Seña a Lysaurio ($)</label>
-                        <input type="number" class="form-input" id="inputSena_lysaurio" value="${show.sena?.lysaurio || 0}" min="0" step="1000">
+                        <label class="form-label">Seña a Lisaurio ($)</label>
+                        <input type="number" class="form-input" id="inputSena_lisaurio" value="${show.sena?.lisaurio || 0}" min="0" step="1000">
                     </div>
                 `;
                 this.config.sellers.forEach(seller => {
@@ -1178,25 +1178,25 @@
             saveShow(event) {
                 event.preventDefault();
 
-                const isLysaurio = this.currentUser === 'lysaurio';
+                const isLisaurio = this.currentUser === 'lisaurio';
 
                 const eventTypeSelect = document.getElementById('inputEventTypeSelect').value;
                 const eventType = eventTypeSelect === 'Otro' ? document.getElementById('inputOtherEvent').value : eventTypeSelect;
 
-                const seller = isLysaurio ? document.getElementById('inputSeller').value : this.currentUser;
+                const seller = isLisaurio ? document.getElementById('inputSeller').value : this.currentUser;
 
-                const commission = isLysaurio ? parseFloat(document.getElementById('inputCommission').value) : this.getSellerCommission(seller);
+                const commission = isLisaurio ? parseFloat(document.getElementById('inputCommission').value) : this.getSellerCommission(seller);
 
-                const commissionType = seller === 'lysaurio' ? 'fixed' : 'percentage';
+                const commissionType = seller === 'lisaurio' ? 'fixed' : 'percentage';
 
                 const sena = {};
-                if (isLysaurio) {
-                    sena['lysaurio'] = parseFloat(document.getElementById('inputSena_lysaurio').value) || 0;
+                if (isLisaurio) {
+                    sena['lisaurio'] = parseFloat(document.getElementById('inputSena_lisaurio').value) || 0;
                     this.config.sellers.forEach(s => {
                         sena[s.id] = parseFloat(document.getElementById(`inputSena_${s.id}`).value) || 0;
                     });
                 } else {
-                    sena['lysaurio'] = parseFloat(document.getElementById('inputSena_lysaurio').value) || 0;
+                    sena['lisaurio'] = parseFloat(document.getElementById('inputSena_lisaurio').value) || 0;
                     sena[this.currentUser] = parseFloat(document.getElementById(`inputSena_${this.currentUser}`).value) || 0;
                 }
 
@@ -1231,7 +1231,7 @@
 
                 // Balance for beneficiary
                 let beneficiary = showData.seller;
-                if (showData.seller === 'lysaurio') {
+                if (showData.seller === 'lisaurio') {
                     beneficiary = 'valentin'; // Hardcoded musician
                 }
                 showData.balance = showData.calculatedCommission - (showData.sena[beneficiary] || 0);
@@ -1259,7 +1259,7 @@
             },
 
             deleteShow(id) {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
                 if (!confirm('¿Eliminar este show?')) return;
 
                 const show = this.shows.find(s => s.id === id);
@@ -1287,7 +1287,7 @@
                 const container = document.getElementById('filterChips');
                 container.innerHTML = `
                     <div class="chip active" data-filter="all">Todos</div>
-                    <div class="chip" data-filter="lysaurio">Lysaurio</div>
+                    <div class="chip" data-filter="lisaurio">Lisaurio</div>
                 ` + this.config.sellers.map(s => `
                     <div class="chip" data-filter="${s.id}">${s.name}</div>
                 `).join('');
@@ -1297,8 +1297,8 @@
                 const container = document.getElementById('legend');
                 container.innerHTML = `
                     <div class="legend-item">
-                        <div class="legend-color" style="background: var(--lysaurio-color);"></div>
-                        <span>Lysaurio</span>
+                        <div class="legend-color" style="background: var(--lisaurio-color);"></div>
+                        <span>Lisaurio</span>
                     </div>
                 ` + this.config.sellers.map(s => `
                     <div class="legend-item">
@@ -1326,7 +1326,7 @@
                 empty.style.display = 'none';
 
                 container.innerHTML = shows.map(show => {
-                    const canEdit = this.currentUser === 'lysaurio';
+                    const canEdit = this.currentUser === 'lisaurio';
                     const showDetails = this.shouldShowDetails(show);
 
                     const netAmount = show.total - show.expenses;
@@ -1336,16 +1336,16 @@
 
                     let commissionLabel = 'Comisión';
                     let isMusicianPayment = false;
-                    if (show.seller === 'lysaurio') {
+                    if (show.seller === 'lisaurio') {
                         commissionLabel = 'Pago músico';
                         isMusicianPayment = true;
                     }
 
                     let senaHTML = '';
-                    if (this.currentUser === 'lysaurio') {
+                    if (this.currentUser === 'lisaurio') {
                         Object.keys(show.sena || {}).forEach(user => {
                             if (show.sena[user] > 0) {
-                                const name = user === 'lysaurio' ? 'Lysaurio' : this.config.sellers.find(s => s.id === user)?.name || user;
+                                const name = user === 'lisaurio' ? 'Lisaurio' : this.config.sellers.find(s => s.id === user)?.name || user;
                                 senaHTML += `<div class="card-row">📥 Seña a ${name}: $${this.formatMoney(show.sena[user])}</div>`;
                             }
                         });
@@ -1490,7 +1490,7 @@
                                 <div class="card-row">📍 ${show.address}</div>
                                 ${showDetails.showCommission ? `
                                     <div class="card-row" style="color: var(--success); font-weight: 600;">
-                                        💵 ${show.seller === 'lysaurio' ? 'Pago músico' : 'Comisión'}: $${this.formatMoney(commission)}
+                                        💵 ${show.seller === 'lisaurio' ? 'Pago músico' : 'Comisión'}: $${this.formatMoney(commission)}
                                     </div>
                                     <div class="card-row" style="color: var(--warning); font-weight: 600;">
                                         ⚖️ Saldo: $${this.formatMoney(balance)}
@@ -1522,7 +1522,7 @@
                 });
 
                 let totalIncome = 0;
-                let lysaurioIncome = 0;
+                let lisaurioIncome = 0;
                 const sellerBalances = {};
 
                 monthShows.forEach(show => {
@@ -1531,13 +1531,13 @@
 
                     totalIncome += show.total;
 
-                    if (show.seller === 'lysaurio') {
+                    if (show.seller === 'lisaurio') {
                         // Pago fijo a valentin
                         sellerBalances['valentin'] = (sellerBalances['valentin'] || 0) + commission - (show.sena['valentin'] || 0);
-                        lysaurioIncome += netAmount - commission;
+                        lisaurioIncome += netAmount - commission;
                     } else {
                         sellerBalances[show.seller] = (sellerBalances[show.seller] || 0) + commission - (show.sena[show.seller] || 0);
-                        lysaurioIncome += netAmount - commission;
+                        lisaurioIncome += netAmount - commission;
                     }
                 });
 
@@ -1548,8 +1548,8 @@
                         <div class="stat-label">Ingresos Totales</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">$${this.formatMoney(lysaurioIncome)}</div>
-                        <div class="stat-label">Para Lysaurio</div>
+                        <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
+                        <div class="stat-label">Para Lisaurio</div>
                     </div>
                 `;
 
@@ -1623,19 +1623,19 @@
             },
 
             getFilteredShows() {
-                if (this.currentUser === 'lysaurio') {
+                if (this.currentUser === 'lisaurio') {
                     if (this.currentFilter === 'all') {
                         return this.shows;
                     }
                     return this.shows.filter(s => s.seller === this.currentFilter);
                 } else {
-                    // Non-lysaurio see all shows
+                    // Non-lisaurio see all shows
                     return this.shows;
                 }
             },
 
             shouldShowDetails(show) {
-                if (this.currentUser === 'lysaurio') {
+                if (this.currentUser === 'lisaurio') {
                     return {
                         showTotal: true,
                         showExpenses: true,
@@ -1643,7 +1643,7 @@
                     };
                 }
 
-                const isOwn = show.seller === this.currentUser || (show.seller === 'lysaurio' && this.currentUser === 'valentin'); // Valentin sees lysaurio shows as own for commission
+                const isOwn = show.seller === this.currentUser || (show.seller === 'lisaurio' && this.currentUser === 'valentin'); // Valentin sees lisaurio shows as own for commission
 
                 if (isOwn) {
                     return {
@@ -1681,7 +1681,7 @@
             },
 
             clearAllData() {
-                if (this.currentUser !== 'lysaurio') return;
+                if (this.currentUser !== 'lisaurio') return;
                 if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
                 if (!confirm('¿Estás completamente seguro?')) return;
 
@@ -1691,7 +1691,7 @@
             },
 
             getSellerName(id) {
-                if (id === 'lysaurio') return 'Lysaurio';
+                if (id === 'lisaurio') return 'Lisaurio';
                 const seller = this.config.sellers.find(s => s.id === id);
                 return seller ? seller.name : id;
             },

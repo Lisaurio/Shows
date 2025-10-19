@@ -2,13 +2,346 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Shows</title>
-    <!-- Add Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shows Lisaurio</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
     <style>
-        /* CSS from diff and assumed base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+
+            --lisaurio-color: #10b981;
+            --valentin-color: #f59e0b;
+            --default-color: #8b5cf6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-badge {
+            background: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .show-counter {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Container */
+        .container {
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .card.lisaurio { border-left-color: var(--lisaurio-color); }
+        .card.valentin { border-left-color: var(--valentin-color); }
+        .card.other { border-left-color: var(--default-color); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .card-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--primary);
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-highlight {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--danger);
+        }
+
+        .saldo-section {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid var(--primary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .saldo-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .saldo-row:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            flex: 1;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .saldo-display {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .saldo-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .saldo-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--danger);
+        }
+
+        /* Calendar */
+        .calendar {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
         .calendar-title {
             font-size: 1.25rem;
             font-weight: 600;
@@ -16,10 +349,36 @@
         }
 
         .calendar-nav {
-            /* Assuming base styles */
             display: flex;
-            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav button {
+            background: var(--bg);
+            border: none;
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            position: relative;
         }
 
         .calendar-day.header {
@@ -29,21 +388,242 @@
         }
 
         .calendar-day.other-month {
-            /* Assuming base */
+            color: var(--text-muted);
+            opacity: 0.3;
+        }
+
+        .calendar-day.has-show {
+            background: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            margin: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Filter */
+        .filter-chips {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            color: var(--text);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip.active {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
             color: var(--text-muted);
         }
 
-        /* Added or modified */
-        /* Assuming this is for some container */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.5rem;
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 1rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--card);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        /* Musician Payments */
+        .musician-payment {
+            background: var(--bg);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
         .remove-musician {
             background: var(--danger);
             color: white;
-            padding: 0.25rem 0.5rem;
+            border: none;
+            padding: 0.25rem 0.75rem;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.875rem;
@@ -51,95 +631,312 @@
         }
 
         .add-seller-section {
-            /* Assuming base */
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        /* Color Picker */
+        .color-picker-group {
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 0.5rem;
         }
 
-        /* Add other CSS as needed; assuming the rest is in var(--) themes */
-        :root {
-            --text: #000;
-            --bg: #fff;
-            --border: #ddd;
-            --text-muted: #666;
-            --danger: #f00;
-            --success: #0f0;
-            /* etc. */
+        .color-picker {
+            width: 50px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            cursor: pointer;
         }
 
-        /* More CSS if needed */
+        @media (max-width: 640px) {
+            .show-counter {
+                position: static;
+                transform: none;
+                margin-top: 0.5rem;
+                display: inline-block;
+            }
+
+            .header-content {
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- HTML structure from diff -->
-    <div class="card">
-        <h3 style="margin-bottom: 1rem;">Vendedores Actuales</h3>
-        <div id="sellersList"></div>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1 class="header-title">🎵 Shows Lisaurio</h1>
+            <div class="user-badge" id="userBadge">Lisaurio</div>
+        </div>
+        <div class="show-counter" id="showCounter" style="display: none;">
+            <span id="showCountNumber">0</span> Shows
+        </div>
     </div>
 
-    <div class="card">
-        <h3 style="margin-bottom: 1rem;">➕ Agregar Músico</h3>
-        <div class="add-seller-section">
-            <div class="form-group">
-                <label class="form-label">Nombre del Músico</label>
-                <input type="text" class="form-input" id="newMusicianName" placeholder="Ej: Roberto">
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Vista: Lista -->
+        <div class="view active" id="viewList">
+            <div class="filter-chips" id="filterChips"></div>
+
+            <div class="legend" id="legendContainer"></div>
+
+            <div id="showsList"></div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📅</div>
+                <p>No hay shows registrados</p>
             </div>
-            <button class="btn btn-success" onclick="app.addMusician()">Agregar Músico</button>
         </div>
 
-        <h3 style="margin-bottom: 1rem;">Músicos Actuales</h3>
-        <div id="musiciansList"></div>
-    </div>
+        <!-- Vista: Calendario -->
+        <div class="view" id="viewCalendar">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <h2 class="calendar-title" id="calendarTitle"></h2>
+                    <div class="calendar-nav">
+                        <button onclick="app.prevMonth()">◀</button>
+                        <button onclick="app.nextMonth()">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
 
-    <div class="card">
-        <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
-        <div id="linksContainer"></div>
-    </div>
-
-    <!-- Assume modal HTML -->
-    <div id="modalShow" class="modal">
-        <h2 class="modal-title" id="modalTitle">Nuevo Show</h2>
-        <!-- Form fields for show: date, time, address, phone, total, deposit, depositTo, expenses, notes, seller -->
-        <!-- Musician payments section -->
-        <div id="musicianSection" style="display: none;">
-            <h3>Músicos</h3>
-            <div id="musicianPaymentsList"></div>
-            <button onclick="app.addMusicianPayment()">Agregar Músico</button>
+            <h3 style="margin-bottom: 1rem;">Shows del día</h3>
+            <div id="dayShows"></div>
         </div>
-        <!-- Save button -->
-        <button onclick="app.saveShow(event)">Guardar</button>
+
+        <!-- Vista: Reportes -->
+        <div class="view" id="viewReports">
+            <div class="stats" id="statsContainer"></div>
+
+            <h3 style="margin-bottom: 1rem;">Historial de Cambios</h3>
+            <div id="changeLog"></div>
+        </div>
+
+        <!-- Vista: Configuración -->
+        <div class="view" id="viewConfig">
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">➕ Agregar Vendedor</h3>
+                <div class="add-seller-section">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Vendedor</label>
+                        <input type="text" class="form-input" id="newSellerName" placeholder="Ej: Carlos">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Porcentaje de Comisión (%)</label>
+                        <input type="number" class="form-input" id="newSellerPercent" value="30" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <div class="color-picker-group">
+                            <input type="color" class="color-picker" id="newSellerColor" value="#8b5cf6">
+                            <span id="colorPreview" style="font-size: 0.875rem; color: var(--text-muted);">Color del vendedor</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="app.addSeller()">Agregar Vendedor</button>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Vendedores Actuales</h3>
+                <div id="sellersList"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">➕ Agregar Músico</h3>
+                <div class="add-seller-section">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Músico</label>
+                        <input type="text" class="form-input" id="newMusicianName" placeholder="Ej: Roberto">
+                    </div>
+                    <button class="btn btn-success" onclick="app.addMusician()">Agregar Músico</button>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Músicos Actuales</h3>
+                <div id="musiciansList"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
+                <div id="linksContainer"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Permisos de Vendedores</h3>
+                <div class="toggle">
+                    <span>Ver total del show</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showTotal')" id="toggleShowTotal">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver gastos</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showExpenses')" id="toggleShowExpenses">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver dirección completa</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showAddress')" id="toggleShowAddress">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver teléfono</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showPhone')" id="toggleShowPhone">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver quién tomó el show</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showSeller')" id="toggleShowSeller">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
+        </div>
     </div>
 
-    <!-- Other HTML elements: calendar, reports, etc. -->
-    <div id="calendar"></div>
-    <div id="reports"></div>
-    <!-- FAB button -->
-    <button id="fabButton" onclick="app.openNewShowModal()">+</button>
-    <!-- Nav config -->
-    <div id="navConfig"></div>
-    <div id="userBadge"></div>
+    <!-- FAB -->
+    <button class="fab" onclick="app.openNewShowModal()" id="fabButton">+</button>
+
+    <!-- Bottom Navigation -->
+    <div class="nav">
+        <button class="nav-btn active" onclick="app.switchView('list')">
+            <span class="nav-icon">📋</span>
+            <span>Lista</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('calendar')">
+            <span class="nav-icon">📅</span>
+            <span>Calendario</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('reports')">
+            <span class="nav-icon">📊</span>
+            <span>Reportes</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('config')" id="navConfig">
+            <span class="nav-icon">⚙️</span>
+            <span>Config</span>
+        </button>
+    </div>
+
+    <!-- Modal: Nuevo/Editar Show -->
+    <div class="modal" id="modalShow">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Nuevo Show</h2>
+                <button class="modal-close" onclick="app.closeModal()">&times;</button>
+            </div>
+
+            <form onsubmit="app.saveShow(event)">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Evento</label>
+                    <input list="eventTypes" class="form-input" id="inputEventType" required placeholder="Selecciona o escribe...">
+                    <datalist id="eventTypes">
+                        <option value="Cumpleaños">
+                        <option value="Casamiento">
+                        <option value="Fiesta Privada">
+                        <option value="Boliche">
+                        <option value="Bar">
+                    </datalist>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fecha</label>
+                    <input type="date" class="form-input" id="inputDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Horario</label>
+                    <input type="time" class="form-input" id="inputTime" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-input" id="inputAddress" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-input" id="inputPhone" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Valor Total ($)</label>
+                    <input type="number" class="form-input" id="inputTotal" required min="0" step="1000" oninput="app.calculateSaldo()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Seña Recibida ($)</label>
+                    <input type="number" class="form-input" id="inputDeposit" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿A quién se dio la seña?</label>
+                    <select class="form-select" id="inputDepositTo" required>
+                        <option value="lisaurio">Lisaurio</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Gastos ($) - viajes, equipos, etc.</label>
+                    <input type="number" class="form-input" id="inputExpenses" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Se resta del total antes de calcular la comisión</small>
+                </div>
+
+                <div class="saldo-display" id="saldoDisplay">
+                    <div class="saldo-label">💰 SALDO A COBRAR (Cliente)</div>
+                    <div class="saldo-value" id="saldoValue">$0</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿Quién tomó el show?</label>
+                    <select class="form-select" id="inputSeller" required onchange="app.handleSellerChange()">
+                        <option value="lisaurio">Lisaurio</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="musicianPaymentsSection" style="display: none;">
+                    <label class="form-label">Pagos a Músicos</label>
+                    <div id="musicianPaymentsList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="app.addMusicianPayment()">➕ Agregar Músico</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notas</label>
+                    <textarea class="form-textarea" id="inputNotes" placeholder="Detalles adicionales..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
-        // Firebase Config - Replace with your own!
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        // Initialize Firebase
-        const appFirebase = firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
         const app = {
-            currentUser: 'lisaurio', // Assume or set from login
-            shows: {}, // Changed to object for Firebase
+            currentUser: 'lisaurio',
+            currentView: 'list',
+            currentMonth: new Date(),
+            selectedDay: new Date(),
+            editingId: null,
+            currentFilter: 'all',
+
             config: {
+                showTotal: true,
+                showExpenses: true,
+                showAddress: true,
+                showPhone: true,
+                showSeller: true,
                 sellers: {
                     lisaurio: { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' },
                     valentin: { name: 'Valentín', percentage: 30, isAdmin: false, color: '#f59e0b' }
@@ -148,18 +945,87 @@
                     valentin: { name: 'Valentín', defaultPay: 50000 }
                 }
             },
+
+            shows: [],
+            changeLog: [],
             musicianPayments: [],
-            editingId: null,
-            currentMonth: new Date(),
-            currentView: 'calendar',
 
             init() {
-                this.db = db;
+                // Inicializar Firebase
+                const firebaseConfig = {
+                    apiKey: "TU_API_KEY",
+                    authDomain: "TU_PROYECTO.firebaseapp.com",
+                    databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+                    projectId: "TU_PROYECTO",
+                    storageBucket: "TU_PROYECTO.appspot.com",
+                    messagingSenderId: "TU_SENDER_ID",
+                    appId: "TU_APP_ID"
+                };
+                firebase.initializeApp(firebaseConfig);
+                this.db = firebase.database();
 
-                // Load config in real-time
-                this.db.ref('config').on('value', (snap) => {
-                    this.config = snap.val() || this.config; // Use default if null
+                // Detectar usuario desde URL
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    this.currentUser = hash.toLowerCase();
+                }
 
+                // Cargar datos desde Firebase (en tiempo real)
+                this.loadDataFromFirebase();
+                this.loadConfigFromFirebase();
+
+                // Actualizar UI según usuario
+                this.updateUserUI();
+
+                // Renderizar vistas iniciales
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+                this.updateShowCounter();
+
+                // Escuchar cambios en tiempo real
+                this.db.ref('data').on('value', (snapshot) => {
+                    const data = snapshot.val() || {};
+                    this.shows = data.shows || [];
+                    this.changeLog = data.changeLog || [];
+                    this.refreshViews();
+                });
+
+                this.db.ref('config').on('value', (snapshot) => {
+                    const config = snapshot.val() || {};
+                    this.config = {...this.config, ...config};
+                    this.updateCSSColors();
+                    this.updateConfigToggles();
+                    this.refreshViews();
+                });
+
+                // Auto-guardar en cambios (en lugar de beforeunload, guardar en cada acción)
+            },
+
+            loadDataFromFirebase() {
+                this.db.ref('data').once('value').then(snapshot => {
+                    const data = snapshot.val() || {};
+                    this.shows = data.shows || [];
+                    this.changeLog = data.changeLog || [];
+                    this.refreshViews();
+                }).catch(error => console.error('Error loading data:', error));
+            },
+
+            saveDataToFirebase() {
+                this.db.ref('data').set({
+                    shows: this.shows,
+                    changeLog: this.changeLog
+                }).catch(error => console.error('Error saving data:', error));
+            },
+
+            loadConfigFromFirebase() {
+                this.db.ref('config').once('value').then(snapshot => {
+                    const config = snapshot.val() || {};
+                    this.config = {...this.config, ...config};
+                    // Asegurar defaults
                     if (!this.config.sellers.lisaurio) {
                         this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
                     }
@@ -170,24 +1036,30 @@
                     }
                     this.updateConfigToggles();
                     this.updateCSSColors();
-                    this.renderSellersList();
-                    this.renderMusiciansList();
-                    this.renderLinks();
-                    this.updateUserUI();
-                });
+                    this.refreshViews();
+                }).catch(error => console.error('Error loading config:', error));
+            },
 
-                // Load shows in real-time
-                this.db.ref('shows').on('value', (snap) => {
-                    this.shows = snap.val() || {};
-                    this.renderCalendar();
-                    this.renderReports();
-                    this.renderSellersList();
-                    this.renderMusiciansList();
-                    this.renderLinks();
-                    this.updateShowCounter();
-                });
+            saveConfigToFirebase() {
+                this.db.ref('config').set(this.config).catch(error => console.error('Error saving config:', error));
+            },
 
-                this.updateUserUI();
+            refreshViews() {
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+                this.updateShowCounter();
+            },
+
+            updateCSSColors() {
+                // Actualizar colores CSS dinámicamente
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    document.documentElement.style.setProperty(`--${sellerId}-color`, seller.color);
+                });
             },
 
             updateUserUI() {
@@ -198,10 +1070,13 @@
                 const seller = this.config.sellers[this.currentUser];
                 badge.textContent = seller ? seller.name : 'Usuario';
 
+                // Solo Lisaurio puede ver config
                 if (this.currentUser !== 'lisaurio') {
                     navConfig.style.display = 'none';
+                    fab.style.display = 'none';
                 } else {
                     navConfig.style.display = 'flex';
+                    fab.style.display = 'flex';
                 }
 
                 // TODOS pueden crear shows
@@ -209,14 +1084,42 @@
             },
 
             addSeller() {
-                // Assume implementation: get name, percentage, color
-                const name = /* from input */;
-                const percentage = /* from input */;
-                const color = /* from input */;
+                const nameInput = document.getElementById('newSellerName');
+                const percentInput = document.getElementById('newSellerPercent');
+                const colorInput = document.getElementById('newSellerColor');
+
+                const name = nameInput.value.trim();
+                const percentage = parseFloat(percentInput.value);
+                const color = colorInput.value;
+
+                if (!name) {
+                    alert('Ingresa un nombre para el vendedor');
+                    return;
+                }
+
                 const sellerId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-                this.config.sellers[sellerId] = { name, percentage, isAdmin: false, color };
-                this.saveConfig();
+
+                if (this.config.sellers[sellerId]) {
+                    alert('Este vendedor ya existe');
+                    return;
+                }
+
+                this.config.sellers[sellerId] = {
+                    name: name,
+                    percentage: percentage,
+                    isAdmin: false,
+                    color: color
+                };
+
+                this.saveConfigToFirebase();
                 this.renderSellersList();
+                this.renderLinks();
+                this.updateSellerOptions();
+
+                nameInput.value = '';
+                percentInput.value = '30';
+                colorInput.value = '#8b5cf6';
+
                 alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
             },
 
@@ -241,7 +1144,7 @@
                     defaultPay: 50000
                 };
 
-                this.saveConfig();
+                this.saveConfigToFirebase();
                 this.renderMusiciansList();
                 
                 nameInput.value = '';
@@ -253,9 +1156,16 @@
                     alert('No puedes eliminar a Lisaurio');
                     return;
                 }
-                if (!confirm(`¿Eliminar vendedor ${this.config.sellers[sellerId].name}?`)) return;
+
+                if (!confirm(`¿Eliminar al vendedor ${this.config.sellers[sellerId].name}?`)) {
+                    return;
+                }
+
                 delete this.config.sellers[sellerId];
-                this.saveConfig();
+                this.saveConfigToFirebase();
+                this.renderSellersList();
+                this.renderLinks();
+                this.updateSellerOptions();
                 this.renderList();
             },
 
@@ -265,56 +1175,68 @@
                 }
 
                 delete this.config.musicians[musicianId];
-                this.saveConfig();
+                this.saveConfigToFirebase();
                 this.renderMusiciansList();
             },
 
             updateSellerPercentage(sellerId, newPercent) {
                 if (this.config.sellers[sellerId]) {
                     this.config.sellers[sellerId].percentage = parseFloat(newPercent);
-                    this.saveConfig();
+                    this.saveConfigToFirebase();
                 }
             },
 
             updateMusicianPay(musicianId, newPay) {
                 if (this.config.musicians[musicianId]) {
                     this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
-                    this.saveConfig();
+                    this.saveConfigToFirebase();
                 }
             },
 
             updateSellerColor(sellerId, newColor) {
                 if (this.config.sellers[sellerId]) {
                     this.config.sellers[sellerId].color = newColor;
-                    this.saveConfig();
-                    this.updateCSSColors();
+                    this.saveConfigToFirebase();
+                    this.renderList();
+                    this.renderCalendar();
                 }
             },
 
             renderSellersList() {
                 const container = document.getElementById('sellersList');
+
                 let html = '';
-                Object.keys(this.config.sellers).filter(s => s !== 'lisaurio').forEach(sellerId => {
+                Object.keys(this.config.sellers).forEach(sellerId => {
                     const seller = this.config.sellers[sellerId];
+                    const isLisaurio = sellerId === 'lisaurio';
+
                     html += `
                         <div class="musician-payment">
                             <div style="flex: 1;">
                                 <strong>${seller.name}</strong>
                                 <br>
-                                <small style="color: var(--text-muted);">Comisión: ${seller.percentage}%</small>
+                                <small style="color: var(--text-muted);">
+                                    ${isLisaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
+                                </small>
                             </div>
                             <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                <input type="number" value="${seller.percentage}" min="0" max="100" step="5"
-                                       style="width: 60px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
-                                       onchange="app.updateSellerPercentage('${sellerId}', this.value)">
-                                <input type="color" value="${seller.color}"
-                                       style="width: 40px; height: 40px; padding: 0; border: none; cursor: pointer;"
+                                <input type="color" 
+                                       value="${seller.color}" 
+                                       style="width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer;"
                                        onchange="app.updateSellerColor('${sellerId}', this.value)">
-                                <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
+                                ${!isLisaurio ? `
+                                    <input type="number" 
+                                           value="${seller.percentage}" 
+                                           min="0" max="100" 
+                                           style="width: 70px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
+                                           onchange="app.updateSellerPercentage('${sellerId}', this.value)">
+                                    <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
+                                ` : ''}
                             </div>
                         </div>
                     `;
                 });
+
                 container.innerHTML = html;
             },
 
@@ -350,18 +1272,52 @@
             renderLinks() {
                 const container = document.getElementById('linksContainer');
                 const baseUrl = window.location.origin + window.location.pathname;
+
                 let html = '';
                 Object.keys(this.config.sellers).forEach(sellerId => {
-                    html += `<div><a href="${baseUrl}?user=${sellerId}">${this.config.sellers[sellerId].name}</a></div>`;
+                    const seller = this.config.sellers[sellerId];
+                    const link = baseUrl + '#' + sellerId;
+
+                    html += `
+                        <div class="form-group">
+                            <label class="form-label">Enlace ${seller.name}</label>
+                            <input type="text" class="form-input" value="${link}" readonly id="link-${sellerId}">
+                            <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${sellerId}')">Copiar</button>
+                        </div>
+                    `;
                 });
+
                 container.innerHTML = html;
+            },
+
+            copyLink(sellerId) {
+                const input = document.getElementById(`link-${sellerId}`);
+                input.select();
+                document.execCommand('copy');
+                alert('¡Enlace copiado!');
+            },
+
+            updateSellerOptions() {
+                const sellerSelect = document.getElementById('inputSeller');
+                const depositToSelect = document.getElementById('inputDepositTo');
+
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    html += `<option value="${sellerId}">${seller.name}</option>`;
+                });
+
+                sellerSelect.innerHTML = html;
+                depositToSelect.innerHTML = html;
             },
 
             handleSellerChange() {
                 const seller = document.getElementById('inputSeller').value;
-                const musicianSection = document.getElementById('musicianSection');
+                const musicianSection = document.getElementById('musicianPaymentsSection');
+
                 if (seller === 'lisaurio') {
                     musicianSection.style.display = 'block';
+                    // Auto-agregar Valentín si no hay músicos
                     if (this.musicianPayments.length === 0) {
                         this.musicianPayments = [{
                             id: Date.now(),
@@ -379,6 +1335,7 @@
 
             addMusicianPayment() {
                 const id = Date.now();
+
                 this.musicianPayments.push({ 
                     id, 
                     musician: Object.keys(this.config.musicians)[0] || '',
@@ -394,10 +1351,16 @@
 
             renderMusicianPayments() {
                 const container = document.getElementById('musicianPaymentsList');
+
+                if (this.musicianPayments.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+
                 let html = '';
                 this.musicianPayments.forEach(payment => {
                     html += `
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;">
+                        <div class="musician-payment">
                             <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" 
                                     style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
                                 <option value="">Seleccionar músico</option>
@@ -407,13 +1370,15 @@
                             </select>
                             <input type="number" 
                                    value="${payment.amount}" 
+                                   placeholder="Monto" 
                                    min="0" step="1000"
-                                   style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
-                                   onchange="app.updateMusicianPayment(${payment.id}, 'amount', this.value)">
-                            <button onclick="app.removeMusicianPayment(${payment.id})" style="padding: 0.5rem; background: var(--danger); color: white; border-radius: 6px;">✕</button>
+                                   onchange="app.updateMusicianPayment(${payment.id}, 'amount', this.value)"
+                                   style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
+                            <button class="remove-musician" onclick="app.removeMusicianPayment(${payment.id})">✕</button>
                         </div>
                     `;
                 });
+
                 container.innerHTML = html;
             },
 
@@ -424,6 +1389,7 @@
                         payment[field] = parseFloat(value);
                     } else if (field === 'musician') {
                         payment[field] = value;
+                        // Auto-completar con el pago por defecto
                         if (this.config.musicians[value]) {
                             payment.amount = this.config.musicians[value].defaultPay;
                             this.renderMusicianPayments();
@@ -432,10 +1398,29 @@
                 }
             },
 
-            changeView(view) {
+            calculateSaldo() {
+                const total = parseFloat(document.getElementById('inputTotal').value) || 0;
+                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
+
+                const saldo = total - deposit - expenses;
+
+                document.getElementById('saldoValue').textContent = '$' + this.formatMoney(Math.max(0, saldo));
+            },
+
+            switchView(view) {
                 this.currentView = view;
+
+                // Update views
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+
+                // Update nav
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+
+                // Refresh current view
                 if (view === 'calendar') this.renderCalendar();
-                if (view === 'list') this.renderList();
                 if (view === 'reports') this.renderReports();
                 if (view === 'config') {
                     this.renderSellersList();
@@ -445,21 +1430,21 @@
             },
 
             openNewShowModal() {
-                // Solo Lisaurio o vendedores?
                 this.editingId = null;
                 this.musicianPayments = [];
 
                 document.getElementById('modalTitle').textContent = 'Nuevo Show';
                 document.getElementById('modalShow').classList.add('active');
 
-                // Clear inputs
+                // Reset form
+                document.getElementById('inputEventType').value = '';
                 document.getElementById('inputDate').value = '';
                 document.getElementById('inputTime').value = '';
                 document.getElementById('inputAddress').value = '';
                 document.getElementById('inputPhone').value = '';
                 document.getElementById('inputTotal').value = '';
-                document.getElementById('inputDeposit').value = '';
-                document.getElementById('inputExpenses').value = '';
+                document.getElementById('inputDeposit').value = '0';
+                document.getElementById('inputExpenses').value = '0';
                 document.getElementById('inputNotes').value = '';
 
                 this.updateSellerOptions();
@@ -471,30 +1456,38 @@
             },
 
             openEditModal(id) {
-                const show = this.shows[id];
+                // Solo pueden editar sus propios shows o Lisaurio
+                const show = this.shows.find(s => s.id === id);
                 if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
 
                 this.editingId = id;
+                const show = this.shows.find(s => s.id === id);
 
                 document.getElementById('modalTitle').textContent = 'Editar Show';
                 document.getElementById('modalShow').classList.add('active');
 
-                // Fill inputs
+                document.getElementById('inputEventType').value = show.eventType;
                 document.getElementById('inputDate').value = show.date;
                 document.getElementById('inputTime').value = show.time;
                 document.getElementById('inputAddress').value = show.address;
                 document.getElementById('inputPhone').value = show.phone;
                 document.getElementById('inputTotal').value = show.total;
-                document.getElementById('inputDeposit').value = show.deposit;
-                document.getElementById('inputDepositTo').value = show.depositTo;
-                document.getElementById('inputExpenses').value = show.expenses;
-                document.getElementById('inputNotes').value = show.notes;
+                document.getElementById('inputDeposit').value = show.deposit || 0;
+                document.getElementById('inputDepositTo').value = show.depositTo || 'lisaurio';
+                document.getElementById('inputExpenses').value = show.expenses || 0;
+                document.getElementById('inputNotes').value = show.notes || '';
+
+                this.updateSellerOptions();
                 document.getElementById('inputSeller').value = show.seller;
 
                 this.musicianPayments = show.musicianPayments || [];
-                this.renderMusicianPayments();
                 this.handleSellerChange();
+                this.renderMusicianPayments();
                 this.calculateSaldo();
+            },
+
+            closeModal() {
+                document.getElementById('modalShow').classList.remove('active');
             },
 
             saveShow(event) {
@@ -505,30 +1498,41 @@
                 const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
                 const depositTo = document.getElementById('inputDepositTo').value;
                 const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
-                const netAmount = total - expenses;
 
                 const showData = {
+                    id: this.editingId || Date.now(),
+                    eventType: document.getElementById('inputEventType').value,
                     date: document.getElementById('inputDate').value,
                     time: document.getElementById('inputTime').value,
                     address: document.getElementById('inputAddress').value,
                     phone: document.getElementById('inputPhone').value,
-                    total,
-                    deposit,
-                    depositTo,
-                    expenses,
+                    total: total,
+                    deposit: deposit,
+                    depositTo: depositTo,
+                    expenses: expenses,
+                    seller: seller,
                     notes: document.getElementById('inputNotes').value,
-                    seller
+                    musicianPayments: seller === 'lisaurio' ? [...this.musicianPayments] : [],
+                    createdBy: this.currentUser,
+                    createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
                 };
 
+                // Calcular distribución de saldos
+                const netAmount = total - expenses;
+
                 if (seller === 'lisaurio') {
-                    showData.musicianPayments = this.musicianPayments.filter(mp => mp.musician && mp.amount > 0);
+                    // Lisaurio toma el show
                     let totalMusicianPayments = 0;
-                    showData.musicianPayments.forEach(mp => {
-                        totalMusicianPayments += mp.amount;
-                    });
+                    if (showData.musicianPayments) {
+                        showData.musicianPayments.forEach(mp => {
+                            totalMusicianPayments += mp.amount;
+                        });
+                    }
                     const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
                     showData.saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
                 } else {
+                    // Vendedor toma el show
                     const sellerConfig = this.config.sellers[seller];
                     const commission = netAmount * (sellerConfig.percentage / 100);
                     const depositForSeller = depositTo === seller ? deposit : 0;
@@ -537,100 +1541,163 @@
                     showData.saldoLisaurio = netAmount - commission - depositForLisaurio;
                 }
 
-                const id = this.editingId || Date.now();
-                showData.id = id;
+                if (this.editingId) {
+                    const index = this.shows.findIndex(s => s.id === this.editingId);
+                    this.shows[index] = showData;
+                    this.addToLog('edit', showData);
+                } else {
+                    this.shows.push(showData);
+                    this.addToLog('create', showData);
+                }
 
-                this.db.ref('shows/' + id).set(showData);
-
-                this.addToLog(this.editingId ? 'edit' : 'add', showData);
+                this.saveDataToFirebase();
                 this.closeModal();
-                this.renderCalendar();
-                this.renderList();
-                this.renderReports();
-                this.updateShowCounter();
             },
 
             deleteShow(id) {
-                const show = this.shows[id];
+                // Solo pueden borrar sus propios shows o Lisaurio
+                const show = this.shows.find(s => s.id === id);
                 if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
                 
                 if (!confirm('¿Eliminar este show?')) return;
 
-                this.addToLog('delete', show);
-                this.db.ref('shows/' + id).remove();
+                const deletedShow = this.shows.find(s => s.id === id);
+                this.shows = this.shows.filter(s => s.id !== id);
+                this.addToLog('delete', deletedShow);
 
-                this.renderCalendar();
-                this.renderList();
-                this.renderReports();
-                this.updateShowCounter();
+                this.saveDataToFirebase();
+            },
+
+            addToLog(action, show) {
+                this.changeLog.push({
+                    id: Date.now(),
+                    action,
+                    show: { ...show },
+                    user: this.currentUser,
+                    timestamp: new Date().toISOString()
+                });
+                this.saveDataToFirebase();
+            },
+
+            updateShowCounter() {
+                const counter = document.getElementById('showCounter');
+                const number = document.getElementById('showCountNumber');
+
+                const futureShows = this.shows.filter(s => {
+                    const showDate = new Date(s.date + ' ' + s.time);
+                    return showDate >= new Date();
+                });
+
+                if (futureShows.length > 0) {
+                    number.textContent = futureShows.length;
+                    counter.style.display = 'block';
+                } else {
+                    counter.style.display = 'none';
+                }
             },
 
             renderList() {
-                const container = /* assume element */;
-                const shows = this.getFilteredShows().sort((a, b) => new Date(b.date) - new Date(a.date));
-                let html = '';
-                const empty = /* assume */;
+                const container = document.getElementById('showsList');
+                const empty = document.getElementById('emptyState');
+                const filterChips = document.getElementById('filterChips');
+                const legend = document.getElementById('legendContainer');
+
+                // Render filters
+                let filtersHTML = '<div class="chip active" data-filter="all" onclick="app.filterShows(\'all\')">Todos</div>';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    filtersHTML += `<div class="chip" data-filter="${sellerId}" onclick="app.filterShows('${sellerId}')">${seller.name}</div>`;
+                });
+                filterChips.innerHTML = filtersHTML;
+
+                // Render legend
+                let legendHTML = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    legendHTML += `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: ${seller.color};"></div>
+                            <span>${seller.name}</span>
+                        </div>
+                    `;
+                });
+                legend.innerHTML = legendHTML;
+
+                let shows = this.getFilteredShows();
+
+                // Ordenar por fecha
+                shows.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+
                 if (shows.length === 0) {
-                    empty.style.display = 'block';
                     container.innerHTML = '';
+                    empty.style.display = 'block';
                     return;
                 }
+
                 empty.style.display = 'none';
 
-                Object.values(shows).forEach(show => { // Since shows is object
+                container.innerHTML = shows.map(show => {
                     const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
                     const showDetails = this.shouldShowDetails(show);
 
                     const saldo = show.total - show.deposit - show.expenses;
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
 
-                    html += `
-                        <div class="card">
+                    return `
+                        <div class="card" style="border-left-color: ${sellerColor};">
                             <div class="card-header">
-                                <span>${new Date(show.date).toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' })} • ${show.time}</span>
-                                <span style="background: ${this.config.sellers[show.seller]?.color}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px;">${this.getSellerName(show.seller)}</span>
+                                <div>
+                                    <div class="card-title">${show.eventType}</div>
+                                    <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
+                                        ${this.formatDate(show.date)} • ${show.time}
+                                    </div>
+                                </div>
+                                ${showDetails.showSeller ? `
+                                    <div class="card-badge">${this.getSellerName(show.seller)}</div>
+                                ` : ''}
                             </div>
+                            
                             <div class="card-info">
                                 ${showDetails.showAddress ? `
                                     <div class="card-row">📍 ${show.address}</div>
+                                ` : `
+                                    <div class="card-row">📍 Dirección asignada</div>
+                                `}
+                                
+                                ${showDetails.showPhone ? `
+                                    <div class="card-row">📞 ${show.phone}</div>
                                 ` : ''}
-                               
-                               ${showDetails.showPhone ? `
-                                   <div class="card-row">📞 ${show.phone}</div>
-                               ` : ''}
-                               
-                               ${showDetails.showTotal ? `
-                                   <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
-                               ` : ''}
-                               
-                               ${showDetails.canSeeDeposit ? `
-                                   <div class="card-row">💵 Seña: $${this.formatMoney(show.deposit)} (${this.getSellerName(show.depositTo)})</div>
-                               ` : ''}
-                               
-                               ${showDetails.showExpenses ? `
-                                   <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
-                               ` : ''}
-                               
-                               ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
-                           </div>
+                                
+                                ${showDetails.showTotal ? `
+                                    <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
+                                ` : ''}
+                                
+                                ${showDetails.canSeeDeposit ? `
+                                    <div class="card-row">💵 Seña: $${this.formatMoney(show.deposit)} (${this.getSellerName(show.depositTo)})</div>
+                                ` : ''}
+                                
+                                ${showDetails.showExpenses && show.expenses > 0 ? `
+                                    <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
+                                ` : ''}
+                                
+                                ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
+                            </div>
 
-                           ${this.renderSaldoSection(show, showDetails)}
-                           
-                           ${showDetails.showFullDetails ? `
-                                <div class="card-highlight">
-                                    💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
+                            ${this.renderSaldoSection(show, showDetails)}
+                            
+                            <div class="card-highlight">
+                                💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
+                            </div>
+                            
+                            ${canEdit ? `
+                                <div class="card-actions">
+                                    <button class="btn-small btn-primary" onclick="app.openEditModal(${show.id})">Editar</button>
+                                    <button class="btn-small btn-danger" onclick="app.deleteShow(${show.id})">Eliminar</button>
                                 </div>
                             ` : ''}
-                           
-                           ${canEdit ? `
-                               <div class="card-actions">
-                                   <button onclick="app.openEditModal(${show.id})">Editar</button>
-                                   <button onclick="app.deleteShow(${show.id})">Eliminar</button>
-                               </div>
-                           ` : ''}
                         </div>
                     `;
-                });
-                container.innerHTML = html;
+                }).join('');
             },
 
             renderSaldoSection(show, showDetails) {
@@ -639,12 +1706,14 @@
                 let html = '<div class="saldo-section">';
 
                 if (show.seller === 'lisaurio') {
+                    // Lisaurio tomó el show
                     html += `
                         <div class="saldo-row">
                             <span>💵 Saldo Lisaurio:</span>
                             <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
                         </div>
                     `;
+
                     if (show.musicianPayments && show.musicianPayments.length > 0) {
                         show.musicianPayments.forEach(mp => {
                             const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
@@ -657,8 +1726,10 @@
                         });
                     }
                 } else {
+                    // Vendedor tomó el show
                     const sellerName = this.getSellerName(show.seller);
                     
+                    // Solo mostrar saldo del vendedor si es él quien lo ve, o es Lisaurio
                     if (this.currentUser === 'lisaurio' || this.currentUser === show.seller) {
                         html += `
                             <div class="saldo-row">
@@ -677,8 +1748,17 @@
                 return html;
             },
 
+            filterShows(filter) {
+                this.currentFilter = filter;
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+                this.renderList();
+            },
+
             renderCalendar() {
-                const title = /* assume */;
+                const grid = document.getElementById('calendarGrid');
+                const title = document.getElementById('calendarTitle');
+
                 const year = this.currentMonth.getFullYear();
                 const month = this.currentMonth.getMonth();
 
@@ -687,24 +1767,101 @@
 
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-                // Render days...
-                // Assume implementation for calendar grid
+                const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+
+                let html = days.map(d => `<div class="calendar-day header">${d}</div>`).join('');
+
+                // Previous month days
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
+                }
+
+                // Current month days
+                const today = new Date();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const hasShow = this.shows.some(s => s.date === date);
+                    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+
+                    let classes = 'calendar-day';
+                    if (hasShow) classes += ' has-show';
+                    if (isToday) classes += ' today';
+
+                    html += `<div class="${classes}" onclick="app.selectDay('${date}')">${day}</div>`;
+                }
+
+                grid.innerHTML = html;
+
+                // Render selected day shows
+                this.renderDayShows();
+            },
+
+            renderDayShows() {
+                const container = document.getElementById('dayShows');
+                const dateStr = this.selectedDay.toISOString().split('T')[0];
+
+                const dayShows = this.shows.filter(s => s.date === dateStr);
+
+                if (dayShows.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
+                    return;
+                }
+
+                container.innerHTML = dayShows.map(show => {
+                    const showDetails = this.shouldShowDetails(show);
+                    const saldo = show.total - show.deposit - show.expenses;
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+
+                    return `
+                        <div class="card" style="border-left-color: ${sellerColor};">
+                            <div class="card-header">
+                                <div class="card-title">${show.eventType}</div>
+                                <div class="card-badge">${show.time}</div>
+                            </div>
+                            <div class="card-info">
+                                ${showDetails.showAddress ? `
+                                    <div class="card-row">📍 ${show.address}</div>
+                                ` : `
+                                    <div class="card-row">📍 Dirección asignada</div>
+                                `}
+                                ${showDetails.showPhone ? `
+                                    <div class="card-row">📞 ${show.phone}</div>
+                                ` : ''}
+                                ${showDetails.showSeller ? `
+                                    <div class="card-row">👤 ${this.getSellerName(show.seller)}</div>
+                                ` : ''}
+                            </div>
+                            ${this.renderSaldoSection(show, showDetails)}
+                        </div>
+                    `;
+                }).join('');
             },
 
             renderReports() {
-                const container = /* assume */;
-                const monthShows = Object.values(this.shows).filter(s => /* in month */);
+                const statsContainer = document.getElementById('statsContainer');
+                const logContainer = document.getElementById('changeLog');
+
+                // Calcular estadísticas del mes actual
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+
+                const monthShows = this.shows.filter(s => {
+                    const showDate = new Date(s.date);
+                    return showDate.getMonth() === currentMonth && showDate.getFullYear() === currentYear;
+                });
+
                 let totalIncome = 0;
                 let lisaurioIncome = 0;
-                let sellerIncomes = {};
+                const sellerIncomes = {};
 
                 monthShows.forEach(show => {
                     totalIncome += show.total;
+                    lisaurioIncome += (show.saldoLisaurio || 0);
 
                     if (show.seller === 'lisaurio') {
-                        lisaurioIncome += (show.saldoLisaurio || 0);
-                        
                         if (show.musicianPayments) {
                             show.musicianPayments.forEach(mp => {
                                 const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
@@ -712,20 +1869,20 @@
                             });
                         }
                     } else {
-                        lisaurioIncome += (show.saldoLisaurio || 0);
                         const sellerName = this.getSellerName(show.seller);
                         sellerIncomes[sellerName] = (sellerIncomes[sellerName] || 0) + (show.saldoSeller || 0);
                     }
                 });
 
+                // Renderizar stats
                 let statsHTML = `
                     <div class="stat-card">
                         <div class="stat-value">$${this.formatMoney(totalIncome)}</div>
-                        <div class="stat-label">Ingreso Total</div>
+                        <div class="stat-label">Ingresos Totales</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
-                        <div class="stat-label">Lisaurio</div>
+                        <div class="stat-label">Para Lisaurio</div>
                     </div>
                 `;
 
@@ -738,18 +1895,81 @@
                     `;
                 });
 
-                container.innerHTML = statsHTML;
+                statsContainer.innerHTML = statsHTML;
+
+                // Renderizar log (últimos 20)
+                const recentLogs = [...this.changeLog].reverse().slice(0, 20);
+
+                if (recentLogs.length === 0) {
+                    logContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>No hay cambios registrados</p></div>';
+                    return;
+                }
+
+                logContainer.innerHTML = recentLogs.map(log => {
+                    const actionEmoji = {
+                        create: '➕',
+                        edit: '✏️',
+                        delete: '🗑️'
+                    };
+
+                    const actionText = {
+                        create: 'Creado',
+                        edit: 'Editado',
+                        delete: 'Eliminado'
+                    };
+
+                    return `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <div>
+                                    <span style="font-size: 1.25rem;">${actionEmoji[log.action]}</span>
+                                    <strong style="margin-left: 0.5rem;">${actionText[log.action]}</strong>
+                                </div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                                    ${this.formatDateTime(log.timestamp)}
+                                </span>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">
+                                ${log.show.eventType} - ${this.formatDate(log.show.date)}
+                                <br>
+                                Por: ${this.getSellerName(log.user)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            selectDay(dateStr) {
+                this.selectedDay = new Date(dateStr + 'T12:00:00');
+                this.renderDayShows();
+            },
+
+            prevMonth() {
+                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+                this.renderCalendar();
+            },
+
+            nextMonth() {
+                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+                this.renderCalendar();
             },
 
             getFilteredShows() {
                 if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
-                    return Object.values(this.shows).filter(s => 
+                    // Vendedores solo ven shows donde están involucrados
+                    return this.shows.filter(s => 
                         s.seller === this.currentUser || 
                         s.depositTo === this.currentUser ||
                         (s.musicianPayments && s.musicianPayments.some(mp => mp.musician === this.currentUser))
                     );
                 }
-                return Object.values(this.shows);
+
+                // Lisaurio ve todo, o filtro aplicado
+                if (this.currentFilter === 'all') {
+                    return this.shows;
+                }
+
+                return this.shows.filter(s => s.seller === this.currentFilter);
             },
 
             shouldShowDetails(show) {
@@ -766,6 +1986,7 @@
                     };
                 }
 
+                // Vendedor que TOMÓ el show ve TODO
                 if (show.seller === this.currentUser) {
                     return {
                         showTotal: true,
@@ -779,6 +2000,7 @@
                     };
                 }
 
+                // Otros vendedores: solo ven la fecha (para evitar choques)
                 return {
                     showTotal: false,
                     showExpenses: false,
@@ -791,28 +2013,63 @@
                 };
             },
 
-            // Utility methods
+            toggleConfig(key) {
+                this.config[key] = !this.config[key];
+                this.saveConfigToFirebase();
+                this.updateConfigToggles();
+                this.renderList();
+                this.renderCalendar();
+            },
+
+            updateConfigToggles() {
+                ['showTotal', 'showExpenses', 'showAddress', 'showPhone', 'showSeller'].forEach(key => {
+                    const toggle = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if (toggle) {
+                        toggle.classList.toggle('active', this.config[key]);
+                    }
+                });
+            },
+
+            clearAllData() {
+                if (this.currentUser !== 'lisaurio') return;
+                if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
+                if (!confirm('¿Estás completamente seguro?')) return;
+
+                this.db.ref('data').remove();
+                this.db.ref('config').remove();
+                location.reload();
+            },
+
+            getSellerName(sellerId) {
+                return this.config.sellers[sellerId] ? this.config.sellers[sellerId].name : sellerId;
+            },
+
             formatMoney(amount) {
-                return amount.toLocaleString('es-AR', { minimumFractionDigits: 0 });
+                return new Intl.NumberFormat('es-AR').format(amount);
             },
 
-            getSellerName(id) {
-                return this.config.sellers[id]?.name || id;
+            formatDate(dateStr) {
+                return new Date(dateStr + 'T12:00:00').toLocaleDateString('es', { 
+                    day: 'numeric', 
+                    month: 'short',
+                    year: 'numeric'
+                });
             },
 
-            saveConfig() {
-                this.db.ref('config').set(this.config);
-            },
-
-            // Assume other methods: updateConfigToggles, updateCSSColors, updateSellerOptions, calculateSaldo, closeModal, addToLog, updateShowCounter, render day shows in calendar, etc.
-            addToLog(action, data) {
-                // Implement if needed, perhaps sync to db.ref('logs').push({action, data})
-            },
-
-            // ...
+            formatDateTime(isoStr) {
+                return new Date(isoStr).toLocaleString('es', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
         };
 
-        app.init();
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
     </script>
 </body>
 </html>

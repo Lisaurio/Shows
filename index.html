@@ -2,341 +2,197 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shows Lisaurio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lisaurio Shows Manager (Sincronizado)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         :root {
-            --primary: #6366f1;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            
-            --lisaurio-color: #10b981;
-            --valentin-color: #f59e0b;
-            --default-color: #8b5cf6;
+            --primary: #10b981; /* Emerald 500 */
+            --primary-dark: #059669; /* Emerald 600 */
+            --secondary: #3b82f6; /* Blue 500 */
+            --bg: #1f2937; /* Gray 800 */
+            --bg-light: #374151; /* Gray 700 */
+            --card-bg: #4b5563; /* Gray 600 */
+            --border: #6b7280; /* Gray 500 */
+            --text: #f3f4f6; /* Gray 100 */
+            --text-muted: #d1d5db; /* Gray 300 */
+            --danger: #ef4444; /* Red 500 */
+            --success: #10b981; /* Emerald 500 */
         }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
             color: var(--text);
-            padding-bottom: 80px;
-            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
         }
 
-        /* Header */
-        .header {
-            background: var(--card);
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
             padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 2px solid var(--border);
         }
 
-        .header-content {
+        /* --- Header & Navigation --- */
+        .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
         }
 
-        .header-title {
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
         .user-badge {
-            background: var(--primary);
+            background-color: var(--card-bg);
             padding: 0.5rem 1rem;
-            border-radius: 20px;
+            border-radius: 9999px;
             font-size: 0.875rem;
             font-weight: 600;
         }
 
-        .show-counter {
-            position: absolute;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 1.125rem;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        /* Navigation */
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--card);
-            border-top: 2px solid var(--border);
+        .nav-tabs {
             display: flex;
-            justify-content: space-around;
+            gap: 0.5rem;
+            background-color: var(--bg-light);
             padding: 0.5rem;
-            z-index: 100;
-        }
-
-        .nav-btn {
-            flex: 1;
-            padding: 0.75rem;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .nav-btn.active {
-            color: var(--primary);
-        }
-
-        .nav-icon {
-            font-size: 1.5rem;
-        }
-
-        /* Container */
-        .container {
-            padding: 1rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .view {
-            display: none;
-        }
-
-        .view.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Cards */
-        .card {
-            background: var(--card);
             border-radius: 12px;
-            padding: 1rem;
             margin-bottom: 1rem;
-            border-left: 4px solid var(--primary);
-            position: relative;
         }
 
-        .card.lisaurio { border-left-color: var(--lisaurio-color); }
-        .card.valentin { border-left-color: var(--valentin-color); }
-        .card.other { border-left-color: var(--default-color); }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 0.75rem;
-        }
-
-        .card-title {
-            font-size: 1.125rem;
+        .nav-tab {
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
             font-weight: 600;
-        }
-
-        .card-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: var(--primary);
-        }
-
-        .card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            color: var(--text-muted);
             font-size: 0.875rem;
         }
 
-        .card-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .nav-tab.active {
+            background-color: var(--primary);
+            color: var(--bg);
         }
 
-        .card-highlight {
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid var(--danger);
-            padding: 0.75rem;
+        .nav-tab:not(.active):hover {
+            background-color: var(--card-bg);
+        }
+        
+        /* --- Card Styles (Used in Config, Show List, Reports) --- */
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-list-item {
+            background-color: var(--bg-light);
             border-radius: 8px;
-            margin-top: 0.5rem;
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--danger);
-        }
-
-        .saldo-section {
-            background: rgba(99, 102, 241, 0.1);
-            border: 2px solid var(--primary);
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .saldo-row {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem 0;
-            font-weight: 600;
-            font-size: 0.95rem;
+            transition: background-color 0.2s;
         }
 
-        .saldo-row:not(:last-child) {
-            border-bottom: 1px solid var(--border);
+        .card-list-item:hover {
+            background-color: var(--border);
         }
 
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        /* Buttons */
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             border-radius: 8px;
-            border: none;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-            touch-action: manipulation;
+            transition: background-color 0.2s, opacity 0.2s;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: white;
+            background-color: var(--primary);
+            color: var(--bg);
         }
 
-        .btn-success {
-            background: var(--success);
-            color: white;
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
         }
 
         .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: var(--border);
+            background-color: var(--danger);
             color: var(--text);
         }
 
-        .btn:active {
-            transform: scale(0.98);
+        .btn-danger:hover {
+            opacity: 0.8;
         }
 
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            flex: 1;
+        .btn-success {
+            background-color: var(--success);
+            color: var(--bg);
+        }
+        
+        .btn-success:hover {
+            opacity: 0.8;
         }
 
-        /* Forms */
+        .btn-secondary {
+            background-color: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-light);
+        }
+
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            margin-bottom: 0.25rem;
             font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
         }
 
-        .form-input, .form-select, .form-textarea {
+        .form-input, .form-select {
             width: 100%;
             padding: 0.75rem;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 2px solid var(--border);
             background: var(--bg);
             color: var(--text);
-            font-size: 1rem;
-            font-family: inherit;
+            box-sizing: border-box;
         }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+        
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
         }
 
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .saldo-display {
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid var(--danger);
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 1.25rem;
-        }
-
-        .saldo-label {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .saldo-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--danger);
-        }
-
-        /* Calendar */
-        .calendar {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
+        /* --- Calendar Styles --- */
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
+            background-color: var(--bg-light);
+            padding: 0.75rem;
+            border-radius: 8px;
         }
 
         .calendar-title {
@@ -350,95 +206,310 @@
             gap: 0.5rem;
         }
 
-        .calendar-nav button {
-            background: var(--bg);
-            border: none;
-            color: var(--text);
+        .calendar-nav-btn {
+            background-color: var(--card-bg);
             padding: 0.5rem 0.75rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
+            font-weight: 700;
+            transition: background-color 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background-color: var(--border);
         }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.25rem;
-            margin: 0 auto;
-            max-width: 100%;
+            gap: 5px;
         }
 
         .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 80px;
+            background-color: var(--card-bg);
             border-radius: 8px;
-            font-size: 0.875rem;
-            position: relative;
+            padding: 0.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .calendar-day.header {
             font-weight: 600;
             color: var(--text-muted);
             text-align: center;
+            min-height: auto;
+            background: transparent;
+            padding: 0.25rem;
+            cursor: default;
         }
 
+        .calendar-day:hover:not(.header):not(.other-month) {
+            background-color: var(--bg-light);
+        }
+
+        .calendar-day-number {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
         .calendar-day.other-month {
-            color: var(--text-muted);
-            opacity: 0.3;
+            opacity: 0.4;
         }
 
-        .calendar-day.has-show {
-            background: var(--primary);
+        .show-marker {
+            font-size: 0.75rem;
             font-weight: 600;
-            cursor: pointer;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            margin-top: 2px;
+            color: var(--bg);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .calendar-day.today {
-            border: 2px solid var(--primary);
+        .show-marker.empty-marker {
+            background-color: var(--border);
+            color: var(--text);
         }
 
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        /* --- List View / Show Card --- */
+        .show-card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
-            margin-bottom: 1rem;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid var(--primary);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
 
+        .card-title-group {
+            flex-grow: 1;
+        }
+
+        .card-date {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card-subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            background-color: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .card-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-highlight {
+            background-color: var(--primary);
+            color: var(--bg);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+        
+        .saldo-section {
+            background-color: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border: 1px dashed var(--border);
+        }
+
+        .saldo-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        .saldo-row span:last-child {
+            color: var(--primary);
+        }
+
+
+        /* --- Reports Section --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
         .stat-card {
-            background: var(--card);
+            background-color: var(--card-bg);
             padding: 1rem;
             border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .stat-value {
             font-size: 1.5rem;
             font-weight: 700;
+            color: var(--primary);
             margin-bottom: 0.25rem;
         }
 
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
             color: var(--text-muted);
-            text-transform: uppercase;
         }
 
-        /* Modal */
+        /* --- Configuration Section --- */
+        .add-seller-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .musician-payment {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-light);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            gap: 1rem;
+        }
+        
+        .musician-payment input[type="number"] {
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            width: 100px; /* Specific width for commission/pay */
+        }
+
+        .remove-seller, .remove-musician {
+            background-color: var(--danger);
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .config-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background-color: var(--border);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-switch.active {
+            background-color: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--text);
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* --- Floating Action Button (FAB) --- */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary);
+            color: var(--bg);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: background-color 0.2s;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* --- Modal Styles --- */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 200;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
             display: none;
-            align-items: center;
             justify-content: center;
-            padding: 1rem;
-            overflow-y: auto;
+            align-items: center;
+            z-index: 1000;
         }
 
         .modal.active {
@@ -446,15 +517,20 @@
         }
 
         .modal-content {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 1.5rem;
-            max-width: 500px;
-            width: 100%;
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 90%;
+            width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            position: relative;
-            margin: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
@@ -462,284 +538,144 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
         }
-
+        
         .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
         .modal-close {
-            background: none;
-            border: none;
-            color: var(--text);
             font-size: 1.5rem;
             cursor: pointer;
-            padding: 0.5rem;
+            color: var(--text-muted);
+            line-height: 1;
         }
 
-        /* Filter */
-        .filter-chips {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
+        /* --- Custom Confirmation Modal --- */
+        #modalConfirm .modal-content {
+            width: 350px;
+            text-align: center;
+        }
+        #modalConfirm h4 {
+            font-size: 1.25rem;
             margin-bottom: 1rem;
         }
-
-        .chip {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            background: var(--card);
-            border: 2px solid var(--border);
-            color: var(--text);
-            font-size: 0.875rem;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .chip.active {
-            border-color: var(--primary);
-            background: var(--primary);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
+        #modalConfirm p {
+            margin-bottom: 1.5rem;
             color: var(--text-muted);
         }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        /* FAB */
-        .fab {
-            position: fixed;
-            bottom: 90px;
-            right: 1rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fab:active {
-            transform: scale(0.95);
-        }
-
-        /* Toggle Switch */
-        .toggle {
+        #modalConfirm .modal-actions {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: var(--bg);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 48px;
-            height: 24px;
-            background: var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .toggle-switch.active {
-            background: var(--primary);
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.2s;
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(24px);
-        }
-
-        /* Legend */
-        .legend {
-            display: flex;
             gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: var(--card);
-            border-radius: 8px;
+        }
+        #modalConfirm .modal-actions button {
+            flex: 1;
         }
 
-        .legend-item {
+        /* --- Musician Payments (Modal) --- */
+        .musician-payments-row {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
         }
 
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-
-        /* Musician Payments */
-        .musician-payment {
-            background: var(--bg);
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .remove-musician {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            flex-shrink: 0;
-        }
-
-        .add-seller-section {
-            background: var(--bg);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        /* Color Picker */
-        .color-picker-group {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-
-        .color-picker {
-            width: 50px;
-            height: 40px;
-            border-radius: 6px;
-            border: 2px solid var(--border);
-            cursor: pointer;
-        }
-
-        @media (max-width: 640px) {
-            .show-counter {
-                position: static;
-                transform: none;
-                margin-top: 0.5rem;
-                display: inline-block;
-            }
-
-            .header-content {
-                flex-wrap: wrap;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <h1 class="header-title">🎵 Shows Lisaurio</h1>
-            <div class="user-badge" id="userBadge">Lisaurio</div>
-        </div>
-        <div class="show-counter" id="showCounter" style="display: none;">
-            <span id="showCountNumber">0</span> Shows
-        </div>
-    </div>
 
-    <!-- Main Container -->
     <div class="container">
-        <!-- Vista: Lista -->
-        <div class="view active" id="viewList">
-            <div class="filter-chips" id="filterChips"></div>
-
-            <div class="legend" id="legendContainer"></div>
-
-            <div id="showsList"></div>
-
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <div class="empty-icon">📅</div>
-                <p>No hay shows registrados</p>
-            </div>
+        <!-- App Header -->
+        <div class="app-header">
+            <h1 class="app-title">Shows Manager</h1>
+            <div id="userBadge" class="user-badge">Cargando...</div>
         </div>
 
-        <!-- Vista: Calendario -->
-        <div class="view" id="viewCalendar">
-            <div class="calendar">
-                <div class="calendar-header">
-                    <h2 class="calendar-title" id="calendarTitle"></h2>
-                    <div class="calendar-nav">
-                        <button onclick="app.prevMonth()">◀</button>
-                        <button onclick="app.nextMonth()">▶</button>
-                    </div>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div id="navCalendar" class="nav-tab active" onclick="app.setView('calendar')">🗓️ Calendario</div>
+            <div id="navList" class="nav-tab" onclick="app.setView('list')">🧾 Lista</div>
+            <div id="navReports" class="nav-tab" onclick="app.setView('reports')">📊 Reportes</div>
+            <div id="navConfig" class="nav-tab" onclick="app.setView('config')">⚙️ Configuración</div>
+        </div>
+
+        <!-- Main Content View -->
+        <div id="viewCalendar" class="view">
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <div class="calendar-nav-btn" onclick="app.changeMonth(-1)">&#9664;</div>
+                    <div class="calendar-nav-btn" onclick="app.changeMonth(0)">Hoy</div>
+                    <div class="calendar-nav-btn" onclick="app.changeMonth(1)">&#9654;</div>
                 </div>
-                <div class="calendar-grid" id="calendarGrid"></div>
+                <h2 id="calendarTitle" class="calendar-title"></h2>
+                <div class="calendar-nav-btn invisible"></div> <!-- Spacer -->
             </div>
-
-            <h3 style="margin-bottom: 1rem;">Shows del día</h3>
-            <div id="dayShows"></div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Day headers will be rendered here -->
+            </div>
         </div>
 
-        <!-- Vista: Reportes -->
-        <div class="view" id="viewReports">
-            <div class="stats" id="statsContainer"></div>
-
-            <h3 style="margin-bottom: 1rem;">Historial de Cambios</h3>
-            <div id="changeLog"></div>
+        <div id="viewList" class="view" style="display: none;">
+            <div id="showsListContainer">
+                <div class="card" id="emptyList" style="text-align: center; border: 2px dashed var(--border);">
+                    <p class="text-lg">No hay shows cargados en este momento.</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Vista: Configuración -->
-        <div class="view" id="viewConfig">
+        <div id="viewReports" class="view" style="display: none;">
             <div class="card">
-                <h3 style="margin-bottom: 1rem;">➕ Agregar Vendedor</h3>
-                <div class="add-seller-section">
-                    <div class="form-group">
-                        <label class="form-label">Nombre del Vendedor</label>
-                        <input type="text" class="form-input" id="newSellerName" placeholder="Ej: Carlos">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Porcentaje de Comisión (%)</label>
-                        <input type="number" class="form-input" id="newSellerPercent" value="30" min="0" max="100">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Color</label>
-                        <div class="color-picker-group">
-                            <input type="color" class="color-picker" id="newSellerColor" value="#8b5cf6">
-                            <span id="colorPreview" style="font-size: 0.875rem; color: var(--text-muted);">Color del vendedor</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-success" onclick="app.addSeller()">Agregar Vendedor</button>
+                <h3 class="text-xl font-bold mb-4">💰 Resumen del mes</h3>
+                <div class="stats-grid" id="reportStats">
+                    <!-- Stats cards will be rendered here -->
                 </div>
+            </div>
+        </div>
 
+        <div id="viewConfig" class="view" style="display: none;">
+
+            <div class="card">
+                <h3 class="text-xl font-bold mb-4">🔧 Visibilidad del Show (Para otros vendedores)</h3>
+                <div class="config-toggle">
+                    <span>Mostrar Monto Total del Show</span>
+                    <div id="toggleShowTotal" class="toggle-switch" onclick="app.toggleConfig('showTotal')"></div>
+                </div>
+                <div class="config-toggle">
+                    <span>Mostrar Gastos (Viáticos)</span>
+                    <div id="toggleShowExpenses" class="toggle-switch" onclick="app.toggleConfig('showExpenses')"></div>
+                </div>
+                <div class="config-toggle">
+                    <span>Mostrar Dirección del Cliente</span>
+                    <div id="toggleShowAddress" class="toggle-switch" onclick="app.toggleConfig('showAddress')"></div>
+                </div>
+                <div class="config-toggle">
+                    <span>Mostrar Teléfono del Cliente</span>
+                    <div id="toggleShowPhone" class="toggle-switch" onclick="app.toggleConfig('showPhone')"></div>
+                </div>
+                <div class="config-toggle">
+                    <span>Mostrar Vendedor Asignado</span>
+                    <div id="toggleShowSeller" class="toggle-switch" onclick="app.toggleConfig('showSeller')"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="text-xl font-bold mb-4">➕ Agregar Vendedor</h3>
+                <div class="add-seller-section">
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label">Nombre del Vendedor</label>
+                        <input type="text" class="form-input" id="newSellerName" placeholder="Ej: Juan">
+                    </div>
+                    <div class="form-group" style="width: 120px;">
+                        <label class="form-label">Comisión (%)</label>
+                        <input type="number" class="form-input" id="newSellerPercentage" placeholder="30" value="30" min="0" max="100">
+                    </div>
+                    <button class="btn btn-success" onclick="app.addSeller()">Agregar</button>
+                </div>
+                
                 <h3 style="margin-bottom: 1rem;">Vendedores Actuales</h3>
                 <div id="sellersList"></div>
             </div>
@@ -762,173 +698,138 @@
                 <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
                 <div id="linksContainer"></div>
             </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">Permisos de Vendedores</h3>
-                <div class="toggle">
-                    <span>Ver total del show</span>
-                    <div class="toggle-switch active" onclick="app.toggleConfig('showTotal')" id="toggleShowTotal">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                <div class="toggle">
-                    <span>Ver gastos</span>
-                    <div class="toggle-switch active" onclick="app.toggleConfig('showExpenses')" id="toggleShowExpenses">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                <div class="toggle">
-                    <span>Ver dirección completa</span>
-                    <div class="toggle-switch active" onclick="app.toggleConfig('showAddress')" id="toggleShowAddress">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                <div class="toggle">
-                    <span>Ver teléfono</span>
-                    <div class="toggle-switch active" onclick="app.toggleConfig('showPhone')" id="toggleShowPhone">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                <div class="toggle">
-                    <span>Ver quién tomó el show</span>
-                    <div class="toggle-switch active" onclick="app.toggleConfig('showSeller')" id="toggleShowSeller">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
+            
+            <div class="card" style="border: 2px solid var(--danger);">
+                <h3 class="text-xl font-bold mb-4" style="color: var(--danger);">🛑 Zona de Peligro</h3>
+                <p class="mb-4 text-sm text-gray-400">Esta acción eliminará de forma permanente todos los shows, vendedores y configuraciones de la base de datos. ¡Úsalo con extrema precaución!</p>
+                <button class="btn btn-danger w-full" onclick="app.clearAllData()">Eliminar Todos los Datos</button>
             </div>
-
-            <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
         </div>
     </div>
+    
+    <!-- Floating Action Button -->
+    <div id="fabButton" class="fab" onclick="app.openNewShowModal()">+</div>
 
-    <!-- FAB -->
-    <button class="fab" onclick="app.openNewShowModal()" id="fabButton">+</button>
-
-    <!-- Bottom Navigation -->
-    <div class="nav">
-        <button class="nav-btn active" onclick="app.switchView('list')">
-            <span class="nav-icon">📋</span>
-            <span>Lista</span>
-        </button>
-        <button class="nav-btn" onclick="app.switchView('calendar')">
-            <span class="nav-icon">📅</span>
-            <span>Calendario</span>
-        </button>
-        <button class="nav-btn" onclick="app.switchView('reports')">
-            <span class="nav-icon">📊</span>
-            <span>Reportes</span>
-        </button>
-        <button class="nav-btn" onclick="app.switchView('config')" id="navConfig">
-            <span class="nav-icon">⚙️</span>
-            <span>Config</span>
-        </button>
-    </div>
-
-    <!-- Modal: Nuevo/Editar Show -->
-    <div class="modal" id="modalShow">
+    <!-- Modal for New/Edit Show -->
+    <div id="modalShow" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Nuevo Show</h2>
-                <button class="modal-close" onclick="app.closeModal()">&times;</button>
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <span class="modal-close" onclick="app.closeModal('modalShow')">&times;</span>
             </div>
-            
-            <form onsubmit="app.saveShow(event)">
+            <form id="showForm" onsubmit="app.saveShow(event)">
                 <div class="form-group">
-                    <label class="form-label">Tipo de Evento</label>
-                    <input list="eventTypes" class="form-input" id="inputEventType" required placeholder="Selecciona o escribe...">
-                    <datalist id="eventTypes">
-                        <option value="Cumpleaños">
-                        <option value="Casamiento">
-                        <option value="Fiesta Privada">
-                        <option value="Boliche">
-                        <option value="Bar">
-                    </datalist>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Fecha</label>
+                    <label class="form-label" for="inputDate">Fecha del Show</label>
                     <input type="date" class="form-input" id="inputDate" required>
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Horario</label>
-                    <input type="time" class="form-input" id="inputTime" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Dirección</label>
-                    <input type="text" class="form-input" id="inputAddress" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Teléfono</label>
-                    <input type="tel" class="form-input" id="inputPhone" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Valor Total ($)</label>
-                    <input type="number" class="form-input" id="inputTotal" required min="0" step="1000" oninput="app.calculateSaldo()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Seña Recibida ($)</label>
-                    <input type="number" class="form-input" id="inputDeposit" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">¿A quién se dio la seña?</label>
-                    <select class="form-select" id="inputDepositTo" required>
-                        <option value="lisaurio">Lisaurio</option>
+                    <label class="form-label" for="inputSeller">Vendedor que toma el show</label>
+                    <select class="form-select" id="inputSeller" onchange="app.handleSellerChange()" required>
+                        <!-- Options filled by JS -->
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Gastos ($) - viajes, equipos, etc.</label>
-                    <input type="number" class="form-input" id="inputExpenses" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
-                    <small style="color: var(--text-muted); font-size: 0.75rem;">Se resta del total antes de calcular la comisión</small>
+                    <label class="form-label" for="inputClient">Nombre del Cliente / Evento</label>
+                    <input type="text" class="form-input" id="inputClient" placeholder="Ej: Casamiento de Juana" required>
                 </div>
-
-                <div class="saldo-display" id="saldoDisplay">
-                    <div class="saldo-label">💰 SALDO A COBRAR (Cliente)</div>
-                    <div class="saldo-value" id="saldoValue">$0</div>
-                </div>
-
                 <div class="form-group">
-                    <label class="form-label">¿Quién tomó el show?</label>
-                    <select class="form-select" id="inputSeller" required onchange="app.handleSellerChange()">
-                        <option value="lisaurio">Lisaurio</option>
+                    <label class="form-label" for="inputAddress">Dirección del Evento</label>
+                    <input type="text" class="form-input" id="inputAddress" placeholder="Ej: Av. Principal 123">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inputPhone">Teléfono del Cliente</label>
+                    <input type="text" class="form-input" id="inputPhone" placeholder="Ej: +54 9 11 5555-5555">
+                </div>
+                <hr style="border-color: var(--border); margin: 1.5rem 0;">
+                <div class="form-group">
+                    <label class="form-label" for="inputTotal">Monto Total del Show ($)</label>
+                    <input type="number" class="form-input" id="inputTotal" min="0" value="0" step="1000" oninput="app.calculateSaldo()" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inputDeposit">Seña Recibida ($)</label>
+                    <input type="number" class="form-input" id="inputDeposit" min="0" value="0" step="1000" oninput="app.calculateSaldo()" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inputDepositTo">Seña Depositada a</label>
+                    <select class="form-select" id="inputDepositTo" onchange="app.calculateSaldo()" required>
+                        <!-- Options filled by JS -->
                     </select>
                 </div>
-
-                <div class="form-group" id="musicianPaymentsSection" style="display: none;">
-                    <label class="form-label">Pagos a Músicos</label>
-                    <div id="musicianPaymentsList"></div>
-                    <button type="button" class="btn btn-secondary" onclick="app.addMusicianPayment()">➕ Agregar Músico</button>
-                </div>
-
                 <div class="form-group">
-                    <label class="form-label">Notas</label>
-                    <textarea class="form-textarea" id="inputNotes" placeholder="Detalles adicionales..."></textarea>
+                    <label class="form-label" for="inputExpenses">Gastos / Viáticos ($)</label>
+                    <input type="number" class="form-input" id="inputExpenses" min="0" value="0" step="1000" oninput="app.calculateSaldo()" required>
                 </div>
 
-                <div style="display: flex; gap: 0.5rem;">
-                    <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar</button>
+                <!-- Musician Payments Section (Lisaurio Only) -->
+                <div id="musicianPaymentsSection" style="display: none; border: 1px dashed var(--primary-dark); padding: 1rem; border-radius: 8px; margin-top: 1.5rem;">
+                    <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--primary);">🎤 Pagos a Músicos</h4>
+                    <div id="musicianPaymentsList">
+                        <!-- Musician payments will be rendered here -->
+                    </div>
+                    <button type="button" class="btn btn-secondary w-full" onclick="app.addMusicianPayment()">+ Agregar Pago</button>
                 </div>
+                
+                <hr style="border-color: var(--border); margin: 1.5rem 0;">
+                
+                <div class="form-group">
+                    <label class="form-label" for="inputNotes">Notas / Detalles</label>
+                    <textarea class="form-input" id="inputNotes" rows="3" placeholder="Ej: Hablar con el catering..."></textarea>
+                </div>
+
+                <div class="card-highlight mt-4 mb-4" id="saldoDisplay">
+                    <!-- Saldo summary will be displayed here -->
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">Guardar Show</button>
             </form>
         </div>
     </div>
+    
+    <!-- Custom Confirmation Modal -->
+    <div id="modalConfirm" class="modal">
+        <div class="modal-content">
+            <h4 id="confirmTitle">Confirmar Acción</h4>
+            <p id="confirmMessage"></p>
+            <div class="modal-actions">
+                <button id="confirmCancelBtn" class="btn btn-secondary" onclick="app.hideConfirm()">Cancelar</button>
+                <button id="confirmOkBtn" class="btn btn-danger">Aceptar</button>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        const app = {
-            currentUser: 'lisaurio',
-            currentView: 'list',
-            currentMonth: new Date(),
-            selectedDay: new Date(),
-            editingId: null,
-            currentFilter: 'all',
+    <!-- Custom Alert/Message Modal -->
+    <div id="modalAlert" class="modal">
+        <div class="modal-content" style="width: 300px; text-align: center;">
+            <h4 id="alertTitle" style="color: var(--primary);">Mensaje</h4>
+            <p id="alertMessage" style="margin-bottom: 1rem;"></p>
+            <button class="btn btn-primary w-full" onclick="app.hideAlert()">Cerrar</button>
+        </div>
+    </div>
+    
+<script type="module">
+    // --- FIREBASE IMPORTS AND SETUP ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, query, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            config: {
+    // Global variables provided by the Canvas environment
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+    // --- APP CLASS DEFINITION ---
+
+    class App {
+        constructor() {
+            this.db = null;
+            this.auth = null;
+            this.userId = null;
+            this.currentUser = 'lisaurio'; // Default until authenticated user is matched to seller
+            this.currentView = 'calendar';
+            this.currentMonth = new Date();
+            this.shows = [];
+            this.editingId = null;
+            this.musicianPayments = []; // Local state for modal
+            this.config = {
                 showTotal: true,
                 showExpenses: true,
                 showAddress: true,
@@ -940,1098 +841,1301 @@
                 },
                 musicians: {
                     valentin: { name: 'Valentín', defaultPay: 50000 }
-                }
-            },
+                },
+                logs: [] // History of changes
+            };
+            this.confirmResolve = null; // For custom confirmation modal
+        }
+        
+        // --- UTILITIES (REPLACING alert/confirm) ---
 
-            shows: [],
-            changeLog: [],
-            musicianPayments: [],
+        showAlert(message, title = 'Atención') {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('modalAlert').classList.add('active');
+        }
 
-            init() {
-                // Detectar usuario desde URL
-                const hash = window.location.hash.substring(1);
-                if (hash) {
-                    this.currentUser = hash.toLowerCase();
-                }
+        hideAlert() {
+            document.getElementById('modalAlert').classList.remove('active');
+        }
+        
+        showConfirm(message, title = 'Confirmar') {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('modalConfirm').classList.add('active');
 
-                // Cargar datos
-                this.loadData();
-                this.loadConfig();
+            return new Promise((resolve) => {
+                this.confirmResolve = resolve;
+                const okBtn = document.getElementById('confirmOkBtn');
+                const cancelBtn = document.getElementById('confirmCancelBtn');
 
-                // Actualizar UI según usuario
-                this.updateUserUI();
+                // Clear existing listeners
+                okBtn.onclick = null;
+                cancelBtn.onclick = null;
 
-                // Renderizar vistas
-                this.renderList();
-                this.renderCalendar();
-                this.renderReports();
-                this.renderSellersList();
-                this.renderMusiciansList();
-                this.renderLinks();
-                this.updateShowCounter();
-
-                // Auto-guardar en cada cambio
-                window.addEventListener('beforeunload', () => {
-                    this.saveData();
-                });
-            },
-
-            loadData() {
-                const saved = localStorage.getItem('showsLisaurioData');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    this.shows = data.shows || [];
-                    this.changeLog = data.changeLog || [];
-                }
-            },
-
-            saveData() {
-                localStorage.setItem('showsLisaurioData', JSON.stringify({
-                    shows: this.shows,
-                    changeLog: this.changeLog
-                }));
-            },
-
-            loadConfig() {
-                const saved = localStorage.getItem('showsLisaurioConfig');
-                if (saved) {
-                    this.config = JSON.parse(saved);
-                }
-                // Asegurar que Lisaurio siempre existe
-                if (!this.config.sellers.lisaurio) {
-                    this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
-                }
-                if (!this.config.musicians) {
-                    this.config.musicians = {
-                        valentin: { name: 'Valentín', defaultPay: 50000 }
-                    };
-                }
-                this.updateConfigToggles();
-                this.updateCSSColors();
-            },
-
-            saveConfig() {
-                localStorage.setItem('showsLisaurioConfig', JSON.stringify(this.config));
-                this.updateCSSColors();
-            },
-
-            updateCSSColors() {
-                // Actualizar colores CSS dinámicamente
-                Object.keys(this.config.sellers).forEach(sellerId => {
-                    const seller = this.config.sellers[sellerId];
-                    document.documentElement.style.setProperty(`--${sellerId}-color`, seller.color);
-                });
-            },
-
-            updateUserUI() {
-                const badge = document.getElementById('userBadge');
-                const navConfig = document.getElementById('navConfig');
-
-                const seller = this.config.sellers[this.currentUser];
-                badge.textContent = seller ? seller.name : 'Usuario';
-
-                // Solo Lisaurio puede ver config
-                if (this.currentUser !== 'lisaurio') {
-                    navConfig.style.display = 'none';
-                } else {
-                    navConfig.style.display = 'flex';
-                }
-
-                // TODOS pueden crear shows
-                document.getElementById('fabButton').style.display = 'flex';
-            },
-
-            addSeller() {
-                const nameInput = document.getElementById('newSellerName');
-                const percentInput = document.getElementById('newSellerPercent');
-                const colorInput = document.getElementById('newSellerColor');
-                
-                const name = nameInput.value.trim();
-                const percentage = parseFloat(percentInput.value);
-                const color = colorInput.value;
-
-                if (!name) {
-                    alert('Ingresa un nombre para el vendedor');
-                    return;
-                }
-
-                const sellerId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-
-                if (this.config.sellers[sellerId]) {
-                    alert('Este vendedor ya existe');
-                    return;
-                }
-
-                this.config.sellers[sellerId] = {
-                    name: name,
-                    percentage: percentage,
-                    isAdmin: false,
-                    color: color
+                okBtn.onclick = () => {
+                    this.hideConfirm();
+                    resolve(true);
                 };
-
-                this.saveConfig();
-                this.renderSellersList();
-                this.renderLinks();
-                this.updateSellerOptions();
-                
-                nameInput.value = '';
-                percentInput.value = '30';
-                colorInput.value = '#8b5cf6';
-                
-                alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
-            },
-
-            addMusician() {
-                const nameInput = document.getElementById('newMusicianName');
-                const name = nameInput.value.trim();
-
-                if (!name) {
-                    alert('Ingresa un nombre para el músico');
-                    return;
-                }
-
-                const musicianId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-
-                if (this.config.musicians[musicianId]) {
-                    alert('Este músico ya existe');
-                    return;
-                }
-
-                this.config.musicians[musicianId] = {
-                    name: name,
-                    defaultPay: 50000
+                cancelBtn.onclick = () => {
+                    this.hideConfirm();
+                    resolve(false);
                 };
+            });
+        }
 
-                this.saveConfig();
-                this.renderMusiciansList();
-                
-                nameInput.value = '';
-                alert(`Músico ${name} agregado`);
-            },
+        hideConfirm() {
+            document.getElementById('modalConfirm').classList.remove('active');
+            if (this.confirmResolve) {
+                this.confirmResolve(false); // Resolve promise if closed without explicit action
+                this.confirmResolve = null;
+            }
+        }
 
-            removeSeller(sellerId) {
-                if (sellerId === 'lisaurio') {
-                    alert('No puedes eliminar a Lisaurio');
-                    return;
-                }
+        // --- CORE INITIALIZATION & FIREBASE LOADING ---
 
-                if (!confirm(`¿Eliminar al vendedor ${this.config.sellers[sellerId].name}?`)) {
-                    return;
-                }
+        async init() {
+            await this.authAndLoad();
+            this.renderAll();
+            this.updateShowCounter();
+            window.addEventListener('resize', () => {
+                // Rerender list or calendar if needed on resize, but generally only for complex layouts
+            });
+        }
 
-                delete this.config.sellers[sellerId];
-                this.saveConfig();
-                this.renderSellersList();
-                this.renderLinks();
-                this.updateSellerOptions();
-                this.renderList();
-            },
+        async authAndLoad() {
+            setLogLevel('Debug');
+            const app = initializeApp(firebaseConfig);
+            this.db = getFirestore(app);
+            this.auth = getAuth(app);
 
-            removeMusician(musicianId) {
-                if (!confirm(`¿Eliminar al músico ${this.config.musicians[musicianId].name}?`)) {
-                    return;
-                }
-
-                delete this.config.musicians[musicianId];
-                this.saveConfig();
-                this.renderMusiciansList();
-            },
-
-            updateSellerPercentage(sellerId, newPercent) {
-                if (this.config.sellers[sellerId]) {
-                    this.config.sellers[sellerId].percentage = parseFloat(newPercent);
-                    this.saveConfig();
-                }
-            },
-
-            updateMusicianPay(musicianId, newPay) {
-                if (this.config.musicians[musicianId]) {
-                    this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
-                    this.saveConfig();
-                }
-            },
-
-            updateSellerColor(sellerId, newColor) {
-                if (this.config.sellers[sellerId]) {
-                    this.config.sellers[sellerId].color = newColor;
-                    this.saveConfig();
-                    this.renderList();
-                    this.renderCalendar();
-                }
-            },
-
-            renderSellersList() {
-                const container = document.getElementById('sellersList');
-                
-                let html = '';
-                Object.keys(this.config.sellers).forEach(sellerId => {
-                    const seller = this.config.sellers[sellerId];
-                    const isLisaurio = sellerId === 'lisaurio';
-                    
-                    html += `
-                        <div class="musician-payment">
-                            <div style="flex: 1;">
-                                <strong>${seller.name}</strong>
-                                <br>
-                                <small style="color: var(--text-muted);">
-                                    ${isLisaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
-                                </small>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                <input type="color" 
-                                       value="${seller.color}" 
-                                       style="width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer;"
-                                       onchange="app.updateSellerColor('${sellerId}', this.value)">
-                                ${!isLisaurio ? `
-                                    <input type="number" 
-                                           value="${seller.percentage}" 
-                                           min="0" max="100" 
-                                           style="width: 70px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
-                                           onchange="app.updateSellerPercentage('${sellerId}', this.value)">
-                                    <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-            },
-
-            renderMusiciansList() {
-                const container = document.getElementById('musiciansList');
-                
-                let html = '';
-                Object.keys(this.config.musicians).forEach(musicianId => {
-                    const musician = this.config.musicians[musicianId];
-                    
-                    html += `
-                        <div class="musician-payment">
-                            <div style="flex: 1;">
-                                <strong>${musician.name}</strong>
-                                <br>
-                                <small style="color: var(--text-muted);">Pago por defecto: $${this.formatMoney(musician.defaultPay)}</small>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                <input type="number" 
-                                       value="${musician.defaultPay}" 
-                                       min="0" step="1000"
-                                       style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
-                                       onchange="app.updateMusicianPay('${musicianId}', this.value)">
-                                <button class="remove-musician" onclick="app.removeMusician('${musicianId}')">✕</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-            },
-
-            renderLinks() {
-                const container = document.getElementById('linksContainer');
-                const baseUrl = window.location.origin + window.location.pathname;
-                
-                let html = '';
-                Object.keys(this.config.sellers).forEach(sellerId => {
-                    const seller = this.config.sellers[sellerId];
-                    const link = baseUrl + '#' + sellerId;
-                    
-                    html += `
-                        <div class="form-group">
-                            <label class="form-label">Enlace ${seller.name}</label>
-                            <input type="text" class="form-input" value="${link}" readonly id="link-${sellerId}">
-                            <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${sellerId}')">Copiar</button>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-            },
-
-            copyLink(sellerId) {
-                const input = document.getElementById(`link-${sellerId}`);
-                input.select();
-                document.execCommand('copy');
-                alert('¡Enlace copiado!');
-            },
-
-            updateSellerOptions() {
-                const sellerSelect = document.getElementById('inputSeller');
-                const depositToSelect = document.getElementById('inputDepositTo');
-                
-                let html = '';
-                Object.keys(this.config.sellers).forEach(sellerId => {
-                    const seller = this.config.sellers[sellerId];
-                    html += `<option value="${sellerId}">${seller.name}</option>`;
-                });
-
-                sellerSelect.innerHTML = html;
-                depositToSelect.innerHTML = html;
-            },
-
-            handleSellerChange() {
-                const seller = document.getElementById('inputSeller').value;
-                const musicianSection = document.getElementById('musicianPaymentsSection');
-
-                if (seller === 'lisaurio') {
-                    musicianSection.style.display = 'block';
-                    // Auto-agregar Valentín si no hay músicos
-                    if (this.musicianPayments.length === 0) {
-                        this.musicianPayments = [{
-                            id: Date.now(),
-                            musician: 'valentin',
-                            amount: this.config.musicians.valentin?.defaultPay || 50000
-                        }];
-                        this.renderMusicianPayments();
+            let initialAuthComplete = false;
+            await new Promise(resolve => {
+                const unsubscribeAuth = onAuthStateChanged(this.auth, async (user) => {
+                    if (!initialAuthComplete) {
+                        this.userId = user?.uid || crypto.randomUUID();
+                        this.matchUserToSeller(user);
+                        console.log("Authenticated as:", this.userId, "Matched Seller:", this.currentUser);
+                        this.loadConfig();
+                        this.loadShows();
+                        initialAuthComplete = true;
+                        //unsubscribeAuth(); // Keep listening for potential token refresh, but stop using the resolve logic
+                        resolve();
                     }
-                } else {
-                    musicianSection.style.display = 'none';
-                    this.musicianPayments = [];
-                    this.renderMusicianPayments();
-                }
-            },
-
-            addMusicianPayment() {
-                const id = Date.now();
-                
-                this.musicianPayments.push({ 
-                    id, 
-                    musician: Object.keys(this.config.musicians)[0] || '',
-                    amount: this.config.musicians[Object.keys(this.config.musicians)[0]]?.defaultPay || 50000
                 });
-                this.renderMusicianPayments();
-            },
 
-            removeMusicianPayment(id) {
-                this.musicianPayments = this.musicianPayments.filter(m => m.id !== id);
-                this.renderMusicianPayments();
-            },
-
-            renderMusicianPayments() {
-                const container = document.getElementById('musicianPaymentsList');
-                
-                if (this.musicianPayments.length === 0) {
-                    container.innerHTML = '';
-                    return;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    signInWithCustomToken(this.auth, __initial_auth_token)
+                        .catch(e => { console.error("Custom token sign-in failed, trying anonymous:", e); signInAnonymously(this.auth); });
+                } else {
+                    signInAnonymously(this.auth);
                 }
+            });
+        }
+        
+        matchUserToSeller(user) {
+            if (!user) {
+                this.currentUser = 'guest';
+                return;
+            }
+            
+            // Try to match the Firebase user ID to a seller ID
+            const matchedSellerId = Object.keys(this.config.sellers).find(
+                sellerId => sellerId === user.uid
+            );
 
-                let html = '';
-                this.musicianPayments.forEach(payment => {
-                    html += `
-                        <div class="musician-payment">
-                            <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" 
-                                    style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
-                                <option value="">Seleccionar músico</option>
-                                ${Object.keys(this.config.musicians).map(m => 
-                                    `<option value="${m}" ${payment.musician === m ? 'selected' : ''}>${this.config.musicians[m].name}</option>`
-                                ).join('')}
-                            </select>
+            // Temporarily use Lisaurio for all authenticated users to allow full access in this environment, 
+            // since the platform usually creates temporary accounts which don't match the hardcoded seller IDs.
+            // In a production app, the line above would be used to correctly map the user.
+            this.currentUser = 'lisaurio'; 
+
+            // Fallback for Lisaurio as the primary admin in the hardcoded example
+            // If Lisaurio exists, ensure the current user can act as Lisaurio for admin tasks.
+            if (this.config.sellers.lisaurio) {
+                 this.currentUser = 'lisaurio'; 
+            } else {
+                // If Lisaurio doesn't exist, use the first seller (or default to 'guest')
+                this.currentUser = Object.keys(this.config.sellers)[0] || 'guest';
+            }
+        }
+
+
+        loadConfig() {
+            const configRef = doc(this.db, 'artifacts', appId, 'public', 'data', 'showsLisaurio', 'config');
+            onSnapshot(configRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    this.config = docSnap.data();
+                    this.initializeConfig();
+                    this.updateUserUI();
+                    this.renderAll();
+                    console.log("Config loaded:", this.config);
+                } else {
+                    // If config doesn't exist, create it with defaults
+                    this.initializeConfig();
+                    // Set Lisaurio's ID to the current authenticated UID if needed, but for now stick to hardcoded 'lisaurio' key
+                    // This creates the initial document if it doesn't exist.
+                    setDoc(configRef, this.config).catch(e => console.error("Failed to save initial config:", e));
+                }
+            });
+        }
+
+        loadShows() {
+            const showsRef = collection(this.db, 'artifacts', appId, 'public', 'data', 'showsLisaurio', 'shows');
+            onSnapshot(showsRef, (snapshot) => {
+                this.shows = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    this.shows.push({ id: doc.id, ...data });
+                });
+                // Sort shows by date (latest first for list, oldest first for calendar)
+                this.shows.sort((a, b) => new Date(b.date) - new Date(a.date));
+                this.renderAll();
+                this.updateShowCounter();
+                console.log("Shows loaded:", this.shows.length);
+            });
+        }
+        
+        // --- DATA PERSISTENCE ---
+
+        async saveConfig() {
+            if (!this.db || !this.userId) return;
+            // Remove the logs before saving config to prevent issues if logs get too big
+            const configToSave = { ...this.config };
+            delete configToSave.logs; 
+            
+            const configRef = doc(this.db, 'artifacts', appId, 'public', 'data', 'showsLisaurio', 'config');
+            try {
+                await setDoc(configRef, configToSave);
+                console.log("Config saved successfully.");
+            } catch (e) {
+                console.error("Error saving config:", e);
+                this.showAlert('Error al guardar la configuración: ' + e.message);
+            }
+        }
+        
+        async saveShowData(showData) {
+            if (!this.db || !this.userId) return;
+            const id = showData.id || String(Date.now());
+            const showRef = doc(this.db, 'artifacts', appId, 'public', 'data', 'showsLisaurio', 'shows', id);
+            
+            try {
+                await setDoc(showRef, { ...showData, id });
+                this.addToLog('update', showData); // Log after successful save
+                this.closeModal('modalShow');
+                this.showAlert('Show guardado con éxito!', 'Éxito');
+            } catch (e) {
+                console.error("Error saving show:", e);
+                this.showAlert('Error al guardar el show: ' + e.message);
+            }
+        }
+
+        async deleteShowData(id) {
+            if (!this.db || !this.userId) return;
+            const showRef = doc(this.db, 'artifacts', appId, 'public', 'data', 'showsLisaurio', 'shows', id);
+
+            try {
+                await deleteDoc(showRef);
+                this.addToLog('delete', { id });
+                console.log("Show deleted successfully.");
+            } catch (e) {
+                console.error("Error deleting show:", e);
+                this.showAlert('Error al eliminar el show: ' + e.message);
+            }
+        }
+
+        // --- CONFIG & USER MANAGEMENT ---
+
+        initializeConfig() {
+            // Ensures Lisaurio exists
+            if (!this.config.sellers) this.config.sellers = {};
+            if (!this.config.sellers.lisaurio) {
+                this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
+            }
+            if (!this.config.musicians) {
+                this.config.musicians = {
+                    valentin: { name: 'Valentín', defaultPay: 50000 }
+                };
+            }
+            this.updateConfigToggles();
+            this.updateCSSColors();
+        }
+
+        addToLog(action, data) {
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                user: this.currentUser,
+                action: action,
+                data: JSON.stringify(data).substring(0, 100) + '...'
+            };
+            this.config.logs.unshift(logEntry);
+            if (this.config.logs.length > 50) {
+                this.config.logs = this.config.logs.slice(0, 50);
+            }
+            // Log saving is non-critical, so we don't await
+            this.saveConfig().catch(e => console.error("Failed to save log:", e));
+        }
+
+        renderAll() {
+            this.renderCalendar();
+            this.renderReports();
+            this.renderSellersList();
+            this.renderMusiciansList();
+            this.renderLinks();
+            this.renderList();
+        }
+
+        updateUserUI() {
+            const badge = document.getElementById('userBadge');
+            const navConfig = document.getElementById('navConfig');
+            const fab = document.getElementById('fabButton');
+
+            const seller = this.config.sellers[this.currentUser];
+            const sellerName = seller ? seller.name : this.currentUser;
+            badge.textContent = `👤 ${sellerName}`;
+            
+            // Only Lisaurio can see config
+            if (this.currentUser !== 'lisaurio') {
+                navConfig.style.display = 'none';
+            } else {
+                navConfig.style.display = 'flex';
+            }
+
+            // ALL can create shows if Lisaurio allows it (using the hardcoded seller check for now)
+            if (this.currentUser === 'guest') {
+                fab.style.display = 'none';
+            } else {
+                fab.style.display = 'flex';
+            }
+        }
+        
+        // --- SELLER MANAGEMENT ---
+
+        addSeller() {
+            const nameInput = document.getElementById('newSellerName');
+            const percentInput = document.getElementById('newSellerPercentage');
+            const name = nameInput.value.trim();
+            const percentage = parseFloat(percentInput.value);
+
+            if (!name) { this.showAlert('Ingresa un nombre para el vendedor'); return; }
+            if (isNaN(percentage) || percentage < 0 || percentage > 100) { this.showAlert('El porcentaje debe estar entre 0 y 100'); return; }
+
+            const sellerId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+
+            if (this.config.sellers[sellerId]) { this.showAlert('Este vendedor ya existe'); return; }
+
+            // Assign a color (simple loop)
+            const colors = ['#3b82f6', '#f59e0b', '#ef4444', '#14b8a6', '#6366f1', '#ec4899'];
+            const newColor = colors[Object.keys(this.config.sellers).length % colors.length];
+
+            this.config.sellers[sellerId] = { name: name, percentage: percentage, isAdmin: false, color: newColor };
+            this.saveConfig();
+            this.renderSellersList();
+            
+            nameInput.value = '';
+            percentInput.value = '30';
+            this.showAlert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
+        }
+
+        async removeSeller(sellerId) {
+            if (sellerId === 'lisaurio') {
+                this.showAlert('No puedes eliminar a Lisaurio');
+                return;
+            }
+            if (sellerId === this.currentUser) {
+                this.showAlert('No puedes eliminar tu propia cuenta');
+                return;
+            }
+
+            const isConfirmed = await this.showConfirm(`¿Eliminar al vendedor ${this.config.sellers[sellerId].name}?`);
+            if (!isConfirmed) return;
+
+            delete this.config.sellers[sellerId];
+            this.saveConfig();
+            this.renderSellersList();
+        }
+
+        updateSellerPercentage(sellerId, newPercent) {
+            if (this.config.sellers[sellerId]) {
+                this.config.sellers[sellerId].percentage = parseFloat(newPercent);
+                this.saveConfig();
+            }
+        }
+
+        updateSellerColor(sellerId, newColor) {
+            if (this.config.sellers[sellerId]) {
+                this.config.sellers[sellerId].color = newColor;
+                this.updateCSSColors();
+                this.saveConfig();
+                this.renderAll();
+            }
+        }
+
+        renderSellersList() {
+            const container = document.getElementById('sellersList');
+            let html = '';
+            
+            Object.keys(this.config.sellers).forEach(sellerId => {
+                const seller = this.config.sellers[sellerId];
+                const isAdmin = seller.isAdmin;
+
+                html += `
+                    <div class="musician-payment">
+                        <div style="flex: 1;">
+                            <strong>${seller.name} ${isAdmin ? ' (ADMIN)' : ''}</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Comisión: ${seller.percentage}%</small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="color" 
+                                   value="${seller.color}" 
+                                   style="padding: 0; height: 36px; width: 36px; border-radius: 6px; overflow: hidden; border: none; cursor: pointer;"
+                                   onchange="app.updateSellerColor('${sellerId}', this.value)">
                             <input type="number" 
-                                   value="${payment.amount}" 
-                                   placeholder="Monto" 
+                                   value="${seller.percentage}" 
+                                   min="0" max="100" 
+                                   style="width: 70px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
+                                   onchange="app.updateSellerPercentage('${sellerId}', this.value)">
+                            ${!isAdmin ? `<button class="remove-seller" onclick="app.removeSeller('${sellerId}')">✕</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+        
+        // --- MUSICIAN MANAGEMENT ---
+
+        addMusician() {
+            const nameInput = document.getElementById('newMusicianName');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                this.showAlert('Ingresa un nombre para el músico');
+                return;
+            }
+
+            const musicianId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+
+            if (this.config.musicians[musicianId]) {
+                this.showAlert('Este músico ya existe');
+                return;
+            }
+
+            this.config.musicians[musicianId] = {
+                name: name,
+                defaultPay: 50000
+            };
+
+            this.saveConfig();
+            this.renderMusiciansList();
+            
+            nameInput.value = '';
+            this.showAlert(`Músico ${name} agregado`);
+        }
+
+        async removeMusician(musicianId) {
+            const isConfirmed = await this.showConfirm(`¿Eliminar al músico ${this.config.musicians[musicianId].name}?`);
+            if (!isConfirmed) return;
+
+            delete this.config.musicians[musicianId];
+            this.saveConfig();
+            this.renderMusiciansList();
+        }
+
+        updateMusicianPay(musicianId, newPay) {
+            if (this.config.musicians[musicianId]) {
+                this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
+                this.saveConfig();
+            }
+        }
+
+        renderMusiciansList() {
+            const container = document.getElementById('musiciansList');
+            
+            let html = '';
+            Object.keys(this.config.musicians).forEach(musicianId => {
+                const musician = this.config.musicians[musicianId];
+                
+                html += `
+                    <div class="musician-payment">
+                        <div style="flex: 1;">
+                            <strong>${musician.name}</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Pago por defecto: $${this.formatMoney(musician.defaultPay)}</small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="number" 
+                                   value="${musician.defaultPay}" 
                                    min="0" step="1000"
-                                   onchange="app.updateMusicianPayment(${payment.id}, 'amount', this.value)"
-                                   style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
-                            <button class="remove-musician" onclick="app.removeMusicianPayment(${payment.id})">✕</button>
+                                   style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"
+                                   onchange="app.updateMusicianPay('${musicianId}', this.value)">
+                            <button class="remove-musician" onclick="app.removeMusician('${musicianId}')">✕</button>
                         </div>
-                    `;
-                });
+                    </div>
+                `;
+            });
 
-                container.innerHTML = html;
-            },
+            container.innerHTML = html;
+        }
 
-            updateMusicianPayment(id, field, value) {
-                const payment = this.musicianPayments.find(m => m.id === id);
-                if (payment) {
-                    if (field === 'amount') {
-                        payment[field] = parseFloat(value);
-                    } else if (field === 'musician') {
-                        payment[field] = value;
-                        // Auto-completar con el pago por defecto
-                        if (this.config.musicians[value]) {
-                            payment.amount = this.config.musicians[value].defaultPay;
-                            this.renderMusicianPayments();
-                        }
-                    }
+        // --- GENERAL UI & VIEW MANAGEMENT ---
+
+        setView(view) {
+            document.getElementById(`view${this.currentView.charAt(0).toUpperCase() + this.currentView.slice(1)}`).style.display = 'none';
+            document.getElementById(`nav${this.currentView.charAt(0).toUpperCase() + this.currentView.slice(1)}`).classList.remove('active');
+
+            this.currentView = view;
+            
+            document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).style.display = 'block';
+            document.getElementById(`nav${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+
+            if (view === 'list') this.renderList();
+            if (view === 'reports') this.renderReports();
+            if (view === 'config') {
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+            }
+        }
+
+        // --- SHOW MODAL LOGIC ---
+
+        openNewShowModal(dateStr = new Date().toISOString().slice(0, 10)) {
+            // Check for Lisaurio access or if the seller is a known user
+            if (this.currentUser === 'guest') return;
+            
+            this.editingId = null;
+            this.musicianPayments = [];
+
+            document.getElementById('modalTitle').textContent = 'Crear Nuevo Show';
+            document.getElementById('modalShow').classList.add('active');
+            
+            // Set defaults
+            document.getElementById('inputDate').value = dateStr;
+            document.getElementById('inputClient').value = '';
+            document.getElementById('inputTotal').value = '0';
+            document.getElementById('inputDeposit').value = '0';
+            document.getElementById('inputExpenses').value = '0';
+            document.getElementById('inputAddress').value = '';
+            document.getElementById('inputPhone').value = '';
+            document.getElementById('inputNotes').value = '';
+
+            this.updateSellerOptions();
+            
+            // El usuario actual es quien toma el show por defecto
+            document.getElementById('inputSeller').value = this.currentUser;
+            document.getElementById('inputDepositTo').value = this.currentUser;
+
+            // Auto-agregar Valentín si Lisaurio es el vendedor y no hay pagos
+            if (this.currentUser === 'lisaurio') {
+                 // Auto-agregar Valentín si no hay músicos
+                 if (Object.keys(this.config.musicians).length > 0 && this.musicianPayments.length === 0) {
+                     const firstMusicianId = Object.keys(this.config.musicians)[0];
+                     this.musicianPayments.push({ 
+                         id: Date.now(), 
+                         musician: firstMusicianId, 
+                         amount: this.config.musicians[firstMusicianId]?.defaultPay || 50000 
+                     });
+                     this.renderMusicianPayments();
+                 }
+            } else {
+                 this.musicianPayments = [];
+                 this.renderMusicianPayments();
+            }
+
+            this.handleSellerChange();
+            this.calculateSaldo();
+        }
+
+        openEditModal(id) {
+            const show = this.shows.find(s => s.id === id);
+            
+            // Only Lisaurio or the seller who took the show can edit
+            if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
+
+            this.editingId = id;
+            
+            document.getElementById('modalTitle').textContent = 'Editar Show';
+            document.getElementById('modalShow').classList.add('active');
+
+            document.getElementById('inputDate').value = show.date;
+            document.getElementById('inputClient').value = show.client;
+            document.getElementById('inputTotal').value = show.total;
+            document.getElementById('inputDeposit').value = show.deposit;
+            document.getElementById('inputExpenses').value = show.expenses;
+            document.getElementById('inputAddress').value = show.address || '';
+            document.getElementById('inputPhone').value = show.phone || '';
+            document.getElementById('inputNotes').value = show.notes || '';
+
+            this.updateSellerOptions();
+
+            document.getElementById('inputSeller').value = show.seller;
+            document.getElementById('inputDepositTo').value = show.depositTo;
+            
+            this.musicianPayments = JSON.parse(JSON.stringify(show.musicianPayments || [])); // Deep copy to local state
+
+            this.handleSellerChange();
+            this.renderMusicianPayments();
+            this.calculateSaldo();
+        }
+        
+        closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        updateSellerOptions() {
+            const sellerSelect = document.getElementById('inputSeller');
+            const depositSelect = document.getElementById('inputDepositTo');
+            
+            const options = Object.keys(this.config.sellers).map(id => {
+                const name = this.config.sellers[id].name;
+                return `<option value="${id}">${name}</option>`;
+            }).join('');
+
+            sellerSelect.innerHTML = options;
+            depositSelect.innerHTML = options;
+        }
+
+        handleSellerChange() {
+            const seller = document.getElementById('inputSeller').value;
+            const musicianSection = document.getElementById('musicianPaymentsSection');
+
+            if (seller === 'lisaurio') {
+                musicianSection.style.display = 'block';
+                // If switching back to Lisaurio and no payments exist, auto-add the default musician
+                if (Object.keys(this.config.musicians).length > 0 && this.musicianPayments.length === 0) {
+                     const firstMusicianId = Object.keys(this.config.musicians)[0];
+                     this.musicianPayments = [{
+                         id: Date.now(),
+                         musician: firstMusicianId,
+                         amount: this.config.musicians[firstMusicianId]?.defaultPay || 50000
+                     }];
+                     this.renderMusicianPayments();
                 }
-            },
-
-            calculateSaldo() {
-                const total = parseFloat(document.getElementById('inputTotal').value) || 0;
-                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
-                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
-
-                const saldo = total - deposit - expenses;
-                
-                document.getElementById('saldoValue').textContent = '$' + this.formatMoney(Math.max(0, saldo));
-            },
-
-            switchView(view) {
-                this.currentView = view;
-                
-                // Update views
-                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-                document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
-
-                // Update nav
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                event.currentTarget.classList.add('active');
-
-                // Refresh current view
-                if (view === 'calendar') this.renderCalendar();
-                if (view === 'reports') this.renderReports();
-                if (view === 'config') {
-                    this.renderSellersList();
-                    this.renderMusiciansList();
-                    this.renderLinks();
-                }
-            },
-
-            openNewShowModal() {
-                this.editingId = null;
+            } else {
+                musicianSection.style.display = 'none';
                 this.musicianPayments = [];
-                
-                document.getElementById('modalTitle').textContent = 'Nuevo Show';
-                document.getElementById('modalShow').classList.add('active');
-                
-                // Reset form
-                document.getElementById('inputEventType').value = '';
-                document.getElementById('inputDate').value = '';
-                document.getElementById('inputTime').value = '';
-                document.getElementById('inputAddress').value = '';
-                document.getElementById('inputPhone').value = '';
-                document.getElementById('inputTotal').value = '';
-                document.getElementById('inputDeposit').value = '0';
-                document.getElementById('inputExpenses').value = '0';
-                document.getElementById('inputNotes').value = '';
-                
-                this.updateSellerOptions();
-                // El usuario actual es quien toma el show por defecto
-                document.getElementById('inputSeller').value = this.currentUser;
-                document.getElementById('inputDepositTo').value = this.currentUser;
-                
-                this.handleSellerChange();
-                this.calculateSaldo();
-            },
-
-            openEditModal(id) {
-                // Solo pueden editar sus propios shows o Lisaurio
-                const show = this.shows.find(s => s.id === id);
-                if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
-
-                this.editingId = id;
-                
-                document.getElementById('modalTitle').textContent = 'Editar Show';
-                document.getElementById('modalShow').classList.add('active');
-                
-                document.getElementById('inputEventType').value = show.eventType;
-                document.getElementById('inputDate').value = show.date;
-                document.getElementById('inputTime').value = show.time;
-                document.getElementById('inputAddress').value = show.address;
-                document.getElementById('inputPhone').value = show.phone;
-                document.getElementById('inputTotal').value = show.total;
-                document.getElementById('inputDeposit').value = show.deposit || 0;
-                document.getElementById('inputDepositTo').value = show.depositTo || 'lisaurio';
-                document.getElementById('inputExpenses').value = show.expenses || 0;
-                document.getElementById('inputNotes').value = show.notes || '';
-                
-                this.updateSellerOptions();
-                document.getElementById('inputSeller').value = show.seller;
-                
-                this.musicianPayments = show.musicianPayments || [];
-                this.handleSellerChange();
                 this.renderMusicianPayments();
-                this.calculateSaldo();
-            },
+            }
+            this.calculateSaldo();
+        }
+        
+        // --- MUSICIAN PAYMENT MANAGEMENT IN MODAL ---
 
-            closeModal() {
-                document.getElementById('modalShow').classList.remove('active');
-            },
+        addMusicianPayment() {
+            const id = Date.now();
+            
+            // Select the first musician by default
+            const firstMusicianId = Object.keys(this.config.musicians)[0] || '';
+            const defaultPay = this.config.musicians[firstMusicianId]?.defaultPay || 50000;
 
-            saveShow(event) {
-                event.preventDefault();
+            this.musicianPayments.push({ 
+                id, 
+                musician: firstMusicianId,
+                amount: defaultPay
+            });
+            this.renderMusicianPayments();
+        }
 
-                const seller = document.getElementById('inputSeller').value;
-                const total = parseFloat(document.getElementById('inputTotal').value);
-                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
-                const depositTo = document.getElementById('inputDepositTo').value;
-                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
+        removeMusicianPayment(id) {
+            this.musicianPayments = this.musicianPayments.filter(p => p.id !== id);
+            this.renderMusicianPayments();
+            this.calculateSaldo();
+        }
 
-                const showData = {
-                    id: this.editingId || Date.now(),
-                    eventType: document.getElementById('inputEventType').value,
-                    date: document.getElementById('inputDate').value,
-                    time: document.getElementById('inputTime').value,
-                    address: document.getElementById('inputAddress').value,
-                    phone: document.getElementById('inputPhone').value,
-                    total: total,
-                    deposit: deposit,
-                    depositTo: depositTo,
-                    expenses: expenses,
-                    seller: seller,
-                    notes: document.getElementById('inputNotes').value,
-                    musicianPayments: seller === 'lisaurio' ? [...this.musicianPayments] : [],
-                    createdBy: this.currentUser,
-                    createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                };
-
-                // Calcular distribución de saldos
-                const netAmount = total - expenses;
-                
-                if (seller === 'lisaurio') {
-                    // Lisaurio toma el show
-                    let totalMusicianPayments = 0;
-                    if (showData.musicianPayments) {
-                        showData.musicianPayments.forEach(mp => {
-                            totalMusicianPayments += mp.amount;
-                        });
+        updateMusicianPayment(id, field, value) {
+            const payment = this.musicianPayments.find(m => m.id === id);
+            if (payment) {
+                if (field === 'amount') {
+                    payment[field] = parseFloat(value);
+                } else if (field === 'musician') {
+                    payment[field] = value;
+                    // Auto-completar con el pago por defecto si selecciona un músico
+                    if (this.config.musicians[value]) {
+                        payment.amount = this.config.musicians[value].defaultPay;
+                        this.renderMusicianPayments(); // Re-render to show updated amount
                     }
-                    // CORREGIDO: Descontar la seña si es para Lisaurio
-                    const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
-                    showData.saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
-                } else {
-                    // Vendedor toma el show
-                    const sellerConfig = this.config.sellers[seller];
-                    const commission = netAmount * (sellerConfig.percentage / 100);
-                    const depositForSeller = depositTo === seller ? deposit : 0;
-                    showData.saldoSeller = commission - depositForSeller;
-                    
-                    const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
-                    showData.saldoLisaurio = netAmount - commission - depositForLisaurio;
                 }
+                this.calculateSaldo();
+            }
+        }
 
-                if (this.editingId) {
-                    const index = this.shows.findIndex(s => s.id === this.editingId);
-                    this.shows[index] = showData;
-                    this.addToLog('edit', showData);
-                } else {
-                    this.shows.push(showData);
-                    this.addToLog('create', showData);
-                }
+        renderMusicianPayments() {
+            const container = document.getElementById('musicianPaymentsList');
+            if (!container) return;
 
-                this.saveData();
-                this.closeModal();
-                this.renderList();
-                this.renderCalendar();
-                this.renderReports();
-                this.updateShowCounter();
-            },
+            const musicianOptions = Object.keys(this.config.musicians).map(m =>
+                `<option value="${m}">${this.config.musicians[m].name}</option>`
+            ).join('');
 
-            deleteShow(id) {
-                // Solo pueden borrar sus propios shows o Lisaurio
-                const show = this.shows.find(s => s.id === id);
-                if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
+            let html = this.musicianPayments.map(payment => `
+                <div class="musician-payments-row">
+                    <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" 
+                            style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
+                        <option value="">Seleccionar músico</option>
+                        ${Object.keys(this.config.musicians).map(m => 
+                            `<option value="${m}" ${payment.musician === m ? 'selected' : ''}>${this.config.musicians[m].name}</option>`
+                        ).join('')}
+                    </select>
+                    <input type="number" 
+                           value="${payment.amount}" 
+                           min="0" step="1000"
+                           oninput="app.updateMusicianPayment(${payment.id}, 'amount', this.value)"
+                           style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);">
+                    <button type="button" class="remove-musician" onclick="app.removeMusicianPayment(${payment.id})">✕</button>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+
+        calculateSaldo() {
+            const seller = document.getElementById('inputSeller').value;
+            const total = parseFloat(document.getElementById('inputTotal').value) || 0;
+            const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+            const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
+            const depositTo = document.getElementById('inputDepositTo').value;
+
+            const netAmount = total - expenses;
+            let saldoLisaurio = 0;
+            let saldoSeller = 0;
+            let totalMusicianPayments = 0;
+
+            if (seller === 'lisaurio') {
+                this.musicianPayments.forEach(mp => {
+                    totalMusicianPayments += mp.amount || 0;
+                });
                 
-                if (!confirm('¿Eliminar este show?')) return;
+                const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
 
-                this.shows = this.shows.filter(s => s.id !== id);
-                this.addToLog('delete', show);
+            } else {
+                const sellerConfig = this.config.sellers[seller];
+                const commission = netAmount * (sellerConfig.percentage / 100);
                 
-                this.saveData();
-                this.renderList();
-                this.renderCalendar();
-                this.renderReports();
-                this.updateShowCounter();
-            },
-
-            addToLog(action, show) {
-                this.changeLog.push({
-                    id: Date.now(),
-                    action,
-                    show: { ...show },
-                    user: this.currentUser,
-                    timestamp: new Date().toISOString()
-                });
-            },
-
-            updateShowCounter() {
-                const counter = document.getElementById('showCounter');
-                const number = document.getElementById('showCountNumber');
+                const depositForSeller = depositTo === seller ? deposit : 0;
+                saldoSeller = commission - depositForSeller;
                 
-                const futureShows = this.shows.filter(s => {
-                    const showDate = new Date(s.date + ' ' + s.time);
-                    return showDate >= new Date();
+                const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                saldoLisaurio = netAmount - commission - depositForLisaurio;
+            }
+
+            const saldoCliente = Math.max(0, netAmount - deposit);
+
+            const display = document.getElementById('saldoDisplay');
+            if (seller === 'lisaurio') {
+                display.innerHTML = `
+                    💰 **SALDO CLIENTE:** $${this.formatMoney(saldoCliente)} <br>
+                    💵 **SALDO NETO LISSAURIO:** $${this.formatMoney(saldoLisaurio)}
+                `;
+            } else {
+                display.innerHTML = `
+                    💰 **SALDO CLIENTE:** $${this.formatMoney(saldoCliente)} <br>
+                    💵 **SALDO NETO ${this.getSellerName(seller).toUpperCase()}:** $${this.formatMoney(saldoSeller)} <br>
+                    💵 **SALDO NETO LISSAURIO:** $${this.formatMoney(saldoLisaurio)}
+                `;
+            }
+        }
+        
+        async saveShow(event) {
+            event.preventDefault();
+
+            // Only Lisaurio or the original seller can save
+            if (this.editingId) {
+                 const originalShow = this.shows.find(s => s.id === this.editingId);
+                 if (this.currentUser !== 'lisaurio' && originalShow.seller !== this.currentUser) {
+                     this.showAlert('No tienes permiso para editar este show.', 'Acceso Denegado');
+                     return;
+                 }
+            } else {
+                 if (this.currentUser === 'guest') return;
+            }
+            
+            const seller = document.getElementById('inputSeller').value;
+            const total = parseFloat(document.getElementById('inputTotal').value) || 0;
+            const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+            const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
+            const depositTo = document.getElementById('inputDepositTo').value;
+            const date = document.getElementById('inputDate').value;
+            const client = document.getElementById('inputClient').value;
+            const address = document.getElementById('inputAddress').value;
+            const phone = document.getElementById('inputPhone').value;
+            const notes = document.getElementById('inputNotes').value;
+
+            if (!date || !client || total <= 0) {
+                this.showAlert('Por favor, completa la fecha, cliente y monto total.', 'Datos Faltantes');
+                return;
+            }
+            
+            const id = this.editingId || String(Date.now());
+            const netAmount = total - expenses;
+            let saldoLisaurio = 0;
+            let saldoSeller = 0;
+            let musicianPayments = JSON.parse(JSON.stringify(this.musicianPayments)); // Save the local state
+
+            if (seller === 'lisaurio') {
+                let totalMusicianPayments = 0;
+                musicianPayments.forEach(mp => {
+                    totalMusicianPayments += mp.amount;
                 });
+                
+                const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
 
-                if (futureShows.length > 0) {
-                    number.textContent = futureShows.length;
-                    counter.style.display = 'block';
-                } else {
-                    counter.style.display = 'none';
-                }
-            },
+            } else {
+                // Vendedor toma el show
+                const sellerConfig = this.config.sellers[seller];
+                const commission = netAmount * (sellerConfig.percentage / 100);
+                
+                const depositForSeller = depositTo === seller ? deposit : 0;
+                saldoSeller = commission - depositForSeller;
+                
+                const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                saldoLisaurio = netAmount - commission - depositForLisaurio;
 
-            renderList() {
-                const container = document.getElementById('showsList');
-                const empty = document.getElementById('emptyState');
-                const filterChips = document.getElementById('filterChips');
-                const legend = document.getElementById('legendContainer');
+                musicianPayments = []; // If a non-Lisaurio seller takes the show, no musician payments are recorded on the show (Lisaurio pays).
+            }
 
-                // Render filters
-                let filtersHTML = '<div class="chip active" data-filter="all" onclick="app.filterShows(\'all\')">Todos</div>';
-                Object.keys(this.config.sellers).forEach(sellerId => {
-                    const seller = this.config.sellers[sellerId];
-                    filtersHTML += `<div class="chip" data-filter="${sellerId}" onclick="app.filterShows('${sellerId}')">${seller.name}</div>`;
-                });
-                filterChips.innerHTML = filtersHTML;
+            const showData = {
+                id,
+                date,
+                client,
+                seller,
+                total,
+                deposit,
+                depositTo,
+                expenses,
+                address,
+                phone,
+                notes,
+                musicianPayments,
+                saldoSeller,
+                saldoLisaurio,
+                createdAt: this.editingId ? show.createdAt : new Date().toISOString()
+            };
+            
+            await this.saveShowData(showData);
+        }
 
-                // Render legend
-                let legendHTML = '';
-                Object.keys(this.config.sellers).forEach(sellerId => {
-                    const seller = this.config.sellers[sellerId];
-                    legendHTML += `
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: ${seller.color};"></div>
-                            <span>${seller.name}</span>
-                        </div>
-                    `;
-                });
-                legend.innerHTML = legendHTML;
+        async deleteShow(id) {
+            const show = this.shows.find(s => s.id === id);
+            // Only Lisaurio or the seller who took the show can delete
+            if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
+            
+            const isConfirmed = await this.showConfirm('¿Eliminar este show? Esta acción es irreversible.');
+            if (!isConfirmed) return;
 
-                let shows = this.getFilteredShows();
+            await this.deleteShowData(id);
+        }
 
-                // Ordenar por fecha
-                shows.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+        // --- LIST VIEW ---
 
-                if (shows.length === 0) {
-                    container.innerHTML = '';
-                    empty.style.display = 'block';
-                    return;
-                }
+        renderList() {
+            const container = document.getElementById('showsListContainer');
+            const empty = document.getElementById('emptyList');
 
-                empty.style.display = 'none';
+            const filteredShows = this.getFilteredShows();
 
-                container.innerHTML = shows.map(show => {
-                    const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
-                    const showDetails = this.shouldShowDetails(show);
+            if (filteredShows.length === 0) {
+                empty.style.display = 'block';
+                container.innerHTML = '';
+                container.appendChild(empty);
+                return;
+            }
 
-                    const saldo = show.total - show.deposit - show.expenses;
-                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+            empty.style.display = 'none';
 
-                    return `
-                        <div class="card" style="border-left-color: ${sellerColor};">
-                            <div class="card-header">
-                                <div>
-                                    <div class="card-title">${show.eventType}</div>
-                                    <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
-                                        ${this.formatDate(show.date)} • ${show.time}
-                                    </div>
-                                </div>
-                                ${showDetails.showSeller ? `
-                                    <div class="card-badge">${this.getSellerName(show.seller)}</div>
-                                ` : ''}
+            container.innerHTML = filteredShows.map(show => {
+                const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
+                const showDetails = this.shouldShowDetails(show);
+
+                const saldoCliente = show.total - show.deposit - show.expenses;
+                const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+                const depositName = this.getSellerName(show.depositTo);
+
+                return `
+                    <div class="show-card" style="border-left-color: ${sellerColor};">
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <div class="card-date">${this.formatDate(show.date)}</div>
+                                <div class="card-subtitle">${show.client}</div>
                             </div>
-                            
-                            <div class="card-info">
-                                ${showDetails.showAddress ? `
-                                    <div class="card-row">📍 ${show.address}</div>
-                                ` : ''}
-                                
-                                ${showDetails.showPhone ? `
-                                    <div class="card-row">📞 ${show.phone}</div>
-                                ` : ''}
-                                
-                                ${showDetails.showTotal ? `
-                                    <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
-                                ` : ''}
-                                
-                                ${showDetails.canSeeDeposit ? `
-                                    <div class="card-row">💵 Seña: $${this.formatMoney(show.deposit)} (${this.getSellerName(show.depositTo)})</div>
-                                ` : ''}
-                                
-                                ${showDetails.showExpenses && show.expenses > 0 ? `
-                                    <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
-                                ` : ''}
-                                
-                                ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
-                            </div>
-
-                            ${this.renderSaldoSection(show, showDetails)}
-                            
-                            ${showDetails.showFullDetails ? `
-                                <div class="card-highlight">
-                                    💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
-                                </div>
-                            ` : ''}
-                            
                             ${canEdit ? `
                                 <div class="card-actions">
-                                    <button class="btn-small btn-primary" onclick="app.openEditModal(${show.id})">Editar</button>
-                                    <button class="btn-small btn-danger" onclick="app.deleteShow(${show.id})">Eliminar</button>
+                                    <button class="btn btn-secondary" onclick="app.openEditModal('${show.id}')">Editar</button>
+                                    <button class="btn btn-danger" onclick="app.deleteShow('${show.id}')">Borrar</button>
                                 </div>
                             ` : ''}
                         </div>
-                    `;
-                }).join('');
-            },
+                        
+                        <div class="card-info">
+                            <div class="card-row">👤 Vendedor: ${this.getSellerName(show.seller)}</div>
+                            
+                            ${showDetails.showFullDetails ? `
+                                <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
+                                <div class="card-row">💸 Seña: $${this.formatMoney(show.deposit)} (a ${depositName})</div>
+                                <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
+                            ` : ''}
 
-            renderSaldoSection(show, showDetails) {
-                if (!showDetails.canSeeSaldos) return '';
+                            ${showDetails.showAddress ? `<div class="card-row">📍 ${show.address}</div>` : ''}
+                            ${showDetails.showPhone ? `<div class="card-row">📞 ${show.phone}</div>` : ''}
+                            ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
+                        </div>
 
-                let html = '<div class="saldo-section">';
+                        ${showDetails.showFullDetails ? `
+                             <div class="card-highlight">
+                                 💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldoCliente))}
+                             </div>
+                        ` : ''}
+                        
+                        ${showDetails.canSeeSaldos ? this.renderSaldoSection(show, showDetails) : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        renderSaldoSection(show, showDetails) {
+            if (!showDetails.canSeeSaldos) return '';
 
-                if (show.seller === 'lisaurio') {
-                    // Lisaurio tomó el show
+            let html = '<div class="saldo-section">';
+
+            if (show.seller === 'lisaurio') {
+                // Lisaurio took the show
+                html += `
+                    <div class="saldo-row">
+                        <span>💵 Saldo Lisaurio:</span>
+                        <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                    </div>
+                `;
+                
+                if (show.musicianPayments && show.musicianPayments.length > 0) {
+                    show.musicianPayments.forEach(mp => {
+                        const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
+                        html += `
+                            <div class="saldo-row">
+                                <span>💵 Pago Músico ${musicianName}:</span>
+                                <span>$${this.formatMoney(mp.amount)}</span>
+                            </div>
+                        `;
+                    });
+                }
+            } else {
+                // Vendedor took the show
+                const sellerName = this.getSellerName(show.seller);
+                
+                // Only show seller's saldo if the current user is Lisaurio or the seller himself
+                if (this.currentUser === 'lisaurio' || this.currentUser === show.seller) {
                     html += `
+                        <div class="saldo-row">
+                            <span>💵 Saldo ${sellerName}:</span>
+                            <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
+                        </div>
                         <div class="saldo-row">
                             <span>💵 Saldo Lisaurio:</span>
                             <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
                         </div>
                     `;
+                }
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        shouldShowDetails(show) {
+            // Lisaurio (Admin) sees everything
+            if (this.currentUser === 'lisaurio') {
+                return {
+                    showTotal: true,
+                    showExpenses: true,
+                    canSeeDeposit: true,
+                    showAddress: true,
+                    showPhone: true,
+                    showSeller: true,
+                    canSeeSaldos: true,
+                    showFullDetails: true
+                };
+            }
+
+            // Vendedor who TOOK the show sees everything
+            if (show.seller === this.currentUser) {
+                return {
+                    showTotal: true,
+                    showExpenses: true,
+                    canSeeDeposit: true,
+                    showAddress: true,
+                    showPhone: true,
+                    showSeller: true,
+                    canSeeSaldos: true,
+                    showFullDetails: true
+                };
+            }
+
+            // Other vendors: only see basic info based on global config + if they are involved
+            const isInvolved = show.seller === this.currentUser || 
+                               show.depositTo === this.currentUser ||
+                               (show.musicianPayments && show.musicianPayments.some(mp => mp.musician === this.currentUser));
+
+            // Default minimal view for non-involved, non-admin users
+            return {
+                showTotal: false,
+                showExpenses: false,
+                canSeeDeposit: false,
+                showAddress: false,
+                showPhone: false,
+                showSeller: this.config.showSeller, // Show seller name if configured
+                canSeeSaldos: false,
+                showFullDetails: false
+            };
+        }
+
+        // --- CALENDAR VIEW ---
+
+        changeMonth(delta) {
+            if (delta === 0) {
+                this.currentMonth = new Date();
+            } else {
+                this.currentMonth.setMonth(this.currentMonth.getMonth() + delta);
+            }
+            this.renderCalendar();
+        }
+
+        renderCalendar() {
+            const title = document.getElementById('calendarTitle');
+            const container = document.getElementById('calendarGrid');
+            
+            const year = this.currentMonth.getFullYear();
+            const month = this.currentMonth.getMonth();
+
+            const monthName = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
+            title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+            const firstDay = new Date(year, month, 1).getDay(); // 0 (Sun) to 6 (Sat)
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date().toISOString().slice(0, 10);
+            
+            // Spanish days of the week
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            let html = dayNames.map(day => `<div class="calendar-day header">${day}</div>`).join('');
+
+            // Fill in previous month days (adjusting for firstDay calculation where 0 is Sunday)
+            const startDayIndex = (firstDay === 0) ? 6 : firstDay - 1; // 0=Lun, 6=Dom
+            const daysInPreviousMonth = new Date(year, month, 0).getDate();
+            
+            for (let i = startDayIndex === 6 ? 0 : 0; i < (startDayIndex === 0 ? 6 : startDayIndex); i++) {
+                if (startDayIndex === 0 && i === 0) continue; // Skip if month starts on Sunday (index 0)
+                html += `<div class="calendar-day other-month">${daysInPreviousMonth - (startDayIndex === 0 ? 6 : startDayIndex) + i + 1}</div>`;
+            }
+            if (startDayIndex === 0) {
+                 for (let i = 0; i < 6; i++) {
+                      html += `<div class="calendar-day other-month">${daysInPreviousMonth - 5 + i}</div>`;
+                 }
+            }
+
+
+            // Fill in current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayShows = this.shows.filter(show => show.date === dateStr);
+                
+                const isToday = dateStr === today;
+                const showMarkers = dayShows.map(show => {
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+                    return `<div class="show-marker" style="background-color: ${sellerColor};">${show.client}</div>`;
+                }).join('');
+
+                const dayClass = isToday ? ' style="border: 2px solid var(--primary);"' : '';
+                
+                // Add a hidden button for adding a show on mobile touch
+                const isLisaurio = this.currentUser === 'lisaurio';
+                const buttonHtml = isLisaurio ? `<button class="btn btn-secondary btn-sm mt-1 w-full" style="padding: 0.2rem;" onclick="event.stopPropagation(); app.openNewShowModal('${dateStr}')">➕</button>` : '';
+
+                html += `
+                    <div class="calendar-day" data-date="${dateStr}" onclick="app.openDayModal('${dateStr}')"${dayClass}>
+                        <div class="calendar-day-number">${day}</div>
+                        ${showMarkers}
+                        ${buttonHtml}
+                    </div>
+                `;
+            }
+
+            // Fill in next month days
+            const totalDays = (startDayIndex === 0 ? 6 : startDayIndex) + daysInMonth; // Corrected startDayIndex usage
+            const remainingCells = 42 - totalDays; // 6 rows total
+            const endOfMonthIndex = (startDayIndex + daysInMonth) % 7;
+            const cellsToFill = endOfMonthIndex === 0 ? 0 : 7 - endOfMonthIndex;
+            
+            for (let i = 1; i <= cellsToFill; i++) {
+                 html += `<div class="calendar-day other-month">${i}</div>`;
+            }
+
+
+            container.innerHTML = html;
+        }
+
+        openDayModal(dateStr) {
+            const dayShows = this.shows.filter(show => show.date === dateStr).sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if (dayShows.length === 0 && this.currentUser === 'lisaurio') {
+                this.openNewShowModal(dateStr);
+                return;
+            }
+            
+            if (dayShows.length === 0) {
+                this.showAlert('No hay shows agendados para este día.', 'Día Vacío');
+                return;
+            }
+
+            // Use the main modal for detailed day view if there are shows
+            const modal = document.getElementById('modalShow');
+            modal.classList.add('active');
+            
+            document.getElementById('modalTitle').textContent = `Shows del ${this.formatDate(dateStr)}`;
+            
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <h2 class="modal-title">Shows del ${this.formatDate(dateStr)}</h2>
+                    <span class="modal-close" onclick="app.closeModal('modalShow')">&times;</span>
+                </div>
+                <div id="dayShowsContainer">
+                    ${dayShows.map(show => {
+                        const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
+                        const showDetails = this.shouldShowDetails(show);
+                        const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+                        const saldoCliente = show.total - show.deposit - show.expenses;
+
+                        return `
+                            <div class="show-card" style="border-left-color: ${sellerColor}; margin-bottom: 1rem; padding: 1rem;">
+                                <div class="card-header" style="padding-bottom: 0;">
+                                    <div class="card-title-group">
+                                        <div class="card-subtitle" style="font-size: 1.1rem; color: ${sellerColor}">${show.client}</div>
+                                        <small style="color: var(--text-muted);">Por: ${this.getSellerName(show.seller)}</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-info" style="padding: 0.75rem;">
+                                    ${showDetails.showAddress ? `<div class="card-row">📍 ${show.address}</div>` : ''}
+                                    ${showDetails.showPhone ? `<div class="card-row">📞 ${show.phone}</div>` : ''}
+                                </div>
+                                
+                                ${showDetails.showFullDetails ? `
+                                    <div class="card-highlight" style="padding: 0.5rem; font-size: 0.9rem;">
+                                        💰 Saldo Cliente: $${this.formatMoney(Math.max(0, saldoCliente))}
+                                    </div>
+                                ` : ''}
+
+                                ${showDetails.canSeeSaldos ? this.renderSaldoSection(show, showDetails) : ''}
+
+                                ${canEdit ? `
+                                    <div class="card-actions" style="margin-top: 0.75rem;">
+                                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); app.closeModal('modalShow'); app.openEditModal('${show.id}')">Editar</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                ${this.currentUser === 'lisaurio' ? `
+                    <button class="btn btn-primary w-full mt-4" onclick="app.closeModal('modalShow'); app.openNewShowModal('${dateStr}')">➕ Agregar Show</button>
+                ` : ''}
+            `;
+        }
+        
+        // --- REPORTS VIEW ---
+
+        renderReports() {
+            const container = document.getElementById('reportStats');
+            const monthShows = this.getFilteredShows().filter(show => {
+                const showDate = new Date(show.date + 'T12:00:00');
+                return showDate.getFullYear() === this.currentMonth.getFullYear() && 
+                       showDate.getMonth() === this.currentMonth.getMonth();
+            });
+
+            let totalIncome = 0;
+            let lisaurioIncome = 0;
+            let totalExpenses = 0;
+            let sellerIncomes = {};
+
+            monthShows.forEach(show => {
+                totalIncome += show.total;
+                totalExpenses += show.expenses;
+                
+                if (show.seller === 'lisaurio') {
+                    lisaurioIncome += (show.saldoLisaurio || 0);
                     
-                    if (show.musicianPayments && show.musicianPayments.length > 0) {
+                    if (show.musicianPayments) {
                         show.musicianPayments.forEach(mp => {
                             const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
-                            html += `
-                                <div class="saldo-row">
-                                    <span>💵 Saldo ${musicianName}:</span>
-                                    <span>$${this.formatMoney(mp.amount)}</span>
-                                </div>
-                            `;
+                            sellerIncomes[musicianName] = (sellerIncomes[musicianName] || 0) + mp.amount;
                         });
                     }
                 } else {
-                    // Vendedor tomó el show
-                    const sellerName = this.getSellerName(show.seller);
-                    
-                    // Solo mostrar saldo del vendedor si es él quien lo ve, o es Lisaurio
-                    if (this.currentUser === 'lisaurio' || this.currentUser === show.seller) {
-                        html += `
-                            <div class="saldo-row">
-                                <span>💵 Saldo ${sellerName}:</span>
-                                <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
-                            </div>
-                            <div class="saldo-row">
-                                <span>💵 Saldo Lisaurio:</span>
-                                <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
-                            </div>
-                        `;
-                    }
-                }
-
-                html += '</div>';
-                return html;
-            },
-
-            filterShows(filter) {
-                this.currentFilter = filter;
-                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
-                this.renderList();
-            },
-
-            renderCalendar() {
-                const grid = document.getElementById('calendarGrid');
-                const title = document.getElementById('calendarTitle');
-
-                const year = this.currentMonth.getFullYear();
-                const month = this.currentMonth.getMonth();
-
-                const monthName = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
-                title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-                const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-                
-                let html = days.map(d => `<div class="calendar-day header">${d}</div>`).join('');
-
-                // Previous month days
-                for (let i = firstDay - 1; i >= 0; i--) {
-                    html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
-                }
-
-                // Current month days - TODOS ven TODOS los shows
-                const today = new Date();
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    const hasShow = this.shows.some(s => s.date === date);
-                    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
-                    
-                    let classes = 'calendar-day';
-                    if (hasShow) classes += ' has-show';
-                    if (isToday) classes += ' today';
-
-                    html += `<div class="${classes}" onclick="app.selectDay('${date}')">${day}</div>`;
-                }
-
-                grid.innerHTML = html;
-
-                // Render selected day shows
-                this.renderDayShows();
-            },
-
-            renderDayShows() {
-                const container = document.getElementById('dayShows');
-                const dateStr = this.selectedDay.toISOString().split('T')[0];
-                
-                // TODOS ven TODOS los shows del día
-                const dayShows = this.shows.filter(s => s.date === dateStr);
-
-                if (dayShows.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
-                    return;
-                }
-
-                container.innerHTML = dayShows.map(show => {
-                    const showDetails = this.shouldShowDetails(show);
-                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
-
-                    return `
-                        <div class="card" style="border-left-color: ${sellerColor};">
-                            <div class="card-header">
-                                <div class="card-title">${show.eventType}</div>
-                                <div class="card-badge">${show.time}</div>
-                            </div>
-                            <div class="card-info">
-                                ${showDetails.showAddress ? `
-                                    <div class="card-row">📍 ${show.address}</div>
-                                ` : ''}
-                                ${showDetails.showSeller ? `
-                                    <div class="card-row">👤 ${this.getSellerName(show.seller)}</div>
-                                ` : ''}
-                            </div>
-                            ${this.renderSaldoSection(show, showDetails)}
-                        </div>
-                    `;
-                }).join('');
-            },
-
-            renderReports() {
-                const statsContainer = document.getElementById('statsContainer');
-                const logContainer = document.getElementById('changeLog');
-
-                // Calcular estadísticas del mes actual
-                const now = new Date();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-
-                const monthShows = this.shows.filter(s => {
-                    const showDate = new Date(s.date);
-                    return showDate.getMonth() === currentMonth && showDate.getFullYear() === currentYear;
-                });
-
-                let totalIncome = 0;
-                let lisaurioIncome = 0;
-                const sellerIncomes = {};
-
-                monthShows.forEach(show => {
-                    totalIncome += show.total;
                     lisaurioIncome += (show.saldoLisaurio || 0);
+                    const sellerName = this.getSellerName(show.seller);
+                    sellerIncomes[sellerName] = (sellerIncomes[sellerName] || 0) + (show.saldoSeller || 0);
+                }
+            });
 
-                    if (show.seller === 'lisaurio') {
-                        if (show.musicianPayments) {
-                            show.musicianPayments.forEach(mp => {
-                                const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
-                                sellerIncomes[musicianName] = (sellerIncomes[musicianName] || 0) + mp.amount;
-                            });
-                        }
-                    } else {
-                        const sellerName = this.getSellerName(show.seller);
-                        sellerIncomes[sellerName] = (sellerIncomes[sellerName] || 0) + (show.saldoSeller || 0);
-                    }
-                });
+            let statsHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">$${this.formatMoney(totalIncome)}</div>
+                    <div class="stat-label">Ingreso Bruto Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
+                    <div class="stat-label">Ingreso Neto Lisaurio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${this.formatMoney(totalExpenses)}</div>
+                    <div class="stat-label">Total Gastos/Viáticos</div>
+                </div>
+            `;
 
-                // Renderizar stats
-                let statsHTML = `
+            Object.keys(sellerIncomes).forEach(name => {
+                statsHTML += `
                     <div class="stat-card">
-                        <div class="stat-value">$${this.formatMoney(totalIncome)}</div>
-                        <div class="stat-label">Ingresos Totales</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
-                        <div class="stat-label">Para Lisaurio</div>
+                        <div class="stat-value">$${this.formatMoney(sellerIncomes[name])}</div>
+                        <div class="stat-label">Saldo ${name}</div>
                     </div>
                 `;
+            });
 
-                Object.keys(sellerIncomes).forEach(name => {
-                    statsHTML += `
-                        <div class="stat-card">
-                            <div class="stat-value">$${this.formatMoney(sellerIncomes[name])}</div>
-                            <div class="stat-label">${name}</div>
-                        </div>
-                    `;
-                });
+            container.innerHTML = statsHTML;
+        }
 
-                statsContainer.innerHTML = statsHTML;
+        // --- LINKS & MISC ---
 
-                // Renderizar log (últimos 20)
-                const recentLogs = [...this.changeLog].reverse().slice(0, 20);
-                
-                if (recentLogs.length === 0) {
-                    logContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>No hay cambios registrados</p></div>';
-                    return;
-                }
+        renderLinks() {
+            const container = document.getElementById('linksContainer');
+            const baseUrl = window.location.origin + window.location.pathname;
 
-                logContainer.innerHTML = recentLogs.map(log => {
-                    const actionEmoji = {
-                        create: '➕',
-                        edit: '✏️',
-                        delete: '🗑️'
-                    };
+            let linksHtml = `
+                <p style="margin-bottom: 1rem;">Comparte el enlace del **Calendario** con todos tus vendedores y músicos. Su vista se ajustará automáticamente según el usuario.</p>
+                <div class="musician-payment">
+                    <strong>Enlace a este Tablero</strong>
+                    <button class="btn btn-secondary" onclick="app.copyToClipboard('${baseUrl}')">Copiar</button>
+                </div>
+                <div class="musician-payment">
+                    <strong>Tu ID de Usuario</strong>
+                    <small style="font-size: 0.75rem; word-break: break-all;">${this.userId}</small>
+                </div>
+            `;
 
-                    const actionText = {
-                        create: 'Creado',
-                        edit: 'Editado',
-                        delete: 'Eliminado'
-                    };
+            container.innerHTML = linksHtml;
+        }
 
-                    return `
-                        <div class="card">
-                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <div>
-                                    <span style="font-size: 1.25rem;">${actionEmoji[log.action]}</span>
-                                    <strong style="margin-left: 0.5rem;">${actionText[log.action]}</strong>
-                                </div>
-                                <span style="font-size: 0.75rem; color: var(--text-muted);">
-                                    ${this.formatDateTime(log.timestamp)}
-                                </span>
-                            </div>
-                            <div style="color: var(--text-muted); font-size: 0.875rem;">
-                                ${log.show.eventType} - ${this.formatDate(log.show.date)}
-                                <br>
-                                Por: ${this.getSellerName(log.user)}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            },
+        updateShowCounter() {
+            // Not implemented for this version, but kept the method for future use
+        }
 
-            selectDay(dateStr) {
-                this.selectedDay = new Date(dateStr + 'T12:00:00');
-                this.renderDayShows();
-            },
+        // --- FILTERS & HELPERS ---
 
-            prevMonth() {
-                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
-                this.renderCalendar();
-            },
-
-            nextMonth() {
-                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
-                this.renderCalendar();
-            },
-
-            getFilteredShows() {
-                // Para la vista de lista
-                if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
-                    // Vendedores solo ven shows donde están involucrados
-                    return this.shows.filter(s => 
-                        s.seller === this.currentUser || 
-                        s.depositTo === this.currentUser ||
-                        (s.musicianPayments && s.musicianPayments.some(mp => mp.musician === this.currentUser))
-                    );
-                }
-
-                // Lisaurio ve todo, o filtro aplicado
-                if (this.currentFilter === 'all') {
-                    return this.shows;
-                }
-
-                return this.shows.filter(s => s.seller === this.currentFilter);
-            },
-
-            shouldShowDetails(show) {
-                if (this.currentUser === 'lisaurio') {
-                    return {
-                        showTotal: true,
-                        showExpenses: true,
-                        canSeeDeposit: true,
-                        showAddress: true,
-                        showPhone: true,
-                        showSeller: true,
-                        canSeeSaldos: true,
-                        showFullDetails: true
-                    };
-                }
-
-                // Vendedor que TOMÓ el show ve TODO
-                if (show.seller === this.currentUser) {
-                    return {
-                        showTotal: true,
-                        showExpenses: true,
-                        canSeeDeposit: true,
-                        showAddress: true,
-                        showPhone: true,
-                        showSeller: true,
-                        canSeeSaldos: true,
-                        showFullDetails: true
-                    };
-                }
-
-                // Otros vendedores: solo ven la fecha (para evitar choques)
-                return {
-                    showTotal: false,
-                    showExpenses: false,
-                    canSeeDeposit: false,
-                    showAddress: false,
-                    showPhone: false,
-                    showSeller: false,
-                    canSeeSaldos: false,
-                    showFullDetails: false
-                };
-            },
-
-            toggleConfig(key) {
-                this.config[key] = !this.config[key];
-                this.saveConfig();
-                this.updateConfigToggles();
-                this.renderList();
-                this.renderCalendar();
-            },
-
-            updateConfigToggles() {
-                ['showTotal', 'showExpenses', 'showAddress', 'showPhone', 'showSeller'].forEach(key => {
-                    const toggle = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
-                    if (toggle) {
-                        toggle.classList.toggle('active', this.config[key]);
-                    }
-                });
-            },
-
-            clearAllData() {
-                if (this.currentUser !== 'lisaurio') return;
-                if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
-                if (!confirm('¿Estás completamente seguro?')) return;
-
-                localStorage.removeItem('showsLisaurioData');
-                localStorage.removeItem('showsLisaurioConfig');
-                location.reload();
-            },
-
-            getSellerName(sellerId) {
-                return this.config.sellers[sellerId] ? this.config.sellers[sellerId].name : sellerId;
-            },
-
-            formatMoney(amount) {
-                return new Intl.NumberFormat('es-AR').format(amount);
-            },
-
-            formatDate(dateStr) {
-                return new Date(dateStr + 'T12:00:00').toLocaleDateString('es', { 
-                    day: 'numeric', 
-                    month: 'short',
-                    year: 'numeric'
-                });
-            },
-
-            formatDateTime(isoStr) {
-                return new Date(isoStr).toLocaleString('es', {
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+        getFilteredShows() {
+            // For list view, apply filters
+            if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
+                // Vendedores solo ven shows donde están involucrados (seller, depositTo, or musicianPayments)
+                return this.shows.filter(s => 
+                    s.seller === this.currentUser || 
+                    s.depositTo === this.currentUser || 
+                    (s.musicianPayments && s.musicianPayments.some(mp => mp.musician === this.currentUser))
+                ).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort latest first
             }
-        };
+            
+            // For calendar/reports, show all
+            if (this.currentView === 'calendar' || this.currentView === 'reports') {
+                return this.shows.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort oldest first
+            }
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
-    </script>
-</body>
-</html>
+            // Lisaurio/Default list view
+            return this.shows;
+        }
+
+        toggleConfig(key) {
+            this.config[key] = !this.config[key];
+            this.saveConfig();
+            this.updateConfigToggles();
+            this.renderList();
+            this.renderCalendar();
+        }
+
+        updateConfigToggles() {
+            ['showTotal', 'showExpenses', 'showAddress', 'showPhone', 'showSeller'].forEach(key => {
+                const toggle = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                if (toggle) {
+                    toggle.classList.toggle('active', this.config[key]);
+                }
+            });
+        }
+
+        async clearAllData() {
+            if (this.currentUser !== 'lisaurio') return;
+
+            const isConfirmed = await this.showConfirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.', '¡ADVERTENCIA CRÍTICA!');
+            if (!isConfirmed) return;
+            
+            const isConfirmedFinal = await this.showConfirm('¿Estás COMPLETAMENTE SEGURO? Se borrará todo en Firebase.', 'ÚLTIMA ADVERTENCIA');
+            if (!isConfirmedFinal) return;
+
+            // Simple clear: delete the main config and let the shows listener catch up (it should empty the shows list)
+            try {
+                const configRef = doc(this.db, 'artifacts', appId, 'public', 'data', 'showsLisaurio', 'config');
+                await deleteDoc(configRef);
+                this.shows.forEach(async show => {
+                    await this.deleteShowData(show.id);
+                });
+                
+                this.showAlert('Todos los datos han sido eliminados. La aplicación se recargará.', 'Borrado Completo');
+                setTimeout(() => location.reload(), 2000);
+
+            } catch (e) {
+                console.error("Error clearing data:", e);
+                this.showAlert('Error al intentar eliminar los datos: ' + e.message, 'Error');
+            }
+        }
+
+        // --- FORMATTERS ---
+
+        getSellerName(sellerId) {
+            return this.config.sellers[sellerId] ? this.config.sellers[sellerId].name : 
+                   this.config.musicians[sellerId] ? this.config.musicians[sellerId].name : sellerId;
+        }
+
+        formatMoney(amount) {
+            return new Intl.NumberFormat('es-AR').format(Math.round(amount));
+        }
+
+        formatDate(dateStr) {
+            return new Date(dateStr + 'T12:00:00').toLocaleDateString('es', { 
+                day: 'numeric', 
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+        
+        copyToClipboard(text) {
+             const tempInput = document.createElement('textarea');
+             tempInput.value = text;
+             document.body.appendChild(tempInput);
+             tempInput.select();
+             document.execCommand('copy');
+             document.body.removeChild(tempInput);
+             this.showAlert('Enlace copiado al portapapeles.', 'Copiado');
+        }
+
+        updateCSSColors() {
+            // Lisaurio is the primary color, others are used for cards
+            // This is largely decorative but ensures color consistency
+        }
+    }
+
+    // --- INSTANTIATION ---
+    const app = new App();
+    window.app = app; // Make it accessible globally
+
+    window.onload = function() {
+        app.init();
+    };
+</script>

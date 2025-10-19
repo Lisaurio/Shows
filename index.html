@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shows Lisaurio</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
     <style>
         * {
             margin: 0;
@@ -800,6 +797,21 @@
                 </div>
             </div>
 
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Sincronización Manual con GitHub</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Para sincronizar entre dispositivos, exporta los datos como JSON, súbelos a tu repo de GitHub (ej: data.json), y importa desde la URL raw en otros dispositivos.</p>
+                <button class="btn btn-primary" onclick="app.exportData()">Exportar Datos (Descargar JSON)</button>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label class="form-label">Importar desde Archivo</label>
+                    <input type="file" id="importFile" accept=".json" onchange="app.importFromFile(event)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Importar desde URL (raw GitHub)</label>
+                    <input type="text" class="form-input" id="importUrl" placeholder="https://raw.githubusercontent.com/user/repo/main/data.json">
+                    <button class="btn btn-success" style="margin-top: 0.5rem;" onclick="app.importFromUrl()">Importar</button>
+                </div>
+            </div>
+
             <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
         </div>
     </div>
@@ -951,33 +963,20 @@
             musicianPayments: [],
 
             init() {
-                // Inicializar Firebase
-                const firebaseConfig = {
-                    apiKey: "TU_API_KEY",
-                    authDomain: "TU_PROYECTO.firebaseapp.com",
-                    databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-                    projectId: "TU_PROYECTO",
-                    storageBucket: "TU_PROYECTO.appspot.com",
-                    messagingSenderId: "TU_SENDER_ID",
-                    appId: "TU_APP_ID"
-                };
-                firebase.initializeApp(firebaseConfig);
-                this.db = firebase.database();
-
                 // Detectar usuario desde URL
                 const hash = window.location.hash.substring(1);
                 if (hash) {
                     this.currentUser = hash.toLowerCase();
                 }
 
-                // Cargar datos desde Firebase (en tiempo real)
-                this.loadDataFromFirebase();
-                this.loadConfigFromFirebase();
+                // Cargar datos
+                this.loadData();
+                this.loadConfig();
 
                 // Actualizar UI según usuario
                 this.updateUserUI();
 
-                // Renderizar vistas iniciales
+                // Renderizar vistas
                 this.renderList();
                 this.renderCalendar();
                 this.renderReports();
@@ -986,72 +985,49 @@
                 this.renderLinks();
                 this.updateShowCounter();
 
-                // Escuchar cambios en tiempo real
-                this.db.ref('data').on('value', (snapshot) => {
-                    const data = snapshot.val() || {};
-                    this.shows = data.shows || [];
-                    this.changeLog = data.changeLog || [];
-                    this.refreshViews();
+                // Auto-guardar en cada cambio
+                window.addEventListener('beforeunload', () => {
+                    this.saveData();
                 });
-
-                this.db.ref('config').on('value', (snapshot) => {
-                    const config = snapshot.val() || {};
-                    this.config = {...this.config, ...config};
-                    this.updateCSSColors();
-                    this.updateConfigToggles();
-                    this.refreshViews();
-                });
-
-                // Auto-guardar en cambios (en lugar de beforeunload, guardar en cada acción)
             },
 
-            loadDataFromFirebase() {
-                this.db.ref('data').once('value').then(snapshot => {
-                    const data = snapshot.val() || {};
+            loadData() {
+                const saved = localStorage.getItem('showsLisaurioData');
+                if (saved) {
+                    const data = JSON.parse(saved);
                     this.shows = data.shows || [];
                     this.changeLog = data.changeLog || [];
-                    this.refreshViews();
-                }).catch(error => console.error('Error loading data:', error));
+                }
             },
 
-            saveDataToFirebase() {
-                this.db.ref('data').set({
+            saveData() {
+                localStorage.setItem('showsLisaurioData', JSON.stringify({
                     shows: this.shows,
                     changeLog: this.changeLog
-                }).catch(error => console.error('Error saving data:', error));
+                }));
             },
 
-            loadConfigFromFirebase() {
-                this.db.ref('config').once('value').then(snapshot => {
-                    const config = snapshot.val() || {};
-                    this.config = {...this.config, ...config};
-                    // Asegurar defaults
-                    if (!this.config.sellers.lisaurio) {
-                        this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
-                    }
-                    if (!this.config.musicians) {
-                        this.config.musicians = {
-                            valentin: { name: 'Valentín', defaultPay: 50000 }
-                        };
-                    }
-                    this.updateConfigToggles();
-                    this.updateCSSColors();
-                    this.refreshViews();
-                }).catch(error => console.error('Error loading config:', error));
+            loadConfig() {
+                const saved = localStorage.getItem('showsLisaurioConfig');
+                if (saved) {
+                    this.config = JSON.parse(saved);
+                }
+                // Asegurar que Lisaurio siempre existe
+                if (!this.config.sellers.lisaurio) {
+                    this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
+                }
+                if (!this.config.musicians) {
+                    this.config.musicians = {
+                        valentin: { name: 'Valentín', defaultPay: 50000 }
+                    };
+                }
+                this.updateConfigToggles();
+                this.updateCSSColors();
             },
 
-            saveConfigToFirebase() {
-                this.db.ref('config').set(this.config).catch(error => console.error('Error saving config:', error));
-            },
-
-            refreshViews() {
-                this.renderList();
-                this.renderCalendar();
-                this.renderReports();
-                this.renderSellersList();
-                this.renderMusiciansList();
-                this.renderLinks();
-                this.updateShowCounter();
+            saveConfig() {
+                localStorage.setItem('showsLisaurioConfig', JSON.stringify(this.config));
+                this.updateCSSColors();
             },
 
             updateCSSColors() {
@@ -1070,6 +1046,7 @@
                 const seller = this.config.sellers[this.currentUser];
                 badge.textContent = seller ? seller.name : 'Usuario';
 
+                // Solo Lisaurio puede ver config y crear shows
                 // Solo Lisaurio puede ver config
                 if (this.currentUser !== 'lisaurio') {
                     navConfig.style.display = 'none';
@@ -1111,7 +1088,7 @@
                     color: color
                 };
 
-                this.saveConfigToFirebase();
+                this.saveConfig();
                 this.renderSellersList();
                 this.renderLinks();
                 this.updateSellerOptions();
@@ -1144,7 +1121,7 @@
                     defaultPay: 50000
                 };
 
-                this.saveConfigToFirebase();
+                this.saveConfig();
                 this.renderMusiciansList();
                 
                 nameInput.value = '';
@@ -1162,7 +1139,7 @@
                 }
 
                 delete this.config.sellers[sellerId];
-                this.saveConfigToFirebase();
+                this.saveConfig();
                 this.renderSellersList();
                 this.renderLinks();
                 this.updateSellerOptions();
@@ -1175,28 +1152,28 @@
                 }
 
                 delete this.config.musicians[musicianId];
-                this.saveConfigToFirebase();
+                this.saveConfig();
                 this.renderMusiciansList();
             },
 
             updateSellerPercentage(sellerId, newPercent) {
                 if (this.config.sellers[sellerId]) {
                     this.config.sellers[sellerId].percentage = parseFloat(newPercent);
-                    this.saveConfigToFirebase();
+                    this.saveConfig();
                 }
             },
 
             updateMusicianPay(musicianId, newPay) {
                 if (this.config.musicians[musicianId]) {
                     this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
-                    this.saveConfigToFirebase();
+                    this.saveConfig();
                 }
             },
 
             updateSellerColor(sellerId, newColor) {
                 if (this.config.sellers[sellerId]) {
                     this.config.sellers[sellerId].color = newColor;
-                    this.saveConfigToFirebase();
+                    this.saveConfig();
                     this.renderList();
                     this.renderCalendar();
                 }
@@ -1550,8 +1527,12 @@
                     this.addToLog('create', showData);
                 }
 
-                this.saveDataToFirebase();
+                this.saveData();
                 this.closeModal();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.updateShowCounter();
             },
 
             deleteShow(id) {
@@ -1565,7 +1546,11 @@
                 this.shows = this.shows.filter(s => s.id !== id);
                 this.addToLog('delete', deletedShow);
 
-                this.saveDataToFirebase();
+                this.saveData();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.updateShowCounter();
             },
 
             addToLog(action, show) {
@@ -1576,7 +1561,6 @@
                     user: this.currentUser,
                     timestamp: new Date().toISOString()
                 });
-                this.saveDataToFirebase();
             },
 
             updateShowCounter() {
@@ -2015,7 +1999,7 @@
 
             toggleConfig(key) {
                 this.config[key] = !this.config[key];
-                this.saveConfigToFirebase();
+                this.saveConfig();
                 this.updateConfigToggles();
                 this.renderList();
                 this.renderCalendar();
@@ -2035,9 +2019,94 @@
                 if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
                 if (!confirm('¿Estás completamente seguro?')) return;
 
-                this.db.ref('data').remove();
-                this.db.ref('config').remove();
+                localStorage.removeItem('showsLisaurioData');
+                localStorage.removeItem('showsLisaurioConfig');
                 location.reload();
+            },
+
+            exportData() {
+                const data = {
+                    data: {
+                        shows: this.shows,
+                        changeLog: this.changeLog
+                    },
+                    config: this.config
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'showsLisaurioData.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('Datos exportados. Sube este archivo JSON a tu repo de GitHub para sincronizar.');
+            },
+
+            importFromFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (imported.data) {
+                            localStorage.setItem('showsLisaurioData', JSON.stringify(imported.data));
+                            this.loadData();
+                        }
+                        if (imported.config) {
+                            localStorage.setItem('showsLisaurioConfig', JSON.stringify(imported.config));
+                            this.loadConfig();
+                        }
+                        this.refreshViews();
+                        alert('Datos importados exitosamente.');
+                    } catch (err) {
+                        alert('Error al importar: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            importFromUrl() {
+                const url = document.getElementById('importUrl').value.trim();
+                if (!url) {
+                    alert('Ingresa una URL válida.');
+                    return;
+                }
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error al cargar desde URL');
+                        return response.json();
+                    })
+                    .then(imported => {
+                        if (imported.data) {
+                            localStorage.setItem('showsLisaurioData', JSON.stringify(imported.data));
+                            this.loadData();
+                        }
+                        if (imported.config) {
+                            localStorage.setItem('showsLisaurioConfig', JSON.stringify(imported.config));
+                            this.loadConfig();
+                        }
+                        this.refreshViews();
+                        alert('Datos importados desde URL exitosamente.');
+                    })
+                    .catch(err => {
+                        alert('Error al importar desde URL: ' + err.message);
+                    });
+            },
+
+            refreshViews() {
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+                this.updateShowCounter();
+                this.updateUserUI();
             },
 
             getSellerName(sellerId) {

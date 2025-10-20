@@ -22,7 +22,6 @@
             --text: #f1f5f9;
             --text-muted: #94a3b8;
             --border: #334155;
-
             --lisaurio-color: #10b981;
             --valentin-color: #f59e0b;
             --default-color: #8b5cf6;
@@ -67,44 +66,18 @@
             font-weight: 600;
         }
 
-        .sync-status {
+        .show-counter {
             position: absolute;
             top: 1rem;
             left: 50%;
             transform: translateX(-50%);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .sync-status.syncing {
-            background: var(--warning);
-            color: white;
-        }
-
-        .sync-status.synced {
-            background: var(--success);
-            color: white;
-        }
-
-        .sync-status.error {
-            background: var(--danger);
-            color: white;
-        }
-
-        .show-counter {
             background: var(--primary);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.125rem;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-            margin-left: 1rem;
         }
 
         /* Navigation */
@@ -176,7 +149,7 @@
         }
 
         .card.lisaurio { border-left-color: var(--lisaurio-color); }
-        .card.valentin { border-left-color: var(--valentin-color); }
+        .card.valentin { border-left-color: --valentin-color; }
         .card.other { border-left-color: var(--default-color); }
 
         .card-header {
@@ -350,29 +323,105 @@
             color: var(--danger);
         }
 
-        /* Setup Card */
-        .setup-card {
-            background: linear-gradient(135deg, var(--primary), var(--success));
+        /* Calendar */
+        .calendar {
+            background: var(--card);
             border-radius: 12px;
-            padding: 2rem;
+            padding: 1rem;
             margin-bottom: 1rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav button {
+            background: var(--bg);
+            border: none;
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            position: relative;
+        }
+
+        .calendar-day.header {
+            font-weight: 600;
+            color: var(--text-muted);
             text-align: center;
         }
 
-        .setup-icon {
-            font-size: 3rem;
+        .calendar-day.other-month {
+            color: var(--text-muted);
+            opacity: 0.3;
+        }
+
+        .calendar-day.has-show {
+            background: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
             margin-bottom: 1rem;
         }
 
-        .setup-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .stat-card {
+            background: var(--card);
+            padding: 1rem;
+            border-radius: 12px;
         }
 
-        .setup-description {
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 1.5rem;
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
         }
 
         /* Modal */
@@ -428,6 +477,32 @@
             padding: 0.5rem;
         }
 
+        /* Filter */
+        .filter-chips {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            color: var(--text);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip.active {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -464,55 +539,122 @@
             transform: scale(0.95);
         }
 
-        .spinner {
-            display: inline-block;
+        /* Toggle Switch */
+        .toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+            background: white;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            transition: transform 0.2s;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
         }
 
-        .info-box {
-            background: rgba(99, 102, 241, 0.1);
-            border: 2px solid var(--primary);
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--card);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        /* Musician Payments */
+        .musician-payment {
+            background: var(--bg);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-musician {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .add-seller-section {
+            background: var(--bg);
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
         }
 
-        .info-box h4 {
-            margin-bottom: 0.5rem;
-            color: var(--primary);
+        /* Color Picker */
+        .color-picker-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 0.5rem;
         }
 
-        .info-box p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        .code-block {
-            background: var(--bg);
-            padding: 0.75rem;
+        .color-picker {
+            width: 50px;
+            height: 40px;
             border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.875rem;
-            margin: 0.5rem 0;
-            word-break: break-all;
+            border: 2px solid var(--border);
+            cursor: pointer;
         }
 
         @media (max-width: 640px) {
-            .sync-status {
+            .show-counter {
                 position: static;
                 transform: none;
                 margin-top: 0.5rem;
-                display: inline-flex;
+                display: inline-block;
             }
 
             .header-content {
@@ -528,10 +670,6 @@
             <h1 class="header-title">🎵 Shows Lisaurio</h1>
             <div class="user-badge" id="userBadge">Lisaurio</div>
         </div>
-        <div class="sync-status" id="syncStatus" style="display: none;">
-            <span class="spinner" id="syncSpinner" style="display: none;"></span>
-            <span id="syncText">Sincronizado</span>
-        </div>
         <div class="show-counter" id="showCounter" style="display: none;">
             <span id="showCountNumber">0</span> Shows
         </div>
@@ -541,50 +679,132 @@
     <div class="container">
         <!-- Vista: Lista -->
         <div class="view active" id="viewList">
+            <div class="filter-chips" id="filterChips"></div>
+            <div class="legend" id="legendContainer"></div>
             <div id="showsList"></div>
-
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="empty-icon">📅</div>
                 <p>No hay shows registrados</p>
             </div>
         </div>
 
+        <!-- Vista: Calendario -->
+        <div class="view" id="viewCalendar">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <h2 class="calendar-title" id="calendarTitle"></h2>
+                    <div class="calendar-nav">
+                        <button onclick="app.prevMonth()">◀</button>
+                        <button onclick="app.nextMonth()">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+            <h3 style="margin-bottom: 1rem;">Shows del día</h3>
+            <div id="dayShows"></div>
+        </div>
+
+        <!-- Vista: Reportes -->
+        <div class="view" id="viewReports">
+            <div class="stats" id="statsContainer"></div>
+            <h3 style="margin-bottom: 1rem;">Historial de Cambios</h3>
+            <div id="changeLog"></div>
+        </div>
+
         <!-- Vista: Configuración -->
         <div class="view" id="viewConfig">
-            <!-- GitHub Setup -->
-            <div class="setup-card" id="setupCard">
-                <div class="setup-icon">🔐</div>
-                <h2 class="setup-title">Configurar GitHub</h2>
-                <p class="setup-description">
-                    Para sincronizar datos entre dispositivos, necesitas configurar GitHub
-                </p>
-                <button class="btn btn-secondary" style="background: white; color: var(--primary);" onclick="app.openSetupModal()">
-                    Configurar Ahora
-                </button>
-            </div>
-
-            <div class="card" id="githubInfo" style="display: none;">
-                <h3 style="margin-bottom: 1rem;">✅ GitHub Configurado</h3>
-                <div class="info-box">
-                    <h4>Estado de Sincronización</h4>
-                    <p>Repositorio: <span id="repoName"></span></p>
-                    <p>Última sincronización: <span id="lastSync"></span></p>
-                    <button class="btn btn-primary" onclick="app.syncNow()">🔄 Sincronizar Ahora</button>
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">➕ Agregar Vendedor</h3>
+                <div class="add-seller-section">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Vendedor</label>
+                        <input type="text" class="form-input" id="newSellerName" placeholder="Ej: Carlos">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Porcentaje de Comisión (%)</label>
+                        <input type="number" class="form-input" id="newSellerPercent" value="30" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <div class="color-picker-group">
+                            <input type="color" class="color-picker" id="newSellerColor" value="#8b5cf6">
+                            <span id="colorPreview" style="font-size: 0.875rem; color: var(--text-muted);">Color del vendedor</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="app.addSeller()">Agregar Vendedor</button>
                 </div>
-                <button class="btn btn-danger" onclick="app.resetGitHub()">🗑️ Eliminar Configuración</button>
+                <h3 style="margin-bottom: 1rem;">Vendedores Actuales</h3>
+                <div id="sellersList"></div>
             </div>
 
             <div class="card">
-                <h3 style="margin-bottom: 1rem;">📱 Compartir App</h3>
-                <div class="form-group">
-                    <label class="form-label">Enlace de la App</label>
-                    <input type="text" class="form-input" id="appLink" readonly>
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyAppLink()">Copiar Enlace</button>
+                <h3 style="margin-bottom: 1rem;">➕ Agregar Músico</h3>
+                <div class="add-seller-section">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Músico</label>
+                        <input type="text" class="form-input" id="newMusicianName" placeholder="Ej: Roberto">
+                    </div>
+                    <button class="btn btn-success" onclick="app.addMusician()">Agregar Músico</button>
                 </div>
-                <p style="color: var(--text-muted); font-size: 0.875rem;">
-                    Comparte este enlace para que otros puedan acceder a la app desde sus dispositivos.
-                </p>
+                <h3 style="margin-bottom: 1rem;">Músicos Actuales</h3>
+                <div id="musiciansList"></div>
             </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Enlaces de Acceso</h3>
+                <div id="linksContainer"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Permisos de Vendedores</h3>
+                <div class="toggle">
+                    <span>Ver total del show</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showTotal')" id="toggleShowTotal">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver gastos</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showExpenses')" id="toggleShowExpenses">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver dirección completa</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showAddress')" id="toggleShowAddress">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver teléfono</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showPhone')" id="toggleShowPhone">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <span>Ver quién tomó el show</span>
+                    <div class="toggle-switch active" onclick="app.toggleConfig('showSeller')" id="toggleShowSeller">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Sincronización Manual con GitHub</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Para sincronizar entre dispositivos, exporta los datos como JSON, súbelos a tu repo de GitHub (ej: data.json), y importa desde la URL raw en otros dispositivos.</p>
+                <button class="btn btn-primary" onclick="app.exportData()">Exportar Datos (Descargar JSON)</button>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label class="form-label">Importar desde Archivo</label>
+                    <input type="file" id="importFile" accept=".json" onchange="app.importFromFile(event)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Importar desde URL (raw GitHub)</label>
+                    <input type="text" class="form-input" id="importUrl" placeholder="https://raw.githubusercontent.com/user/repo/main/data.json">
+                    <button class="btn btn-success" style="margin-top: 0.5rem;" onclick="app.importFromUrl()">Importar</button>
+                </div>
+            </div>
+
+            <button class="btn btn-danger" onclick="app.clearAllData()">🗑️ Borrar Todos los Datos</button>
         </div>
     </div>
 
@@ -597,49 +817,18 @@
             <span class="nav-icon">📋</span>
             <span>Lista</span>
         </button>
+        <button class="nav-btn" onclick="app.switchView('calendar')">
+            <span class="nav-icon">📅</span>
+            <span>Calendario</span>
+        </button>
+        <button class="nav-btn" onclick="app.switchView('reports')">
+            <span class="nav-icon">📊</span>
+            <span>Reportes</span>
+        </button>
         <button class="nav-btn" onclick="app.switchView('config')" id="navConfig">
             <span class="nav-icon">⚙️</span>
             <span>Config</span>
         </button>
-    </div>
-
-    <!-- Modal: Setup GitHub -->
-    <div class="modal" id="modalSetup">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Configurar GitHub</h2>
-                <button class="modal-close" onclick="app.closeSetupModal()">&times;</button>
-            </div>
-
-            <div class="info-box">
-                <h4>📋 Instrucciones:</h4>
-                <p>1. Ve a <strong>github.com</strong> y crea una cuenta gratis si no tienes una</p>
-                <p>2. Ve a <strong>Settings → Developer settings → Personal access tokens → Tokens (classic)</strong></p>
-                <p>3. Crea un nuevo token con permisos de <strong>repo</strong></p>
-                <p>4. Copia el token y pégalo aquí abajo</p>
-            </div>
-
-            <form onsubmit="app.saveGitHubConfig(event)">
-                <div class="form-group">
-                    <label class="form-label">GitHub Username</label>
-                    <input type="text" class="form-input" id="githubUsername" required placeholder="tu-usuario">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Personal Access Token</label>
-                    <input type="password" class="form-input" id="githubToken" required placeholder="ghp_xxxxxxxxxxxx">
-                    <small style="color: var(--text-muted);">El token se guardará de forma segura en tu dispositivo</small>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Nombre del Repositorio</label>
-                    <input type="text" class="form-input" id="githubRepo" value="shows-lisaurio-data" required>
-                    <small style="color: var(--text-muted);">Se creará automáticamente si no existe</small>
-                </div>
-
-                <button type="submit" class="btn btn-success">Guardar y Sincronizar</button>
-            </form>
-        </div>
     </div>
 
     <!-- Modal: Nuevo/Editar Show -->
@@ -649,7 +838,6 @@
                 <h2 class="modal-title" id="modalTitle">Nuevo Show</h2>
                 <button class="modal-close" onclick="app.closeModal()">&times;</button>
             </div>
-
             <form onsubmit="app.saveShow(event)">
                 <div class="form-group">
                     <label class="form-label">Tipo de Evento</label>
@@ -662,47 +850,60 @@
                         <option value="Bar">
                     </datalist>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Fecha</label>
                     <input type="date" class="form-input" id="inputDate" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Horario</label>
                     <input type="time" class="form-input" id="inputTime" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Dirección</label>
                     <input type="text" class="form-input" id="inputAddress" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Teléfono</label>
                     <input type="tel" class="form-input" id="inputPhone" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Valor Total ($)</label>
                     <input type="number" class="form-input" id="inputTotal" required min="0" step="1000" oninput="app.calculateSaldo()">
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Seña Recibida ($)</label>
                     <input type="number" class="form-input" id="inputDeposit" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
                 </div>
-
+                <div class="form-group">
+                    <label class="form-label">¿A quién se dio la seña?</label>
+                    <select class="form-select" id="inputDepositTo" required>
+                        <option value="lisaurio">Lisaurio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gastos ($) - viajes, equipos, etc.</label>
+                    <input type="number" class="form-input" id="inputExpenses" value="0" min="0" step="1000" oninput="app.calculateSaldo()">
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Se resta del total antes de calcular la comisión</small>
+                </div>
                 <div class="saldo-display" id="saldoDisplay">
-                    <div class="saldo-label">💰 SALDO A COBRAR</div>
+                    <div class="saldo-label">💰 SALDO A COBRAR (Cliente)</div>
                     <div class="saldo-value" id="saldoValue">$0</div>
                 </div>
-
+                <div class="form-group">
+                    <label class="form-label">¿Quién tomó el show?</label>
+                    <select class="form-select" id="inputSeller" required onchange="app.handleSellerChange()">
+                        <option value="lisaurio">Lisaurio</option>
+                    </select>
+                </div>
+                <div class="form-group" id="musicianPaymentsSection" style="display: none;">
+                    <label class="form-label">Pagos a Músicos</label>
+                    <div id="musicianPaymentsList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="app.addMusicianPayment()">➕ Agregar Músico</button>
+                </div>
                 <div class="form-group">
                     <label class="form-label">Notas</label>
                     <textarea class="form-textarea" id="inputNotes" placeholder="Detalles adicionales..."></textarea>
                 </div>
-
                 <div style="display: flex; gap: 0.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Cancelar</button>
                     <button type="submit" class="btn btn-success">Guardar</button>
@@ -712,1072 +913,993 @@
     </div>
 
     <script>
-const app = {
-    currentUser: 'lisaurio',
-    currentView: 'list',
-    currentMonth: new Date(),
-    selectedDay: new Date(),
-    editingId: null,
-    currentFilter: 'all',
-    config: {
-        showTotal: true,
-        showExpenses: true,
-        showAddress: true,
-        showPhone: true,
-        showSeller: true,
-        sellers: {
-            lisaurio: { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' },
-            valentin: { name: 'Valentín', percentage: 30, isAdmin: false, color: '#f59e0b' }
-        },
-        musicians: {
-            valentin: { name: 'Valentín', defaultPay: 50000 }
-        }
-    },
-    shows: [],
-    changeLog: [],
-    github: {
-        token: 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN', // Replace with your token
-        owner: 'YOUR_GITHUB_USERNAME', // Replace with your GitHub username
-        repo: 'YOUR_REPOSITORY_NAME', // Replace with your repository name
-        path: 'data.json' // Path to data.json in your repo
-    },
-
-    async init() {
-        // Detectar usuario desde URL
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-            this.currentUser = hash.toLowerCase();
-        }
-
-        // Cargar datos desde GitHub
-        await this.loadData();
-
-        // Actualizar UI según usuario
-        this.updateUserUI();
-
-        // Renderizar vistas
-        this.renderList();
-        this.renderCalendar();
-        this.renderReports();
-        this.renderSellersList();
-        this.renderMusiciansList();
-        this.renderLinks();
-        this.updateShowCounter();
-
-        // Auto-guardar en cada cambio
-        window.addEventListener('beforeunload', () => {
-            this.saveData();
-        });
-    },
-
-    async loadData() {
-        try {
-            const response = await fetch(`https://api.github.com/repos/${this.github.owner}/${this.github.repo}/contents/${this.github.path}`, {
-                headers: {
-                    'Authorization': `token ${this.github.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
+        const app = {
+            currentUser: 'lisaurio',
+            currentView: 'list',
+            currentMonth: new Date(),
+            selectedDay: new Date(),
+            editingId: null,
+            currentFilter: 'all',
+            musicianPayments: [],
+            config: {
+                showTotal: true,
+                showExpenses: true,
+                showAddress: true,
+                showPhone: true,
+                showSeller: true,
+                sellers: {
+                    lisaurio: { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' },
+                    valentin: { name: 'Valentín', percentage: 30, isAdmin: false, color: '#f59e0b' }
+                },
+                musicians: {
+                    valentin: { name: 'Valentín', defaultPay: 50000 }
                 }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                const content = JSON.parse(atob(data.content));
-                this.shows = content.data.shows || [];
-                this.changeLog = content.data.changeLog || [];
-                this.config = { ...this.config, ...content.config };
+            },
+            shows: [],
+            changeLog: [],
+            dataUrl: 'data.json', // Relative path to data.json in the GitHub repository
+
+            init() {
+                // Detectar usuario desde URL
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    this.currentUser = hash.toLowerCase();
+                }
+
+                // Cargar datos locales
+                this.loadLocalData();
+
+                // Intentar cargar datos desde GitHub
+                this.loadDataFromGitHub();
+
+                // Actualizar UI según usuario
+                this.updateUserUI();
+
+                // Renderizar vistas
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+                this.updateShowCounter();
+
+                // Auto-guardar en cada cambio
+                window.addEventListener('beforeunload', () => {
+                    this.saveLocalData();
+                });
+            },
+
+            loadLocalData() {
+                const savedData = localStorage.getItem('showsLisaurioData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    this.shows = data.shows || [];
+                    this.changeLog = data.changeLog || [];
+                }
+                const savedConfig = localStorage.getItem('showsLisaurioConfig');
+                if (savedConfig) {
+                    this.config = JSON.parse(savedConfig);
+                }
+                // Asegurar que Lisaurio siempre existe
+                if (!this.config.sellers.lisaurio) {
+                    this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
+                }
+                if (!this.config.musicians) {
+                    this.config.musicians = { valentin: { name: 'Valentín', defaultPay: 50000 } };
+                }
                 this.updateCSSColors();
                 this.updateConfigToggles();
-            } else if (response.status === 404) {
-                console.log('No data.json found in repository, initializing with default data.');
-            } else {
-                throw new Error('Failed to load data from GitHub');
-            }
-        } catch (err) {
-            console.error('Error loading data:', err.message);
-            // Fallback to localStorage if GitHub fails
-            const saved = localStorage.getItem('showsLisaurioData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                this.shows = data.shows || [];
-                this.changeLog = data.changeLog || [];
-            }
-        }
-    },
-
-    async saveData() {
-        const data = {
-            data: {
-                shows: this.shows,
-                changeLog: this.changeLog
             },
-            config: this.config
-        };
 
-        try {
-            // Get the current file SHA (if it exists)
-            let sha = null;
-            try {
-                const response = await fetch(`https://api.github.com/repos/${this.github.owner}/${this.github.repo}/contents/${this.github.path}`, {
-                    headers: {
-                        'Authorization': `token ${this.github.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+            saveLocalData() {
+                localStorage.setItem('showsLisaurioData', JSON.stringify({ shows: this.shows, changeLog: this.changeLog }));
+                localStorage.setItem('showsLisaurioConfig', JSON.stringify(this.config));
+            },
+
+            async loadDataFromGitHub() {
+                try {
+                    const response = await fetch(this.dataUrl);
+                    if (response.ok) {
+                        const imported = await response.json();
+                        this.importData(imported);
+                        alert('Datos sincronizados desde GitHub.');
+                    } else {
+                        console.log('No se encontró data.json o error al cargar.');
                     }
-                });
-                if (response.ok) {
-                    const fileData = await response.json();
-                    sha = fileData.sha;
+                } catch (err) {
+                    console.log('Error al cargar data.json: ' + err.message);
                 }
-            } catch (err) {
-                console.log('File does not exist yet, will create new.');
-            }
+            },
 
-            // Save data to GitHub
-            const response = await fetch(`https://api.github.com/repos/${this.github.owner}/${this.github.repo}/contents/${this.github.path}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${this.github.token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `Update data.json by ${this.currentUser} at ${new Date().toISOString()}`,
-                    content: btoa(JSON.stringify(data, null, 2)),
-                    sha: sha
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save data to GitHub');
-            }
-
-            // Optionally save to localStorage as a backup
-            localStorage.setItem('showsLisaurioData', JSON.stringify({ shows: this.shows, changeLog: this.changeLog }));
-            localStorage.setItem('showsLisaurioConfig', JSON.stringify(this.config));
-        } catch (err) {
-            console.error('Error saving data:', err.message);
-            // Save to localStorage as fallback
-            localStorage.setItem('showsLisaurioData', JSON.stringify({ shows: this.shows, changeLog: this.changeLog }));
-            localStorage.setItem('showsLisaurioConfig', JSON.stringify(this.config));
-            alert('Failed to save to GitHub, data saved locally.');
-        }
-    },
-
-    loadConfig() {
-        // Config is now loaded as part of loadData
-        // Ensure Lisaurio exists
-        if (!this.config.sellers.lisaurio) {
-            this.config.sellers.lisaurio = { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' };
-        }
-        if (!this.config.musicians) {
-            this.config.musicians = { valentin: { name: 'Valentín', defaultPay: 50000 } };
-        }
-    },
-
-    saveConfig() {
-        // Config is saved as part of saveData
-        this.saveData();
-    },
-
-    updateCSSColors() {
-        Object.keys(this.config.sellers).forEach(sellerId => {
-            const seller = this.config.sellers[sellerId];
-            document.documentElement.style.setProperty(`--${sellerId}-color`, seller.color);
-        });
-    },
-
-    updateUserUI() {
-        const badge = document.getElementById('userBadge');
-        const navConfig = document.getElementById('navConfig');
-        const fab = document.getElementById('fabButton');
-        const seller = this.config.sellers[this.currentUser];
-        badge.textContent = seller ? seller.name : 'Usuario';
-        if (this.currentUser !== 'lisaurio') {
-            navConfig.style.display = 'none';
-        } else {
-            navConfig.style.display = 'flex';
-        }
-        fab.style.display = 'flex';
-    },
-
-    addSeller() {
-        const nameInput = document.getElementById('newSellerName');
-        const percentInput = document.getElementById('newSellerPercent');
-        const colorInput = document.getElementById('newSellerColor');
-        const name = nameInput.value.trim();
-        const percentage = parseFloat(percentInput.value);
-        const color = colorInput.value;
-        if (!name) {
-            alert('Ingresa un nombre para el vendedor');
-            return;
-        }
-        const sellerId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-        if (this.config.sellers[sellerId]) {
-            alert('Este vendedor ya existe');
-            return;
-        }
-        this.config.sellers[sellerId] = { name, percentage, isAdmin: false, color };
-        this.saveConfig();
-        this.renderSellersList();
-        this.renderLinks();
-        this.updateSellerOptions();
-        nameInput.value = '';
-        percentInput.value = '30';
-        colorInput.value = '#8b5cf6';
-        alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
-    },
-
-    addMusician() {
-        const nameInput = document.getElementById('newMusicianName');
-        const name = nameInput.value.trim();
-        if (!name) {
-            alert('Ingresa un nombre para el músico');
-            return;
-        }
-        const musicianId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-        if (this.config.musicians[musicianId]) {
-            alert('Este músico ya existe');
-            return;
-        }
-        this.config.musicians[musicianId] = { name, defaultPay: 50000 };
-        this.saveConfig();
-        this.renderMusiciansList();
-        nameInput.value = '';
-        alert(`Músico ${name} agregado`);
-    },
-
-    removeSeller(sellerId) {
-        if (sellerId === 'lisaurio') {
-            alert('No puedes eliminar a Lisaurio');
-            return;
-        }
-        if (!confirm(`¿Eliminar al vendedor ${this.config.sellers[sellerId].name}?`)) {
-            return;
-        }
-        delete this.config.sellers[sellerId];
-        this.saveConfig();
-        this.renderSellersList();
-        this.renderLinks();
-        this.updateSellerOptions();
-        this.renderList();
-    },
-
-    removeMusician(musicianId) {
-        if (!confirm(`¿Eliminar al músico ${this.config.musicians[musicianId].name}?`)) {
-            return;
-        }
-        delete this.config.musicians[musicianId];
-        this.saveConfig();
-        this.renderMusiciansList();
-    },
-
-    updateSellerPercentage(sellerId, newPercent) {
-        if (this.config.sellers[sellerId]) {
-            this.config.sellers[sellerId].percentage = parseFloat(newPercent);
-            this.saveConfig();
-        }
-    },
-
-    updateMusicianPay(musicianId, newPay) {
-        if (this.config.musicians[musicianId]) {
-            this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
-            this.saveConfig();
-        }
-    },
-
-    updateSellerColor(sellerId, newColor) {
-        if (this.config.sellers[sellerId]) {
-            this.config.sellers[sellerId].color = newColor;
-            this.saveConfig();
-            this.renderList();
-            this.renderCalendar();
-        }
-    },
-
-    renderSellersList() {
-        const container = document.getElementById('sellersList');
-        let html = '';
-        Object.keys(this.config.sellers).forEach(sellerId => {
-            const seller = this.config.sellers[sellerId];
-            const isLisaurio = sellerId === 'lisaurio';
-            html += `
-                <div class="musician-payment">
-                    <div style="flex: 1;">
-                        <strong>${seller.name}</strong>
-                        <br>
-                        <small style="color: var(--text-muted);">
-                            ${isLisaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
-                        </small>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="color" value="${seller.color}" style="width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer;" onchange="app.updateSellerColor('${sellerId}', this.value)">
-                        ${!isLisaurio ? `
-                            <input type="number" value="${seller.percentage}" min="0" max="100" style="width: 70px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);" onchange="app.updateSellerPercentage('${sellerId}', this.value)">
-                            <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    },
-
-    renderMusiciansList() {
-        const container = document.getElementById('musiciansList');
-        let html = '';
-        Object.keys(this.config.musicians).forEach(musicianId => {
-            const musician = this.config.musicians[musicianId];
-            html += `
-                <div class="musician-payment">
-                    <div style="flex: 1;">
-                        <strong>${musician.name}</strong>
-                        <br>
-                        <small style="color: var(--text-muted);">Pago por defecto: $${this.formatMoney(musician.defaultPay)}</small>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="number" value="${musician.defaultPay}" min="0" step="1000" style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);" onchange="app.updateMusicianPay('${musicianId}', this.value)">
-                        <button class="remove-musician" onclick="app.removeMusician('${musicianId}')">✕</button>
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    },
-
-    renderLinks() {
-        const container = document.getElementById('linksContainer');
-        const baseUrl = window.location.origin + window.location.pathname;
-        let html = '';
-        Object.keys(this.config.sellers).forEach(sellerId => {
-            const seller = this.config.sellers[sellerId];
-            const link = baseUrl + '#' + sellerId;
-            html += `
-                <div class="form-group">
-                    <label class="form-label">Enlace ${seller.name}</label>
-                    <input type="text" class="form-input" value="${link}" readonly id="link-${sellerId}">
-                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${sellerId}')">Copiar</button>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    },
-
-    copyLink(sellerId) {
-        const input = document.getElementById(`link-${sellerId}`);
-        input.select();
-        document.execCommand('copy');
-        alert('¡Enlace copiado!');
-    },
-
-    updateSellerOptions() {
-        const sellerSelect = document.getElementById('inputSeller');
-        const depositToSelect = document.getElementById('inputDepositTo');
-        let html = '';
-        Object.keys(this.config.sellers).forEach(sellerId => {
-            const seller = this.config.sellers[sellerId];
-            html += `<option value="${sellerId}">${seller.name}</option>`;
-        });
-        sellerSelect.innerHTML = html;
-        depositToSelect.innerHTML = html;
-    },
-
-    handleSellerChange() {
-        const seller = document.getElementById('inputSeller').value;
-        const musicianSection = document.getElementById('musicianPaymentsSection');
-        if (seller === 'lisaurio') {
-            musicianSection.style.display = 'block';
-            if (this.musicianPayments.length === 0) {
-                this.musicianPayments = [{ id: Date.now(), musician: 'valentin', amount: this.config.musicians.valentin?.defaultPay || 50000 }];
-                this.renderMusicianPayments();
-            }
-        } else {
-            musicianSection.style.display = 'none';
-            this.musicianPayments = [];
-            this.renderMusicianPayments();
-        }
-    },
-
-    addMusicianPayment() {
-        const id = Date.now();
-        this.musicianPayments.push({ id, musician: Object.keys(this.config.musicians)[0] || '', amount: this.config.musicians[Object.keys(this.config.musicians)[0]]?.defaultPay || 50000 });
-        this.renderMusicianPayments();
-    },
-
-    removeMusicianPayment(id) {
-        this.musicianPayments = this.musicianPayments.filter(m => m.id !== id);
-        this.renderMusicianPayments();
-    },
-
-    renderMusicianPayments() {
-        const container = document.getElementById('musicianPaymentsList');
-        if (this.musicianPayments.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-        let html = '';
-        this.musicianPayments.forEach(payment => {
-            html += `
-                <div class="musician-payment">
-                    <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
-                        <option value="">Seleccionar músico</option>
-                        ${Object.keys(this.config.musicians).map(m => `<option value="${m}" ${payment.musician === m ? 'selected' : ''}>${this.config.musicians[m].name}</option>`).join('')}
-                    </select>
-                    <input type="number" value="${payment.amount}" placeholder="Monto" min="0" step="1000" onchange="app.updateMusicianPayment(${payment.id}, 'amount', this.value)" style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
-                    <button class="remove-musician" onclick="app.removeMusicianPayment(${payment.id})">✕</button>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    },
-
-    updateMusicianPayment(id, field, value) {
-        const payment = this.musicianPayments.find(m => m.id === id);
-        if (payment) {
-            if (field === 'amount') {
-                payment[field] = parseFloat(value);
-            } else if (field === 'musician') {
-                payment[field] = value;
-                if (this.config.musicians[value]) {
-                    payment.amount = this.config.musicians[value].defaultPay;
-                    this.renderMusicianPayments();
-                }
-            }
-        }
-    },
-
-    calculateSaldo() {
-        const total = parseFloat(document.getElementById('inputTotal').value) || 0;
-        const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
-        const saldo = total - deposit;
-        document.getElementById('saldoValue').textContent = '$' + this.formatMoney(Math.max(0, saldo));
-    },
-
-    switchView(view) {
-        this.currentView = view;
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        if (view === 'calendar') this.renderCalendar();
-        if (view === 'reports') this.renderReports();
-        if (view === 'config') {
-            this.renderSellersList();
-            this.renderMusiciansList();
-            this.renderLinks();
-        }
-    },
-
-    openNewShowModal() {
-        this.editingId = null;
-        this.musicianPayments = [];
-        document.getElementById('modalTitle').textContent = 'Nuevo Show';
-        document.getElementById('modalShow').classList.add('active');
-        document.getElementById('inputEventType').value = '';
-        document.getElementById('inputDate').value = '';
-        document.getElementById('inputTime').value = '';
-        document.getElementById('inputAddress').value = '';
-        document.getElementById('inputPhone').value = '';
-        document.getElementById('inputTotal').value = '';
-        document.getElementById('inputDeposit').value = '0';
-        document.getElementById('inputExpenses').value = '0';
-        document.getElementById('inputNotes').value = '';
-        this.updateSellerOptions();
-        document.getElementById('inputSeller').value = this.currentUser;
-        document.getElementById('inputDepositTo').value = this.currentUser;
-        this.handleSellerChange();
-        this.calculateSaldo();
-    },
-
-    openEditModal(id) {
-        const currentShow = this.shows.find(s => s.id === id);
-        if (this.currentUser !== 'lisaurio' && currentShow.seller !== this.currentUser) return;
-        this.editingId = id;
-        document.getElementById('modalTitle').textContent = 'Editar Show';
-        document.getElementById('modalShow').classList.add('active');
-        document.getElementById('inputEventType').value = currentShow.eventType;
-        document.getElementById('inputDate').value = currentShow.date;
-        document.getElementById('inputTime').value = currentShow.time;
-        document.getElementById('inputAddress').value = currentShow.address;
-        document.getElementById('inputPhone').value = currentShow.phone;
-        document.getElementById('inputTotal').value = currentShow.total;
-        document.getElementById('inputDeposit').value = currentShow.deposit || 0;
-        document.getElementById('inputDepositTo').value = currentShow.depositTo || 'lisaurio';
-        document.getElementById('inputExpenses').value = currentShow.expenses || 0;
-        document.getElementById('inputNotes').value = currentShow.notes || '';
-        this.updateSellerOptions();
-        document.getElementById('inputSeller').value = currentShow.seller;
-        this.musicianPayments = currentShow.musicianPayments || [];
-        this.handleSellerChange();
-        this.renderMusicianPayments();
-        this.calculateSaldo();
-    },
-
-    closeModal() {
-        document.getElementById('modalShow').classList.remove('active');
-    },
-
-    async saveShow(event) {
-        event.preventDefault();
-        const seller = document.getElementById('inputSeller').value;
-        const total = parseFloat(document.getElementById('inputTotal').value);
-        const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
-        const depositTo = document.getElementById('inputDepositTo').value;
-        const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
-        const showData = {
-            id: this.editingId || Date.now(),
-            eventType: document.getElementById('inputEventType').value,
-            date: document.getElementById('inputDate').value,
-            time: document.getElementById('inputTime').value,
-            address: document.getElementById('inputAddress').value,
-            phone: document.getElementById('inputPhone').value,
-            total,
-            deposit,
-            depositTo,
-            expenses,
-            seller,
-            notes: document.getElementById('inputNotes').value,
-            musicianPayments: seller === 'lisaurio' ? [...this.musicianPayments] : [],
-            createdBy: this.currentUser,
-            createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-
-        const netAmount = total - expenses;
-        if (seller === 'lisaurio') {
-            let totalMusicianPayments = 0;
-            if (showData.musicianPayments) {
-                showData.musicianPayments.forEach(mp => {
-                    totalMusicianPayments += mp.amount;
+            updateCSSColors() {
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    document.documentElement.style.setProperty(`--${sellerId}-color`, seller.color);
                 });
-            }
-            const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
-            showData.saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
-        } else {
-            const sellerConfig = this.config.sellers[seller];
-            const commission = netAmount * (sellerConfig.percentage / 100);
-            const depositForSeller = depositTo === seller ? deposit : 0;
-            showData.saldoSeller = commission - depositForSeller;
-            const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
-            showData.saldoLisaurio = netAmount - commission - depositForLisaurio;
-        }
+            },
 
-        if (this.editingId) {
-            const index = this.shows.findIndex(s => s.id === this.editingId);
-            this.shows[index] = showData;
-            this.addToLog('edit', showData);
-        } else {
-            this.shows.push(showData);
-            this.addToLog('create', showData);
-        }
+            updateUserUI() {
+                const badge = document.getElementById('userBadge');
+                const navConfig = document.getElementById('navConfig');
+                const fab = document.getElementById('fabButton');
+                const seller = this.config.sellers[this.currentUser];
+                badge.textContent = seller ? seller.name : 'Usuario';
+                if (this.currentUser !== 'lisaurio') {
+                    navConfig.style.display = 'none';
+                } else {
+                    navConfig.style.display = 'flex';
+                }
+                fab.style.display = 'flex';
+            },
 
-        await this.saveData();
-        this.closeModal();
-        this.renderList();
-        this.renderCalendar();
-        this.renderReports();
-        this.updateShowCounter();
-    },
+            addSeller() {
+                const nameInput = document.getElementById('newSellerName');
+                const percentInput = document.getElementById('newSellerPercent');
+                const colorInput = document.getElementById('newSellerColor');
+                const name = nameInput.value.trim();
+                const percentage = parseFloat(percentInput.value);
+                const color = colorInput.value;
+                if (!name) {
+                    alert('Ingresa un nombre para el vendedor');
+                    return;
+                }
+                const sellerId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+                if (this.config.sellers[sellerId]) {
+                    alert('Este vendedor ya existe');
+                    return;
+                }
+                this.config.sellers[sellerId] = { name, percentage, isAdmin: false, color };
+                this.saveLocalData();
+                this.renderSellersList();
+                this.renderLinks();
+                this.updateSellerOptions();
+                nameInput.value = '';
+                percentInput.value = '30';
+                colorInput.value = '#8b5cf6';
+                alert(`Vendedor ${name} agregado con ${percentage}% de comisión`);
+            },
 
-    async deleteShow(id) {
-        const currentShow = this.shows.find(s => s.id === id);
-        if (this.currentUser !== 'lisaurio' && currentShow.seller !== this.currentUser) return;
-        if (!confirm('¿Eliminar este show?')) return;
-        this.shows = this.shows.filter(s => s.id !== id);
-        this.addToLog('delete', currentShow);
-        await this.saveData();
-        this.renderList();
-        this.renderCalendar();
-        this.renderReports();
-        this.updateShowCounter();
-    },
+            addMusician() {
+                const nameInput = document.getElementById('newMusicianName');
+                const name = nameInput.value.trim();
+                if (!name) {
+                    alert('Ingresa un nombre para el músico');
+                    return;
+                }
+                const musicianId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+                if (this.config.musicians[musicianId]) {
+                    alert('Este músico ya existe');
+                    return;
+                }
+                this.config.musicians[musicianId] = { name, defaultPay: 50000 };
+                this.saveLocalData();
+                this.renderMusiciansList();
+                nameInput.value = '';
+                alert(`Músico ${name} agregado`);
+            },
 
-    addToLog(action, show) {
-        this.changeLog.push({
-            id: Date.now(),
-            action,
-            show: { ...show },
-            user: this.currentUser,
-            timestamp: new Date().toISOString()
-        });
-    },
+            removeSeller(sellerId) {
+                if (sellerId === 'lisaurio') {
+                    alert('No puedes eliminar a Lisaurio');
+                    return;
+                }
+                if (!confirm(`¿Eliminar al vendedor ${this.config.sellers[sellerId].name}?`)) {
+                    return;
+                }
+                delete this.config.sellers[sellerId];
+                this.saveLocalData();
+                this.renderSellersList();
+                this.renderLinks();
+                this.updateSellerOptions();
+                this.renderList();
+            },
 
-    updateShowCounter() {
-        const counter = document.getElementById('showCounter');
-        const number = document.getElementById('showCountNumber');
-        const futureShows = this.shows.filter(s => {
-            const showDate = new Date(s.date + ' ' + s.time);
-            return showDate >= new Date();
-        });
-        if (futureShows.length > 0) {
-            number.textContent = futureShows.length;
-            counter.style.display = 'block';
-        } else {
-            counter.style.display = 'none';
-        }
-    },
+            removeMusician(musicianId) {
+                if (!confirm(`¿Eliminar al músico ${this.config.musicians[musicianId].name}?`)) {
+                    return;
+                }
+                delete this.config.musicians[musicianId];
+                this.saveLocalData();
+                this.renderMusiciansList();
+            },
 
-    renderList() {
-        const container = document.getElementById('showsList');
-        const empty = document.getElementById('emptyState');
-        const filterChips = document.getElementById('filterChips');
-        const legend = document.getElementById('legendContainer');
+            updateSellerPercentage(sellerId, newPercent) {
+                if (this.config.sellers[sellerId]) {
+                    this.config.sellers[sellerId].percentage = parseFloat(newPercent);
+                    this.saveLocalData();
+                }
+            },
 
-        let filtersHTML = '<div class="chip active" data-filter="all" onclick="app.filterShows(\'all\')">Todos</div>';
-        Object.keys(this.config.sellers).forEach(sellerId => {
-            const seller = this.config.sellers[sellerId];
-            filtersHTML += `<div class="chip" data-filter="${sellerId}" onclick="app.filterShows('${sellerId}')">${seller.name}</div>`;
-        });
-        filterChips.innerHTML = filtersHTML;
+            updateMusicianPay(musicianId, newPay) {
+                if (this.config.musicians[musicianId]) {
+                    this.config.musicians[musicianId].defaultPay = parseFloat(newPay);
+                    this.saveLocalData();
+                }
+            },
 
-        let legendHTML = '';
-        Object.keys(this.config.sellers).forEach(sellerId => {
-            const seller = this.config.sellers[sellerId];
-            legendHTML += `
-                <div class="legend-item">
-                    <div class="legend-color" style="background: ${seller.color};"></div>
-                    <span>${seller.name}</span>
-                </div>
-            `;
-        });
-        legend.innerHTML = legendHTML;
+            updateSellerColor(sellerId, newColor) {
+                if (this.config.sellers[sellerId]) {
+                    this.config.sellers[sellerId].color = newColor;
+                    this.saveLocalData();
+                    this.renderList();
+                    this.renderCalendar();
+                }
+            },
 
-        let shows = this.getFilteredShows();
-        shows.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-        if (shows.length === 0) {
-            container.innerHTML = '';
-            empty.style.display = 'block';
-            return;
-        }
-        empty.style.display = 'none';
-        container.innerHTML = shows.map(show => {
-            const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
-            const showDetails = this.shouldShowDetails(show);
-            const clientSaldo = show.total - show.deposit;
-            const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
-            return `
-                <div class="card" style="border-left-color: ${sellerColor};">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">${show.eventType}</div>
-                            <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
-                                ${this.formatDate(show.date)} • ${show.time}
-                            </div>
-                        </div>
-                        ${showDetails.showSeller ? `
-                            <div class="card-badge">${this.getSellerName(show.seller)}</div>
-                        ` : ''}
-                    </div>
-                    <div class="card-info">
-                        ${showDetails.showAddress ? `
-                            <div class="card-row">📍 ${show.address}</div>
-                        ` : `
-                            <div class="card-row">📍 Dirección asignada</div>
-                        `}
-                        ${showDetails.showPhone ? `
-                            <div class="card-row">📞 ${show.phone}</div>
-                        ` : ''}
-                        ${showDetails.showTotal ? `
-                            <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
-                        ` : ''}
-                        ${showDetails.canSeeDeposit ? `
-                            <div class="card-row">💵 Seña: $${this.formatMoney(show.deposit)} (${this.getSellerName(show.depositTo)})</div>
-                        ` : ''}
-                        ${showDetails.showExpenses && show.expenses > 0 ? `
-                            <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
-                        ` : ''}
-                        ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
-                    </div>
-                    ${this.renderSaldoSection(show, showDetails)}
-                    <div class="card-highlight">
-                        💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, clientSaldo))}
-                    </div>
-                    ${canEdit ? `
-                        <div class="card-actions">
-                            <button class="btn-small btn-primary" onclick="app.openEditModal(${show.id})">Editar</button>
-                            <button class="btn-small btn-danger" onclick="app.deleteShow(${show.id})">Eliminar</button>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }).join('');
-    },
-
-    renderSaldoSection(show, showDetails) {
-        if (!showDetails.canSeeSaldos) return '';
-        let html = '<div class="saldo-section">';
-        if (show.seller === 'lisaurio') {
-            html += `
-                <div class="saldo-row">
-                    <span>💵 Saldo Lisaurio:</span>
-                    <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
-                </div>
-            `;
-            if (show.musicianPayments && show.musicianPayments.length > 0) {
-                show.musicianPayments.forEach(mp => {
-                    const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
+            renderSellersList() {
+                const container = document.getElementById('sellersList');
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    const isLisaurio = sellerId === 'lisaurio';
                     html += `
-                        <div class="saldo-row">
-                            <span>💵 Saldo ${musicianName}:</span>
-                            <span>$${this.formatMoney(mp.amount)}</span>
+                        <div class="musician-payment">
+                            <div style="flex: 1;">
+                                <strong>${seller.name}</strong>
+                                <br>
+                                <small style="color: var(--text-muted);">
+                                    ${isLisaurio ? 'Administrador' : `Comisión: ${seller.percentage}%`}
+                                </small>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="color" value="${seller.color}" style="width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer;" onchange="app.updateSellerColor('${sellerId}', this.value)">
+                                ${!isLisaurio ? `
+                                    <input type="number" value="${seller.percentage}" min="0" max="100" style="width: 70px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);" onchange="app.updateSellerPercentage('${sellerId}', this.value)">
+                                    <button class="remove-musician" onclick="app.removeSeller('${sellerId}')">✕</button>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 });
-            }
-        } else {
-            const sellerName = this.getSellerName(show.seller);
-            if (this.currentUser === 'lisaurio' || this.currentUser === show.seller) {
-                html += `
-                    <div class="saldo-row">
-                        <span>💵 Saldo ${sellerName}:</span>
-                        <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
+                container.innerHTML = html;
+            },
+
+            renderMusiciansList() {
+                const container = document.getElementById('musiciansList');
+                let html = '';
+                Object.keys(this.config.musicians).forEach(musicianId => {
+                    const musician = this.config.musicians[musicianId];
+                    html += `
+                        <div class="musician-payment">
+                            <div style="flex: 1;">
+                                <strong>${musician.name}</strong>
+                                <br>
+                                <small style="color: var(--text-muted);">Pago por defecto: $${this.formatMoney(musician.defaultPay)}</small>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="number" value="${musician.defaultPay}" min="0" step="1000" style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text);" onchange="app.updateMusicianPay('${musicianId}', this.value)">
+                                <button class="remove-musician" onclick="app.removeMusician('${musicianId}')">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+
+            renderLinks() {
+                const container = document.getElementById('linksContainer');
+                const baseUrl = window.location.origin + window.location.pathname;
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    const link = baseUrl + '#' + sellerId;
+                    html += `
+                        <div class="form-group">
+                            <label class="form-label">Enlace ${seller.name}</label>
+                            <input type="text" class="form-input" value="${link}" readonly id="link-${sellerId}">
+                            <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="app.copyLink('${sellerId}')">Copiar</button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+
+            copyLink(sellerId) {
+                const input = document.getElementById(`link-${sellerId}`);
+                input.select();
+                document.execCommand('copy');
+                alert('¡Enlace copiado!');
+            },
+
+            updateSellerOptions() {
+                const sellerSelect = document.getElementById('inputSeller');
+                const depositToSelect = document.getElementById('inputDepositTo');
+                let html = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    html += `<option value="${sellerId}">${seller.name}</option>`;
+                });
+                sellerSelect.innerHTML = html;
+                depositToSelect.innerHTML = html;
+            },
+
+            handleSellerChange() {
+                const seller = document.getElementById('inputSeller').value;
+                const musicianSection = document.getElementById('musicianPaymentsSection');
+                if (seller === 'lisaurio') {
+                    musicianSection.style.display = 'block';
+                    if (this.musicianPayments.length === 0) {
+                        this.musicianPayments = [{ id: Date.now(), musician: 'valentin', amount: this.config.musicians.valentin?.defaultPay || 50000 }];
+                        this.renderMusicianPayments();
+                    }
+                } else {
+                    musicianSection.style.display = 'none';
+                    this.musicianPayments = [];
+                    this.renderMusicianPayments();
+                }
+            },
+
+            addMusicianPayment() {
+                const id = Date.now();
+                this.musicianPayments.push({ id, musician: Object.keys(this.config.musicians)[0] || '', amount: this.config.musicians[Object.keys(this.config.musicians)[0]]?.defaultPay || 50000 });
+                this.renderMusicianPayments();
+            },
+
+            removeMusicianPayment(id) {
+                this.musicianPayments = this.musicianPayments.filter(m => m.id !== id);
+                this.renderMusicianPayments();
+            },
+
+            renderMusicianPayments() {
+                const container = document.getElementById('musicianPaymentsList');
+                if (this.musicianPayments.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+                let html = '';
+                this.musicianPayments.forEach(payment => {
+                    html += `
+                        <div class="musician-payment">
+                            <select onchange="app.updateMusicianPayment(${payment.id}, 'musician', this.value)" style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
+                                <option value="">Seleccionar músico</option>
+                                ${Object.keys(this.config.musicians).map(m => `<option value="${m}" ${payment.musician === m ? 'selected' : ''}>${this.config.musicians[m].name}</option>`).join('')}
+                            </select>
+                            <input type="number" value="${payment.amount}" placeholder="Monto" min="0" step="1000" onchange="app.updateMusicianPayment(${payment.id}, 'amount', this.value)" style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-right: 0.5rem;">
+                            <button class="remove-musician" onclick="app.removeMusicianPayment(${payment.id})">✕</button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+
+            updateMusicianPayment(id, field, value) {
+                const payment = this.musicianPayments.find(m => m.id === id);
+                if (payment) {
+                    if (field === 'amount') {
+                        payment[field] = parseFloat(value);
+                    } else if (field === 'musician') {
+                        payment[field] = value;
+                        if (this.config.musicians[value]) {
+                            payment.amount = this.config.musicians[value].defaultPay;
+                            this.renderMusicianPayments();
+                        }
+                    }
+                }
+            },
+
+            calculateSaldo() {
+                const total = parseFloat(document.getElementById('inputTotal').value) || 0;
+                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+                const saldo = total - deposit;
+                document.getElementById('saldoValue').textContent = '$' + this.formatMoney(Math.max(0, saldo));
+            },
+
+            switchView(view) {
+                this.currentView = view;
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+                if (view === 'calendar') this.renderCalendar();
+                if (view === 'reports') this.renderReports();
+                if (view === 'config') {
+                    this.renderSellersList();
+                    this.renderMusiciansList();
+                    this.renderLinks();
+                }
+            },
+
+            openNewShowModal() {
+                this.editingId = null;
+                this.musicianPayments = [];
+                document.getElementById('modalTitle').textContent = 'Nuevo Show';
+                document.getElementById('modalShow').classList.add('active');
+                document.getElementById('inputEventType').value = '';
+                document.getElementById('inputDate').value = '';
+                document.getElementById('inputTime').value = '';
+                document.getElementById('inputAddress').value = '';
+                document.getElementById('inputPhone').value = '';
+                document.getElementById('inputTotal').value = '';
+                document.getElementById('inputDeposit').value = '0';
+                document.getElementById('inputExpenses').value = '0';
+                document.getElementById('inputNotes').value = '';
+                this.updateSellerOptions();
+                document.getElementById('inputSeller').value = this.currentUser;
+                document.getElementById('inputDepositTo').value = this.currentUser;
+                this.handleSellerChange();
+                this.calculateSaldo();
+            },
+
+            openEditModal(id) {
+                const currentShow = this.shows.find(s => s.id === id);
+                if (this.currentUser !== 'lisaurio' && currentShow.seller !== this.currentUser) return;
+                this.editingId = id;
+                document.getElementById('modalTitle').textContent = 'Editar Show';
+                document.getElementById('modalShow').classList.add('active');
+                document.getElementById('inputEventType').value = currentShow.eventType;
+                document.getElementById('inputDate').value = currentShow.date;
+                document.getElementById('inputTime').value = currentShow.time;
+                document.getElementById('inputAddress').value = currentShow.address;
+                document.getElementById('inputPhone').value = currentShow.phone;
+                document.getElementById('inputTotal').value = currentShow.total;
+                document.getElementById('inputDeposit').value = currentShow.deposit || 0;
+                document.getElementById('inputDepositTo').value = currentShow.depositTo || 'lisaurio';
+                document.getElementById('inputExpenses').value = currentShow.expenses || 0;
+                document.getElementById('inputNotes').value = currentShow.notes || '';
+                this.updateSellerOptions();
+                document.getElementById('inputSeller').value = currentShow.seller;
+                this.musicianPayments = currentShow.musicianPayments || [];
+                this.handleSellerChange();
+                this.renderMusicianPayments();
+                this.calculateSaldo();
+            },
+
+            closeModal() {
+                document.getElementById('modalShow').classList.remove('active');
+            },
+
+            saveShow(event) {
+                event.preventDefault();
+                const seller = document.getElementById('inputSeller').value;
+                const total = parseFloat(document.getElementById('inputTotal').value);
+                const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
+                const depositTo = document.getElementById('inputDepositTo').value;
+                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
+                const showData = {
+                    id: this.editingId || Date.now(),
+                    eventType: document.getElementById('inputEventType').value,
+                    date: document.getElementById('inputDate').value,
+                    time: document.getElementById('inputTime').value,
+                    address: document.getElementById('inputAddress').value,
+                    phone: document.getElementById('inputPhone').value,
+                    total,
+                    deposit,
+                    depositTo,
+                    expenses,
+                    seller,
+                    notes: document.getElementById('inputNotes').value,
+                    musicianPayments: seller === 'lisaurio' ? [...this.musicianPayments] : [],
+                    createdBy: this.currentUser,
+                    createdAt: this.editingId ? this.shows.find(s => s.id === this.editingId).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                const netAmount = total - expenses;
+                if (seller === 'lisaurio') {
+                    let totalMusicianPayments = 0;
+                    if (showData.musicianPayments) {
+                        showData.musicianPayments.forEach(mp => {
+                            totalMusicianPayments += mp.amount;
+                        });
+                    }
+                    const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                    showData.saldoLisaurio = netAmount - totalMusicianPayments - depositForLisaurio;
+                } else {
+                    const sellerConfig = this.config.sellers[seller];
+                    const commission = netAmount * (sellerConfig.percentage / 100);
+                    const depositForSeller = depositTo === seller ? deposit : 0;
+                    showData.saldoSeller = commission - depositForSeller;
+                    const depositForLisaurio = depositTo === 'lisaurio' ? deposit : 0;
+                    showData.saldoLisaurio = netAmount - commission - depositForLisaurio;
+                }
+
+                if (this.editingId) {
+                    const index = this.shows.findIndex(s => s.id === this.editingId);
+                    this.shows[index] = showData;
+                    this.addToLog('edit', showData);
+                } else {
+                    this.shows.push(showData);
+                    this.addToLog('create', showData);
+                }
+
+                this.saveLocalData();
+                this.closeModal();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.updateShowCounter();
+            },
+
+            deleteShow(id) {
+                const currentShow = this.shows.find(s => s.id === id);
+                if (this.currentUser !== 'lisaurio' && currentShow.seller !== this.currentUser) return;
+                if (!confirm('¿Eliminar este show?')) return;
+                this.shows = this.shows.filter(s => s.id !== id);
+                this.addToLog('delete', currentShow);
+                this.saveLocalData();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.updateShowCounter();
+            },
+
+            addToLog(action, show) {
+                this.changeLog.push({
+                    id: Date.now(),
+                    action,
+                    show: { ...show },
+                    user: this.currentUser,
+                    timestamp: new Date().toISOString()
+                });
+            },
+
+            updateShowCounter() {
+                const counter = document.getElementById('showCounter');
+                const number = document.getElementById('showCountNumber');
+                const futureShows = this.shows.filter(s => {
+                    const showDate = new Date(s.date + ' ' + s.time);
+                    return showDate >= new Date();
+                });
+                if (futureShows.length > 0) {
+                    number.textContent = futureShows.length;
+                    counter.style.display = 'block';
+                } else {
+                    counter.style.display = 'none';
+                }
+            },
+
+            renderList() {
+                const container = document.getElementById('showsList');
+                const empty = document.getElementById('emptyState');
+                const filterChips = document.getElementById('filterChips');
+                const legend = document.getElementById('legendContainer');
+
+                let filtersHTML = '<div class="chip active" data-filter="all" onclick="app.filterShows(\'all\')">Todos</div>';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    filtersHTML += `<div class="chip" data-filter="${sellerId}" onclick="app.filterShows('${sellerId}')">${seller.name}</div>`;
+                });
+                filterChips.innerHTML = filtersHTML;
+
+                let legendHTML = '';
+                Object.keys(this.config.sellers).forEach(sellerId => {
+                    const seller = this.config.sellers[sellerId];
+                    legendHTML += `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: ${seller.color};"></div>
+                            <span>${seller.name}</span>
+                        </div>
+                    `;
+                });
+                legend.innerHTML = legendHTML;
+
+                let shows = this.getFilteredShows();
+                shows.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+                if (shows.length === 0) {
+                    container.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+                empty.style.display = 'none';
+                container.innerHTML = shows.map(show => {
+                    const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
+                    const showDetails = this.shouldShowDetails(show);
+                    const clientSaldo = show.total - show.deposit;
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+                    return `
+                        <div class="card" style="border-left-color: ${sellerColor};">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">${show.eventType}</div>
+                                    <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
+                                        ${this.formatDate(show.date)} • ${show.time}
+                                    </div>
+                                </div>
+                                ${showDetails.showSeller ? `
+                                    <div class="card-badge">${this.getSellerName(show.seller)}</div>
+                                ` : ''}
+                            </div>
+                            <div class="card-info">
+                                ${showDetails.showAddress ? `
+                                    <div class="card-row">📍 ${show.address}</div>
+                                ` : `
+                                    <div class="card-row">📍 Dirección asignada</div>
+                                `}
+                                ${showDetails.showPhone ? `
+                                    <div class="card-row">📞 ${show.phone}</div>
+                                ` : ''}
+                                ${showDetails.showTotal ? `
+                                    <div class="card-row">💰 Total: $${this.formatMoney(show.total)}</div>
+                                ` : ''}
+                                ${showDetails.canSeeDeposit ? `
+                                    <div class="card-row">💵 Seña: $${this.formatMoney(show.deposit)} (${this.getSellerName(show.depositTo)})</div>
+                                ` : ''}
+                                ${showDetails.showExpenses && show.expenses > 0 ? `
+                                    <div class="card-row">🚗 Gastos: $${this.formatMoney(show.expenses)}</div>
+                                ` : ''}
+                                ${show.notes && showDetails.showFullDetails ? `<div class="card-row">📝 ${show.notes}</div>` : ''}
+                            </div>
+                            ${this.renderSaldoSection(show, showDetails)}
+                            <div class="card-highlight">
+                                💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, clientSaldo))}
+                            </div>
+                            ${canEdit ? `
+                                <div class="card-actions">
+                                    <button class="btn-small btn-primary" onclick="app.openEditModal(${show.id})">Editar</button>
+                                    <button class="btn-small btn-danger" onclick="app.deleteShow(${show.id})">Eliminar</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            renderSaldoSection(show, showDetails) {
+                if (!showDetails.canSeeSaldos) return '';
+                let html = '<div class="saldo-section">';
+                if (show.seller === 'lisaurio') {
+                    html += `
+                        <div class="saldo-row">
+                            <span>💵 Saldo Lisaurio:</span>
+                            <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                        </div>
+                    `;
+                    if (show.musicianPayments && show.musicianPayments.length > 0) {
+                        show.musicianPayments.forEach(mp => {
+                            const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
+                            html += `
+                                <div class="saldo-row">
+                                    <span>💵 Saldo ${musicianName}:</span>
+                                    <span>$${this.formatMoney(mp.amount)}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                } else {
+                    const sellerName = this.getSellerName(show.seller);
+                    if (this.currentUser === 'lisaurio' || this.currentUser === show.seller) {
+                        html += `
+                            <div class="saldo-row">
+                                <span>💵 Saldo ${sellerName}:</span>
+                                <span>$${this.formatMoney(show.saldoSeller || 0)}</span>
+                            </div>
+                            <div class="saldo-row">
+                                <span>💵 Saldo Lisaurio:</span>
+                                <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                            </div>
+                        `;
+                    }
+                }
+                html += '</div>';
+                return html;
+            },
+
+            filterShows(filter) {
+                this.currentFilter = filter;
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+                this.renderList();
+            },
+
+            renderCalendar() {
+                const grid = document.getElementById('calendarGrid');
+                const title = document.getElementById('calendarTitle');
+                const year = this.currentMonth.getFullYear();
+                const month = this.currentMonth.getMonth();
+                const monthName = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
+                title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+                const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+                let html = days.map(d => `<div class="calendar-day header">${d}</div>`).join('');
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
+                }
+                const today = new Date();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const hasShow = this.shows.some(s => s.date === date);
+                    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+                    let classes = 'calendar-day';
+                    if (hasShow) classes += ' has-show';
+                    if (isToday) classes += ' today';
+                    html += `<div class="${classes}" onclick="app.selectDay('${date}')">${day}</div>`;
+                }
+                grid.innerHTML = html;
+                this.renderDayShows();
+            },
+
+            renderDayShows() {
+                const container = document.getElementById('dayShows');
+                const dateStr = this.selectedDay.toISOString().split('T')[0];
+                const dayShows = this.shows.filter(s => s.date === dateStr);
+                if (dayShows.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
+                    return;
+                }
+                container.innerHTML = dayShows.map(show => {
+                    const showDetails = this.shouldShowDetails(show);
+                    const clientSaldo = show.total - show.deposit;
+                    const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
+                    return `
+                        <div class="card" style="border-left-color: ${sellerColor};">
+                            <div class="card-header">
+                                <div class="card-title">${show.eventType}</div>
+                                <div class="card-badge">${show.time}</div>
+                            </div>
+                            <div class="card-info">
+                                ${showDetails.showAddress ? `
+                                    <div class="card-row">📍 ${show.address}</div>
+                                ` : `
+                                    <div class="card-row">📍 Dirección asignada</div>
+                                `}
+                                ${showDetails.showPhone ? `
+                                    <div class="card-row">📞 ${show.phone}</div>
+                                ` : ''}
+                                ${showDetails.showSeller ? `
+                                    <div class="card-row">👤 ${this.getSellerName(show.seller)}</div>
+                                ` : ''}
+                            </div>
+                            ${this.renderSaldoSection(show, showDetails)}
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            renderReports() {
+                const statsContainer = document.getElementById('statsContainer');
+                const logContainer = document.getElementById('changeLog');
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                const monthShows = this.shows.filter(s => {
+                    const showDate = new Date(s.date);
+                    return showDate.getMonth() === currentMonth && showDate.getFullYear() === currentYear;
+                });
+                let totalIncome = 0;
+                let lisaurioIncome = 0;
+                const sellerIncomes = {};
+                monthShows.forEach(show => {
+                    totalIncome += show.total;
+                    lisaurioIncome += (show.saldoLisaurio || 0);
+                    if (show.seller === 'lisaurio') {
+                        if (show.musicianPayments) {
+                            show.musicianPayments.forEach(mp => {
+                                const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
+                                sellerIncomes[musicianName] = (sellerIncomes[musicianName] || 0) + mp.amount;
+                            });
+                        }
+                    } else {
+                        const sellerName = this.getSellerName(show.seller);
+                        sellerIncomes[sellerName] = (sellerIncomes[sellerName] || 0) + (show.saldoSeller || 0);
+                    }
+                });
+                let statsHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">$${this.formatMoney(totalIncome)}</div>
+                        <div class="stat-label">Ingresos Totales</div>
                     </div>
-                    <div class="saldo-row">
-                        <span>💵 Saldo Lisaurio:</span>
-                        <span>$${this.formatMoney(show.saldoLisaurio || 0)}</span>
+                    <div class="stat-card">
+                        <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
+                        <div class="stat-label">Para Lisaurio</div>
                     </div>
                 `;
-            }
-        }
-        html += '</div>';
-        return html;
-    },
-
-    filterShows(filter) {
-        this.currentFilter = filter;
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
-        this.renderList();
-    },
-
-    renderCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        const title = document.getElementById('calendarTitle');
-        const year = this.currentMonth.getFullYear();
-        const month = this.currentMonth.getMonth();
-        const monthName = new Date(year, month).toLocaleDateString('es', { month: 'long', year: 'numeric' });
-        title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const daysInPrevMonth = new Date(year, month, 0).getDate();
-        const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-        let html = days.map(d => `<div class="calendar-day header">${d}</div>`).join('');
-        for (let i = firstDay - 1; i >= 0; i--) {
-            html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
-        }
-        const today = new Date();
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const hasShow = this.shows.some(s => s.date === date);
-            const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
-            let classes = 'calendar-day';
-            if (hasShow) classes += ' has-show';
-            if (isToday) classes += ' today';
-            html += `<div class="${classes}" onclick="app.selectDay('${date}')">${day}</div>`;
-        }
-        grid.innerHTML = html;
-        this.renderDayShows();
-    },
-
-    renderDayShows() {
-        const container = document.getElementById('dayShows');
-        const dateStr = this.selectedDay.toISOString().split('T')[0];
-        const dayShows = this.shows.filter(s => s.date === dateStr);
-        if (dayShows.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay shows este día</p></div>';
-            return;
-        }
-        container.innerHTML = dayShows.map(show => {
-            const showDetails = this.shouldShowDetails(show);
-            const clientSaldo = show.total - show.deposit;
-            const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
-            return `
-                <div class="card" style="border-left-color: ${sellerColor};">
-                    <div class="card-header">
-                        <div class="card-title">${show.eventType}</div>
-                        <div class="card-badge">${show.time}</div>
-                    </div>
-                    <div class="card-info">
-                        ${showDetails.showAddress ? `
-                            <div class="card-row">📍 ${show.address}</div>
-                        ` : `
-                            <div class="card-row">📍 Dirección asignada</div>
-                        `}
-                        ${showDetails.showPhone ? `
-                            <div class="card-row">📞 ${show.phone}</div>
-                        ` : ''}
-                        ${showDetails.showSeller ? `
-                            <div class="card-row">👤 ${this.getSellerName(show.seller)}</div>
-                        ` : ''}
-                    </div>
-                    ${this.renderSaldoSection(show, showDetails)}
-                </div>
-            `;
-        }).join('');
-    },
-
-    renderReports() {
-        const statsContainer = document.getElementById('statsContainer');
-        const logContainer = document.getElementById('changeLog');
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-        const monthShows = this.shows.filter(s => {
-            const showDate = new Date(s.date);
-            return showDate.getMonth() === currentMonth && showDate.getFullYear() === currentYear;
-        });
-        let totalIncome = 0;
-        let lisaurioIncome = 0;
-        const sellerIncomes = {};
-        monthShows.forEach(show => {
-            totalIncome += show.total;
-            lisaurioIncome += (show.saldoLisaurio || 0);
-            if (show.seller === 'lisaurio') {
-                if (show.musicianPayments) {
-                    show.musicianPayments.forEach(mp => {
-                        const musicianName = this.config.musicians[mp.musician]?.name || mp.musician;
-                        sellerIncomes[musicianName] = (sellerIncomes[musicianName] || 0) + mp.amount;
-                    });
-                }
-            } else {
-                const sellerName = this.getSellerName(show.seller);
-                sellerIncomes[sellerName] = (sellerIncomes[sellerName] || 0) + (show.saldoSeller || 0);
-            }
-        });
-        let statsHTML = `
-            <div class="stat-card">
-                <div class="stat-value">$${this.formatMoney(totalIncome)}</div>
-                <div class="stat-label">Ingresos Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">$${this.formatMoney(lisaurioIncome)}</div>
-                <div class="stat-label">Para Lisaurio</div>
-            </div>
-        `;
-        Object.keys(sellerIncomes).forEach(name => {
-            statsHTML += `
-                <div class="stat-card">
-                    <div class="stat-value">$${this.formatMoney(sellerIncomes[name])}</div>
-                    <div class="stat-label">${name}</div>
-                </div>
-            `;
-        });
-        statsContainer.innerHTML = statsHTML;
-        const recentLogs = [...this.changeLog].reverse().slice(0, 20);
-        if (recentLogs.length === 0) {
-            logContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>No hay cambios registrados</p></div>';
-            return;
-        }
-        logContainer.innerHTML = recentLogs.map(log => {
-            const actionEmoji = { create: '➕', edit: '✏️', delete: '🗑️' };
-            const actionText = { create: 'Creado', edit: 'Editado', delete: 'Eliminado' };
-            return `
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                        <div>
-                            <span style="font-size: 1.25rem;">${actionEmoji[log.action]}</span>
-                            <strong style="margin-left: 0.5rem;">${actionText[log.action]}</strong>
+                Object.keys(sellerIncomes).forEach(name => {
+                    statsHTML += `
+                        <div class="stat-card">
+                            <div class="stat-value">$${this.formatMoney(sellerIncomes[name])}</div>
+                            <div class="stat-label">${name}</div>
                         </div>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">
-                            ${this.formatDateTime(log.timestamp)}
-                        </span>
-                    </div>
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">
-                        ${log.show.eventType} - ${this.formatDate(log.show.date)}
-                        <br>
-                        Por: ${this.getSellerName(log.user)}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    },
-
-    selectDay(dateStr) {
-        this.selectedDay = new Date(dateStr + 'T12:00:00');
-        this.renderDayShows();
-    },
-
-    prevMonth() {
-        this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
-        this.renderCalendar();
-    },
-
-    nextMonth() {
-        this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
-        this.renderCalendar();
-    },
-
-    getFilteredShows() {
-        if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
-            return this.shows.filter(s => s.seller === this.currentUser || s.depositTo === this.currentUser || (s.musicianPayments && s.musicianPayments.some(mp => mp.musician === this.currentUser)));
-        }
-        if (this.currentFilter === 'all') {
-            return this.shows;
-        }
-        return this.shows.filter(s => s.seller === this.currentFilter);
-    },
-
-    shouldShowDetails(show) {
-        if (this.currentUser === 'lisaurio') {
-            return {
-                showTotal: true,
-                showExpenses: true,
-                canSeeDeposit: true,
-                showAddress: true,
-                showPhone: true,
-                showSeller: true,
-                canSeeSaldos: true,
-                showFullDetails: true
-            };
-        }
-        if (show.seller === this.currentUser) {
-            return {
-                showTotal: true,
-                showExpenses: true,
-                canSeeDeposit: true,
-                showAddress: true,
-                showPhone: true,
-                showSeller: true,
-                canSeeSaldos: true,
-                showFullDetails: true
-            };
-        }
-        return {
-            showTotal: false,
-            showExpenses: false,
-            canSeeDeposit: false,
-            showAddress: false,
-            showPhone: false,
-            showSeller: false,
-            canSeeSaldos: false,
-            showFullDetails: false
-        };
-    },
-
-    async toggleConfig(key) {
-        this.config[key] = !this.config[key];
-        await this.saveConfig();
-        this.updateConfigToggles();
-        this.renderList();
-        this.renderCalendar();
-    },
-
-    updateConfigToggles() {
-        ['showTotal', 'showExpenses', 'showAddress', 'showPhone', 'showSeller'].forEach(key => {
-            const toggle = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
-            if (toggle) {
-                toggle.classList.toggle('active', this.config[key]);
-            }
-        });
-    },
-
-    async clearAllData() {
-        if (this.currentUser !== 'lisaurio') return;
-        if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
-        if (!confirm('¿Estás completamente seguro?')) return;
-        this.shows = [];
-        this.changeLog = [];
-        this.config = {
-            showTotal: true,
-            showExpenses: true,
-            showAddress: true,
-            showPhone: true,
-            showSeller: true,
-            sellers: {
-                lisaurio: { name: 'Lisaurio', percentage: 0, isAdmin: true, color: '#10b981' }
+                    `;
+                });
+                statsContainer.innerHTML = statsHTML;
+                const recentLogs = [...this.changeLog].reverse().slice(0, 20);
+                if (recentLogs.length === 0) {
+                    logContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>No hay cambios registrados</p></div>';
+                    return;
+                }
+                logContainer.innerHTML = recentLogs.map(log => {
+                    const actionEmoji = { create: '➕', edit: '✏️', delete: '🗑️' };
+                    const actionText = { create: 'Creado', edit: 'Editado', delete: 'Eliminado' };
+                    return `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <div>
+                                    <span style="font-size: 1.25rem;">${actionEmoji[log.action]}</span>
+                                    <strong style="margin-left: 0.5rem;">${actionText[log.action]}</strong>
+                                </div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                                    ${this.formatDateTime(log.timestamp)}
+                                </span>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">
+                                ${log.show.eventType} - ${this.formatDate(log.show.date)}
+                                <br>
+                                Por: ${this.getSellerName(log.user)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             },
-            musicians: {}
-        };
-        await this.saveData();
-        location.reload();
-    },
 
-    exportData() {
-        const data = {
-            data: { shows: this.shows, changeLog: this.changeLog },
-            config: this.config
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'showsLisaurioData.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        alert('Datos exportados. Sube este archivo JSON a tu repo de GitHub para sincronizar.');
-    },
+            selectDay(dateStr) {
+                this.selectedDay = new Date(dateStr + 'T12:00:00');
+                this.renderDayShows();
+            },
 
-    async importData(imported) {
-        if (imported.data) {
-            this.shows = imported.data.shows || this.shows;
-            this.changeLog = imported.data.changeLog || this.changeLog;
-        }
-        if (imported.config) {
-            this.config = { ...this.config, ...imported.config };
-        }
-        await this.saveData();
-        this.renderList();
-        this.renderCalendar();
-        this.renderReports();
-        this.renderSellersList();
-        this.renderMusiciansList();
-        this.renderLinks();
-        this.updateShowCounter();
-    },
+            prevMonth() {
+                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+                this.renderCalendar();
+            },
 
-    importFromFile(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const imported = JSON.parse(e.target.result);
-                await this.importData(imported);
-                alert('Datos importados exitosamente.');
-            } catch (err) {
-                alert('Error al importar: ' + err.message);
+            nextMonth() {
+                this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+                this.renderCalendar();
+            },
+
+            getFilteredShows() {
+                if (this.currentUser !== 'lisaurio' && this.currentView === 'list') {
+                    return this.shows.filter(s => s.seller === this.currentUser || s.depositTo === this.currentUser || (s.musicianPayments && s.musicianPayments.some(mp => mp.musician === this.currentUser)));
+                }
+                if (this.currentFilter === 'all') {
+                    return this.shows;
+                }
+                return this.shows.filter(s => s.seller === this.currentFilter);
+            },
+
+            shouldShowDetails(show) {
+                if (this.currentUser === 'lisaurio') {
+                    return {
+                        showTotal: true,
+                        showExpenses: true,
+                        canSeeDeposit: true,
+                        showAddress: true,
+                        showPhone: true,
+                        showSeller: true,
+                        canSeeSaldos: true,
+                        showFullDetails: true
+                    };
+                }
+                if (show.seller === this.currentUser) {
+                    return {
+                        showTotal: true,
+                        showExpenses: true,
+                        canSeeDeposit: true,
+                        showAddress: true,
+                        showPhone: true,
+                        showSeller: true,
+                        canSeeSaldos: true,
+                        showFullDetails: true
+                    };
+                }
+                return {
+                    showTotal: false,
+                    showExpenses: false,
+                    canSeeDeposit: false,
+                    showAddress: false,
+                    showPhone: false,
+                    showSeller: false,
+                    canSeeSaldos: false,
+                    showFullDetails: false
+                };
+            },
+
+            toggleConfig(key) {
+                this.config[key] = !this.config[key];
+                this.saveLocalData();
+                this.updateConfigToggles();
+                this.renderList();
+                this.renderCalendar();
+            },
+
+            updateConfigToggles() {
+                ['showTotal', 'showExpenses', 'showAddress', 'showPhone', 'showSeller'].forEach(key => {
+                    const toggle = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if (toggle) {
+                        toggle.classList.toggle('active', this.config[key]);
+                    }
+                });
+            },
+
+            clearAllData() {
+                if (this.currentUser !== 'lisaurio') return;
+                if (!confirm('¿ELIMINAR TODOS LOS DATOS? Esta acción no se puede deshacer.')) return;
+                if (!confirm('¿Estás completamente seguro?')) return;
+                localStorage.removeItem('showsLisaurioData');
+                localStorage.removeItem('showsLisaurioConfig');
+                location.reload();
+            },
+
+            exportData() {
+                const data = {
+                    data: { shows: this.shows, changeLog: this.changeLog },
+                    config: this.config
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'showsLisaurioData.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('Datos exportados. Sube este archivo JSON a tu repo de GitHub para sincronizar.');
+            },
+
+            importData(imported) {
+                if (imported.data) {
+                    this.shows = imported.data.shows || this.shows;
+                    this.changeLog = imported.data.changeLog || this.changeLog;
+                }
+                if (imported.config) {
+                    this.config = { ...this.config, ...imported.config };
+                }
+                this.saveLocalData();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+                this.updateShowCounter();
+            },
+
+            importFromFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        this.importData(imported);
+                        alert('Datos importados exitosamente.');
+                    } catch (err) {
+                        alert('Error al importar: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            async importFromUrl() {
+                const url = document.getElementById('importUrl').value.trim();
+                if (!url) {
+                    alert('Ingresa una URL válida.');
+                    return;
+                }
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Error al cargar desde URL');
+                    const imported = await response.json();
+                    this.importData(imported);
+                    alert('Datos importados desde URL exitosamente.');
+                } catch (err) {
+                    alert('Error al importar desde URL: ' + err.message);
+                }
+            },
+
+            getSellerName(sellerId) {
+                return this.config.sellers[sellerId] ? this.config.sellers[sellerId].name : sellerId;
+            },
+
+            formatMoney(amount) {
+                return new Intl.NumberFormat('es-AR').format(amount);
+            },
+
+            formatDate(dateStr) {
+                return new Date(dateStr + 'T12:00:00').toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+            },
+
+            formatDateTime(isoStr) {
+                return new Date(isoStr).toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
             }
         };
-        reader.readAsText(file);
-    },
 
-    async importFromUrl() {
-        const url = document.getElementById('importUrl').value.trim();
-        if (!url) {
-            alert('Ingresa una URL válida.');
-            return;
-        }
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Error al cargar desde URL');
-            const imported = await response.json();
-            await this.importData(imported);
-            alert('Datos importados desde URL exitosamente.');
-        } catch (err) {
-            alert('Error al importar desde URL: ' + err.message);
-        }
-    },
-
-    getSellerName(sellerId) {
-        return this.config.sellers[sellerId] ? this.config.sellers[sellerId].name : sellerId;
-    },
-
-    formatMoney(amount) {
-        return new Intl.NumberFormat('es-AR').format(amount);
-    },
-
-    formatDate(dateStr) {
-        return new Date(dateStr + 'T12:00:00').toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
-    },
-
-    formatDateTime(isoStr) {
-        return new Date(isoStr).toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-    }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    app.init();
-});
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
     </script>
 </body>
 </html>
-

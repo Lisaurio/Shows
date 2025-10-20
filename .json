@@ -1,0 +1,33 @@
+{
+  "data": {
+    "shows": [],
+    "changeLog": []
+  },
+  "config": {
+    "showTotal": true,
+    "showExpenses": true,
+    "showAddress": true,
+    "showPhone": true,
+    "showSeller": true,
+    "sellers": {
+      "lisaurio": {
+        "name": "Lisaurio",
+        "percentage": 0,
+        "isAdmin": true,
+        "color": "#10b981"
+      },
+      "valentin": {
+        "name": "Valentín",
+        "percentage": 30,
+        "isAdmin": false,
+        "color": "#f59e0b"
+      }
+    },
+    "musicians": {
+      "valentin": {
+        "name": "Valentín",
+        "defaultPay": 50000
+      }
+    }
+  }
+}

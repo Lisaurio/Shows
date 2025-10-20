@@ -1046,18 +1046,15 @@
                 const seller = this.config.sellers[this.currentUser];
                 badge.textContent = seller ? seller.name : 'Usuario';
 
-                // Solo Lisaurio puede ver config y crear shows
                 // Solo Lisaurio puede ver config
                 if (this.currentUser !== 'lisaurio') {
                     navConfig.style.display = 'none';
-                    fab.style.display = 'none';
                 } else {
                     navConfig.style.display = 'flex';
-                    fab.style.display = 'flex';
                 }
 
                 // TODOS pueden crear shows
-                document.getElementById('fabButton').style.display = 'flex';
+                fab.style.display = 'flex';
             },
 
             addSeller() {
@@ -1438,7 +1435,6 @@
                 if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
 
                 this.editingId = id;
-                const show = this.shows.find(s => s.id === id);
 
                 document.getElementById('modalTitle').textContent = 'Editar Show';
                 document.getElementById('modalShow').classList.add('active');
@@ -1542,9 +1538,8 @@
                 
                 if (!confirm('¿Eliminar este show?')) return;
 
-                const deletedShow = this.shows.find(s => s.id === id);
                 this.shows = this.shows.filter(s => s.id !== id);
-                this.addToLog('delete', deletedShow);
+                this.addToLog('delete', show);
 
                 this.saveData();
                 this.renderList();
@@ -2060,7 +2055,13 @@
                             localStorage.setItem('showsLisaurioConfig', JSON.stringify(imported.config));
                             this.loadConfig();
                         }
-                        this.refreshViews();
+                        this.renderList();
+                        this.renderCalendar();
+                        this.renderReports();
+                        this.renderSellersList();
+                        this.renderMusiciansList();
+                        this.renderLinks();
+                        this.updateShowCounter();
                         alert('Datos importados exitosamente.');
                     } catch (err) {
                         alert('Error al importar: ' + err.message);
@@ -2090,23 +2091,18 @@
                             localStorage.setItem('showsLisaurioConfig', JSON.stringify(imported.config));
                             this.loadConfig();
                         }
-                        this.refreshViews();
+                        this.renderList();
+                        this.renderCalendar();
+                        this.renderReports();
+                        this.renderSellersList();
+                        this.renderMusiciansList();
+                        this.renderLinks();
+                        this.updateShowCounter();
                         alert('Datos importados desde URL exitosamente.');
                     })
                     .catch(err => {
                         alert('Error al importar desde URL: ' + err.message);
                     });
-            },
-
-            refreshViews() {
-                this.renderList();
-                this.renderCalendar();
-                this.renderReports();
-                this.renderSellersList();
-                this.renderMusiciansList();
-                this.renderLinks();
-                this.updateShowCounter();
-                this.updateUserUI();
             },
 
             getSellerName(sellerId) {

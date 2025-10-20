@@ -969,9 +969,23 @@
                     this.currentUser = hash.toLowerCase();
                 }
 
-                // Cargar datos
+                // Cargar datos locales
                 this.loadData();
                 this.loadConfig();
+
+                // Cargar datos desde data.json en GitHub
+                fetch('data.json')
+                    .then(response => {
+                        if (!response.ok) throw new Error('No data.json found');
+                        return response.json();
+                    })
+                    .then(imported => {
+                        this.importData(imported);
+                        alert('Datos sincronizados desde GitHub.');
+                    })
+                    .catch(err => {
+                        console.log('No data.json or error: ' + err.message);
+                    });
 
                 // Actualizar UI según usuario
                 this.updateUserUI();
@@ -1429,29 +1443,29 @@
             },
 
             openEditModal(id) {
-                const show = this.shows.find(s => s.id === id);
-                if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
+                const currentShow = this.shows.find(s => s.id === id);
+                if (this.currentUser !== 'lisaurio' && currentShow.seller !== this.currentUser) return;
 
                 this.editingId = id;
 
                 document.getElementById('modalTitle').textContent = 'Editar Show';
                 document.getElementById('modalShow').classList.add('active');
 
-                document.getElementById('inputEventType').value = show.eventType;
-                document.getElementById('inputDate').value = show.date;
-                document.getElementById('inputTime').value = show.time;
-                document.getElementById('inputAddress').value = show.address;
-                document.getElementById('inputPhone').value = show.phone;
-                document.getElementById('inputTotal').value = show.total;
-                document.getElementById('inputDeposit').value = show.deposit || 0;
-                document.getElementById('inputDepositTo').value = show.depositTo || 'lisaurio';
-                document.getElementById('inputExpenses').value = show.expenses || 0;
-                document.getElementById('inputNotes').value = show.notes || '';
+                document.getElementById('inputEventType').value = currentShow.eventType;
+                document.getElementById('inputDate').value = currentShow.date;
+                document.getElementById('inputTime').value = currentShow.time;
+                document.getElementById('inputAddress').value = currentShow.address;
+                document.getElementById('inputPhone').value = currentShow.phone;
+                document.getElementById('inputTotal').value = currentShow.total;
+                document.getElementById('inputDeposit').value = currentShow.deposit || 0;
+                document.getElementById('inputDepositTo').value = currentShow.depositTo || 'lisaurio';
+                document.getElementById('inputExpenses').value = currentShow.expenses || 0;
+                document.getElementById('inputNotes').value = currentShow.notes || '';
 
                 this.updateSellerOptions();
-                document.getElementById('inputSeller').value = show.seller;
+                document.getElementById('inputSeller').value = currentShow.seller;
 
-                this.musicianPayments = show.musicianPayments || [];
+                this.musicianPayments = currentShow.musicianPayments || [];
                 this.handleSellerChange();
                 this.renderMusicianPayments();
                 this.calculateSaldo();
@@ -1530,13 +1544,13 @@
             },
 
             deleteShow(id) {
-                const show = this.shows.find(s => s.id === id);
-                if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
+                const currentShow = this.shows.find(s => s.id === id);
+                if (this.currentUser !== 'lisaurio' && currentShow.seller !== this.currentUser) return;
                 
                 if (!confirm('¿Eliminar este show?')) return;
 
                 this.shows = this.shows.filter(s => s.id !== id);
-                this.addToLog('delete', show);
+                this.addToLog('delete', currentShow);
 
                 this.saveData();
                 this.renderList();
@@ -2036,6 +2050,25 @@
                 alert('Datos exportados. Sube este archivo JSON a tu repo de GitHub para sincronizar.');
             },
 
+            importData(imported) {
+                if (imported.data) {
+                    this.shows = imported.data.shows || this.shows;
+                    this.changeLog = imported.data.changeLog || this.changeLog;
+                }
+                if (imported.config) {
+                    this.config = { ...this.config, ...imported.config };
+                }
+                this.saveData();
+                this.saveConfig();
+                this.renderList();
+                this.renderCalendar();
+                this.renderReports();
+                this.renderSellersList();
+                this.renderMusiciansList();
+                this.renderLinks();
+                this.updateShowCounter();
+            },
+
             importFromFile(event) {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -2044,21 +2077,7 @@
                 reader.onload = (e) => {
                     try {
                         const imported = JSON.parse(e.target.result);
-                        if (imported.data) {
-                            localStorage.setItem('showsLisaurioData', JSON.stringify(imported.data));
-                            this.loadData();
-                        }
-                        if (imported.config) {
-                            localStorage.setItem('showsLisaurioConfig', JSON.stringify(imported.config));
-                            this.loadConfig();
-                        }
-                        this.renderList();
-                        this.renderCalendar();
-                        this.renderReports();
-                        this.renderSellersList();
-                        this.renderMusiciansList();
-                        this.renderLinks();
-                        this.updateShowCounter();
+                        this.importData(imported);
                         alert('Datos importados exitosamente.');
                     } catch (err) {
                         alert('Error al importar: ' + err.message);
@@ -2080,21 +2099,7 @@
                         return response.json();
                     })
                     .then(imported => {
-                        if (imported.data) {
-                            localStorage.setItem('showsLisaurioData', JSON.stringify(imported.data));
-                            this.loadData();
-                        }
-                        if (imported.config) {
-                            localStorage.setItem('showsLisaurioConfig', JSON.stringify(imported.config));
-                            this.loadConfig();
-                        }
-                        this.renderList();
-                        this.renderCalendar();
-                        this.renderReports();
-                        this.renderSellersList();
-                        this.renderMusiciansList();
-                        this.renderLinks();
-                        this.updateShowCounter();
+                        this.importData(imported);
                         alert('Datos importados desde URL exitosamente.');
                     })
                     .catch(err => {

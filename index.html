@@ -1530,7 +1530,6 @@
             },
 
             deleteShow(id) {
-                // Solo pueden borrar sus propios shows o Lisaurio
                 const show = this.shows.find(s => s.id === id);
                 if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
                 

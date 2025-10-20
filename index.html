@@ -1375,9 +1375,8 @@
             calculateSaldo() {
                 const total = parseFloat(document.getElementById('inputTotal').value) || 0;
                 const deposit = parseFloat(document.getElementById('inputDeposit').value) || 0;
-                const expenses = parseFloat(document.getElementById('inputExpenses').value) || 0;
 
-                const saldo = total - deposit - expenses;
+                const saldo = total - deposit;
 
                 document.getElementById('saldoValue').textContent = '$' + this.formatMoney(Math.max(0, saldo));
             },
@@ -1430,7 +1429,6 @@
             },
 
             openEditModal(id) {
-                // Solo pueden editar sus propios shows o Lisaurio
                 const show = this.shows.find(s => s.id === id);
                 if (this.currentUser !== 'lisaurio' && show.seller !== this.currentUser) return;
 
@@ -1619,7 +1617,7 @@
                     const canEdit = this.currentUser === 'lisaurio' || show.seller === this.currentUser;
                     const showDetails = this.shouldShowDetails(show);
 
-                    const saldo = show.total - show.deposit - show.expenses;
+                    const clientSaldo = show.total - show.deposit;
                     const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
 
                     return `
@@ -1665,7 +1663,7 @@
                             ${this.renderSaldoSection(show, showDetails)}
                             
                             <div class="card-highlight">
-                                💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, saldo))}
+                                💰 SALDO A COBRAR (Cliente): $${this.formatMoney(Math.max(0, clientSaldo))}
                             </div>
                             
                             ${canEdit ? `
@@ -1790,7 +1788,7 @@
 
                 container.innerHTML = dayShows.map(show => {
                     const showDetails = this.shouldShowDetails(show);
-                    const saldo = show.total - show.deposit - show.expenses;
+                    const clientSaldo = show.total - show.deposit;
                     const sellerColor = this.config.sellers[show.seller]?.color || '#8b5cf6';
 
                     return `
